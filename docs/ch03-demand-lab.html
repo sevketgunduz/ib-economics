@@ -116,6 +116,23 @@ footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-si
 svg .d2{stroke:var(--demand);stroke-width:2.2;fill:none;stroke-dasharray:7 5} svg text.ld2{fill:var(--demand);font:700 12px var(--sans)} svg .spend{fill:var(--shadeb)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:18px} @media (max-width:860px){.two{grid-template-columns:1fr}}
 </style>
+<style id="sb-css">
+aside.sb{position:fixed;top:0;left:0;bottom:0;width:250px;overflow:auto;background:var(--panel);border-right:1px solid var(--rule);padding:16px 12px 40px;z-index:15;font-size:13.5px}
+aside.sb .home{display:block;font:700 15px var(--serif);color:var(--ink);text-decoration:none}
+aside.sb .sub{color:var(--muted);font-size:12px;margin:2px 0 14px}
+aside.sb .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:12px 4px 6px}
+aside.sb a.it{display:grid;grid-template-columns:30px 1fr;gap:2px;padding:6px 8px;border-radius:6px;color:var(--ink);text-decoration:none;line-height:1.3}
+aside.sb a.it span:first-child{font:600 11.5px var(--mono);color:var(--muted);padding-top:1px}
+aside.sb a.it:hover{background:var(--panel2)} aside.sb a.it.act{background:var(--tint);font-weight:700}
+aside.sb .links a{display:block;padding:4px 8px;color:var(--demand);font-weight:600;text-decoration:none}
+.sbbtn{display:none}
+@media (min-width:1100px){header.top,.wrap{margin-left:250px} nav.jump{display:none!important}}
+@media (max-width:1099px){aside.sb{transform:translateX(-105%);transition:transform .2s;box-shadow:0 0 30px rgba(0,0,0,.25);width:84%;max-width:300px}
+ aside.sb.open{transform:none} nav.jump{display:none!important}
+ .sbbtn{display:inline-block;font:700 13px var(--sans);padding:6px 10px;border-radius:8px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);cursor:pointer;order:-1}}
+@media (prefers-reduced-motion:reduce){aside.sb{transition:none}}
+</style>
+
 <style id="cg-css">
 .cg-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 .cg-tools input{flex:1;min-width:220px;max-width:420px;font:15px var(--sans);padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink)}
@@ -420,5 +437,24 @@ document.getElementById('cgopen').addEventListener('click',()=>box.querySelector
 document.getElementById('cgclose').addEventListener('click',()=>box.querySelectorAll('.cg-item').forEach(d=>d.open=false));
 box.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const t=document.getElementById(b.dataset.go);if(t){q.value='';apply();t.open=true;t.scrollIntoView({block:'center'})}});
 apply();
+})();
+</script>
+<script id="sb-js">
+(function(){
+const secs=[...document.querySelectorAll('section.step[id]')];
+const sb=document.createElement('aside');sb.className='sb';sb.setAttribute('aria-label','Lesson contents');
+const title=document.querySelector('.brand')?document.querySelector('.brand').childNodes[0].textContent.trim():document.title;
+const sub=document.querySelector('.brand span')?document.querySelector('.brand span').textContent:'';
+sb.innerHTML=`<a class="home" href="index.html">IB Economics</a><div class="sub">${title} · ${sub}</div><p class="lbl">In this lab</p>`+
+ secs.map(s=>{const n=s.querySelector('.num'),h=s.querySelector('h2');const t=h?h.childNodes[0].textContent.replace(/[:·].*$/,'').trim():s.id;return `<a class="it" href="#${s.id}" data-id="${s.id}"><span>${n?n.textContent:''}</span><span>${t}</span></a>`}).join('')+
+ `<p class="lbl">More</p><div class="links"><a href="plan/ch03.html">Teacher plan for this chapter</a><a href="index.html">All chapters</a></div>`;
+document.body.appendChild(sb);
+const btn=document.createElement('button');btn.className='sbbtn';btn.type='button';btn.textContent='☰ Contents';btn.setAttribute('aria-expanded','false');
+const bar=document.querySelector('.topin');if(bar)bar.insertBefore(btn,bar.firstChild);
+btn.addEventListener('click',()=>{sb.classList.toggle('open');btn.setAttribute('aria-expanded',sb.classList.contains('open'))});
+sb.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+function sync(){secs.forEach(s=>{const a=sb.querySelector(`[data-id="${s.id}"]`);if(a)a.hidden=s.hidden})}
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(sync,0)));sync();
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){sb.querySelectorAll('a.it').forEach(a=>a.classList.toggle('act',a.dataset.id===e.target.id))}}),{rootMargin:'-20% 0px -70% 0px'});secs.forEach(s=>io.observe(s))}
 })();
 </script>
