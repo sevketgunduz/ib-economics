@@ -1,0 +1,424 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demand Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#f4f5f1; --panel:#ffffff; --panel2:#f8f9f5; --ink:#1a2029; --muted:#5a636c; --rule:#d9ddd3; --grid:#e7eae2;
+  --supply:#c0441f; --supply2:#e8876a; --demand:#2451c4; --good:#12795f; --bad:#b3261e; --hl:#6f3aa8; --hlbg:#efe6f8; --slbg:#e2efe9; --sl:#0d6b5c;
+  --tint:#eaf0fc; --focus:#2451c4; --shade:rgba(192,68,31,.14); --shadeb:rgba(36,81,196,.14);
+  --serif:"Source Serif 4",Georgia,serif; --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:16px/1.6 var(--sans);margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:0 80px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--ground);border-bottom:1px solid var(--rule)}
+.topin{max-width:1120px;margin:0 auto;padding:10px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{font:650 18px var(--serif);margin-right:auto}
+.brand span{font:600 12px var(--sans);color:var(--muted);margin-left:8px}
+nav.jump{display:flex;gap:2px;flex-wrap:wrap}
+nav.jump a{font:600 12.5px var(--sans);color:var(--muted);text-decoration:none;padding:6px 9px;border-radius:6px}
+nav.jump a:hover{background:var(--panel);color:var(--ink)}
+.lvl{display:flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden}
+.lvl button{font:700 12px var(--sans);border:0;background:var(--panel);color:var(--muted);padding:6px 12px;cursor:pointer}
+.lvl button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+h1,h2,h3{font-family:var(--serif);font-weight:650;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h1{font-size:40px;line-height:1.1} h2{font-size:27px;line-height:1.2} h3{font-size:19px}
+p{margin:0} .muted{color:var(--muted)}
+.eyebrow{font:700 11.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--demand)}
+.badge{display:inline-block;font:700 10.5px var(--sans);letter-spacing:.06em;padding:2px 7px;border-radius:4px;vertical-align:3px}
+.b-hl{background:var(--hlbg);color:var(--hl)} .b-sl{background:var(--slbg);color:var(--sl)}
+button:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+section.step{padding-top:56px;scroll-margin-top:70px}
+.shead{display:grid;gap:8px;max-width:72ch;margin-bottom:20px}
+.shead .num{font:600 13px var(--mono);color:var(--muted)}
+.hero{padding-top:44px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:36px;align-items:center}
+.hero p.lead{font-size:18px;margin-top:14px;max-width:56ch}
+.goals{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px}
+.goals ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.goals li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:15px}
+.goals input{width:18px;height:18px;accent-color:var(--good);margin-top:3px}
+.lab{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:20px}
+.lab2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+svg.g{width:100%;height:auto;display:block;border-radius:8px;background:var(--panel2);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px}
+svg .axis{stroke:var(--ink);stroke-width:1.7;fill:none} svg .axl{fill:var(--ink);font:700 12.5px var(--sans)} svg .tick{fill:var(--muted);font:11.5px var(--mono)}
+svg .guide{stroke:var(--muted);stroke-dasharray:4 4;fill:none}
+svg .s{stroke:var(--supply);stroke-width:3;fill:none;stroke-linecap:round} svg .s2{stroke:var(--supply2);stroke-width:2.2;fill:none;stroke-dasharray:7 5}
+svg .sm{stroke:var(--ink);stroke-width:3;fill:none} svg .d{stroke:var(--demand);stroke-width:3;fill:none}
+svg .ghost{stroke:var(--muted);stroke-width:1.6;stroke-dasharray:3 4;fill:none}
+svg text.ls{fill:var(--supply);font:700 13px var(--sans)} svg text.ld{fill:var(--demand);font:700 13px var(--sans)} svg text.lm{fill:var(--ink);font:700 13px var(--sans)} svg text.lg{fill:var(--muted);font:700 12px var(--sans)}
+svg .dot{fill:var(--ink)} svg .dot2{fill:var(--panel);stroke:var(--ink);stroke-width:1.8}
+svg .arrow{stroke:var(--good);stroke-width:2.4;fill:none;marker-end:url(#ah)} svg .ahead{fill:var(--good)}
+svg .bar{fill:var(--demand);opacity:.7} svg .bar.dim{fill:var(--supply);opacity:.75}
+svg .note{fill:var(--muted);font:600 11.5px var(--sans)} svg .area{fill:var(--shade)}
+.ctl{display:grid;grid-template-columns:1fr 70px;gap:2px 10px;align-items:center;font-size:14px;margin-bottom:12px}
+.ctl span{grid-column:1/-1;font-weight:600;color:var(--muted)} .ctl input{width:100%;accent-color:var(--demand)} .ctl output{font:600 13px var(--mono);text-align:right}
+.read{display:grid;grid-template-columns:1fr auto;gap:6px 14px;font-size:14.5px;margin:6px 0 0}
+.read dt{color:var(--muted)} .read dd{margin:0;font:600 13.5px var(--mono);text-align:right}
+.explain{margin-top:14px;padding:12px 14px;border-left:3px solid var(--demand);background:var(--tint);border-radius:0 8px 8px 0;font-size:14.5px}
+.btn{font:600 14px var(--sans);border:1px solid var(--rule);background:var(--panel);color:var(--ink);padding:9px 13px;border-radius:8px;cursor:pointer;text-align:left}
+.btn:hover{border-color:var(--demand)} .btn.pri{background:var(--ink);color:var(--ground);border-color:var(--ink)} .btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.flip{perspective:900px;height:170px;border:0;background:none;padding:0;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:6px}
+.flip .f{background:var(--panel);justify-content:space-between} .flip .f b{font:650 19px var(--serif)}
+.flip .b{background:var(--tint);transform:rotateY(180deg);font-size:14.5px;overflow:auto}
+.flip .hint{font-size:12px;color:var(--muted)}
+.events{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;margin:14px 0}
+.ev{display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:start}
+.ev .l{font:700 14px var(--mono);color:var(--demand);background:var(--tint);border-radius:6px;text-align:center;padding:2px 0}
+.ev[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.predict{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.fb{font-weight:600} .fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+.sorter .card{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px;display:grid;gap:10px}
+.sorter .card p{font-size:16.5px;font-family:var(--serif)}
+.score{font:600 14px var(--mono)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--grid);text-align:right;font-variant-numeric:tabular-nums}
+th{font:700 11.5px var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule)}
+td:first-child,th:first-child{text-align:left} tr.cur td{background:var(--tint);font-weight:700} tr.dmr td:nth-child(3){color:var(--supply)}
+.tblwrap{overflow-x:auto}
+.case{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;display:grid;gap:10px}
+.case details{border-top:1px solid var(--grid);padding-top:10px}
+.case summary,.qa summary{cursor:pointer;font-weight:700;color:var(--demand)}
+.case ol{margin:8px 0 0;padding-left:20px}
+.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px}
+.mcq{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;display:grid;gap:8px}
+.mcq .opts{display:grid;gap:6px}
+.mcq .opt{font:500 14.5px var(--sans)} .mcq .opt.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--panel))} .mcq .opt.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--panel))}
+.mcq .why{font-size:14px;color:var(--muted)}
+.quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.qa{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 16px}
+.qa details p{margin-top:6px;padding:8px 10px;background:var(--panel2);border-radius:6px}
+.mist{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.mist div{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;font-size:14.5px}
+.mist b{display:block;color:var(--bad);font-size:13px;letter-spacing:.03em;margin-bottom:4px} .mist i{display:block;color:var(--good);font-style:normal;font-weight:600;margin-top:6px}
+.stepper{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.dots{display:flex;gap:5px} .dots i{width:9px;height:9px;border-radius:50%;background:var(--rule)} .dots i.on{background:var(--demand)}
+.pill{font:600 12.5px var(--mono);padding:3px 9px;border-radius:99px;background:var(--panel2);border:1px solid var(--rule)}
+footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+.hlonly[hidden]{display:none!important}
+@media (max-width:860px){.hero,.lab2{grid-template-columns:1fr} h1{font-size:32px} nav.jump{display:none}}
+@media (max-width:520px){.wrap,.topin{padding-inline:16px} .lab{padding:14px} h1{font-size:28px} h2{font-size:23px}}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}}
+svg .d2{stroke:var(--demand);stroke-width:2.2;fill:none;stroke-dasharray:7 5} svg text.ld2{fill:var(--demand);font:700 12px var(--sans)} svg .spend{fill:var(--shadeb)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px} @media (max-width:860px){.two{grid-template-columns:1fr}}
+</style>
+<style id="cg-css">
+.cg-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.cg-tools input{flex:1;min-width:220px;max-width:420px;font:15px var(--sans);padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink)}
+.cg-group{margin-top:22px} .cg-group h3{margin-bottom:10px}
+.cg-item{background:var(--panel);border:1px solid var(--rule);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.cg-item summary{cursor:pointer;list-style:none;padding:14px 18px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:baseline}
+.cg-item summary::-webkit-details-marker{display:none}
+.cg-item summary b{font:650 18px var(--serif)} .cg-item summary .cg-def{grid-column:1/-1;color:var(--muted);font-size:14.5px}
+.cg-item[open] summary .cg-def{display:none}
+.cg-body{padding:0 18px 16px;display:grid;gap:10px}
+.cg-body .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+.cg-body .defn{font-weight:600}
+.cg-ex{background:var(--tint);border-radius:8px;padding:10px 12px}
+.cg-tip{border-left:3px solid var(--good);padding:6px 12px;background:var(--panel2);border-radius:0 8px 8px 0}
+.cg-rel{display:flex;gap:6px;flex-wrap:wrap} .cg-rel button{font:600 12.5px var(--sans);border:1px solid var(--rule);background:var(--panel2);color:var(--ink);border-radius:99px;padding:3px 10px;cursor:pointer}
+.cg-empty{color:var(--muted)}
+</style>
+
+
+
+<header class="top"><div class="topin">
+  <div class="brand">Demand Lab <span>IB Economics 2.1 · Hoang Ch 3</span></div>
+  <nav class="jump" aria-label="Sections"><a href="#terms">Terms</a><a href="#guide">Guide</a><a href="#law">Law</a><a href="#why" class="hlonly">Why</a><a href="#market">Market</a><a href="#ripen">Shifts</a><a href="#sort">Sort</a><a href="#related">Related</a><a href="#income">Income</a><a href="#draw">Draw</a><a href="#cases">Cases</a><a href="#quiz">Quiz</a><a href="#exam">Exam</a></nav>
+  <div class="lvl" role="group" aria-label="Level"><button data-lvl="HL">HL</button><button data-lvl="SL">SL</button></div>
+</div></header>
+
+<div class="wrap">
+<section class="hero">
+  <div><p class="eyebrow">Unit 2 · Microeconomics · Chapter 3</p><h1>Why do people buy more when the price falls?</h1>
+  <p class="lead">This lab covers the law of demand, why the demand curve slopes downward, how market demand adds up individual buyers, what shifts demand (RIPEN), and how a movement along the curve differs from a shift. Predict first, then move the sliders.</p>
+  <p class="muted" style="margin-top:12px;font-size:14px">Textbook: Hoang, Wray &amp; Chakraborty, pp. 46–55. HL sections are marked <span class="badge b-hl">HL</span>; switch to SL at the top to hide them.</p></div>
+  <div class="goals"><p class="eyebrow" style="color:var(--muted)">By the end I can…</p><ul id="goals"></ul></div>
+</section>
+
+<section class="step" id="terms"><div class="shead"><span class="num">01</span><h2>Key terms: flip the cards</h2><p class="muted">Say the definition out loud first, then click to check.</p></div><div class="cards" id="cards"></div></section>
+<section class="step" id="guide"><div class="shead"><span class="num">01b</span><h2>Concept guide: every term explained</h2><p>A fuller explanation of each term in this chapter, with a worked real-world example and an exam tip. Open a term, read it, then close the page and explain it to a partner in your own words.</p></div>
+  <div class="cg-tools"><input id="cgq" type="search" placeholder="Search terms, examples…" aria-label="Search the concept guide"><button class="btn" id="cgopen">Open all</button><button class="btn" id="cgclose">Close all</button><span class="pill" id="cgcount"></span></div>
+  <div id="cgbox"></div></section>
+
+<section class="step" id="law"><div class="shead"><span class="num">02</span><h2>The law of demand</h2><p>When the <b>price falls</b>, the <b>quantity demanded rises</b>, and when the price rises, it falls, <b>ceteris paribus</b>. Demand means what people are <b>willing and able</b> to buy, not just what they want. Drag the price of a cinema ticket and watch buyers move <em>along</em> the demand curve.</p></div>
+  <div class="lab lab2"><div id="lawfig"></div><div><label class="ctl" for="lawp"><span>Price of a cinema ticket ($)</span><input type="range" id="lawp" min="4" max="18" step="0.5" value="12"><output id="lawpo"></output></label><dl class="read" id="lawread"></dl><p class="explain" id="lawx"></p></div></div>
+</section>
+
+<section class="step hlonly" id="why"><div class="shead"><span class="num">03</span><h2>Why demand slopes downward <span class="badge b-hl">HL</span></h2><p>Three reasons sit behind the law of demand: <b>diminishing marginal utility</b>, the <b>income effect</b> and the <b>substitution effect</b>.</p></div>
+  <div class="lab"><h3>A. Diminishing marginal utility: the chocolate test</h3><p class="muted" style="margin:6px 0 12px">Each extra chocolate gives less satisfaction (utility), so you would only pay less for it.</p>
+   <div class="row" style="margin-bottom:12px"><button class="btn pri" id="eat">Eat another chocolate</button><button class="btn" id="uneat">Put one back</button><span class="pill" id="choc"></span></div>
+   <div class="two"><div id="mufig"></div><div id="wtpfig"></div></div><p class="explain" id="mux"></p></div>
+  <div class="lab" style="margin-top:16px"><h3>B. Income and substitution effects: the pizza budget</h3><p class="muted" style="margin:6px 0 12px">You have <b>$30</b> a week for lunch. A burger costs <b>$4</b>. Change the price of a pizza slice.</p>
+   <div class="lab2"><div><label class="ctl" for="pz"><span>Price of a pizza slice ($)</span><input type="range" id="pz" min="2" max="6" step="0.5" value="5"><output id="pzo"></output></label><dl class="read" id="pzread"></dl></div><p class="explain" id="pzx" style="margin-top:0"></p></div></div>
+</section>
+
+<section class="step" id="market"><div class="shead"><span class="num">04</span><h2>From individuals to market demand</h2><p><b>Market demand</b> is the <b>horizontal sum</b> of every buyer’s quantity demanded at each price. Hoang’s example: at $15, male fans want 500 tickets and female fans want 400, so market demand is 900.</p></div>
+  <div class="lab lab2"><div id="mktfig"></div><div><label class="ctl" for="mktp"><span>Ticket price ($)</span><input type="range" id="mktp" min="5" max="25" step="1" value="15"><output id="mktpo"></output></label>
+  <label class="ctl" style="display:flex;gap:8px;align-items:center" for="mkt3"><input type="checkbox" id="mkt3" style="width:18px;height:18px"><span style="color:var(--ink);font-weight:500">A tour group of visitors arrives in town</span></label><dl class="read" id="mktread"></dl><p class="explain" id="mktx"></p></div></div>
+</section>
+
+<section class="step" id="ripen"><div class="shead"><span class="num">05</span><h2>What shifts demand? Remember RIPEN</h2><p><b>R</b>elated goods (substitutes and complements) · <b>I</b>ncome · <b>P</b>references (tastes) · <b>E</b>xpectations of future prices · <b>N</b>umber of consumers. Pick an event in the market for <b>electric cars</b>, <b>predict</b> the shift, then check.</p></div>
+  <div class="lab"><div class="events" id="evs"></div>
+  <div class="lab2"><div id="rfig"></div><div><p id="rq" class="muted">Choose an event above.</p><div class="predict"><button class="btn" id="pl" disabled>← Demand shifts LEFT (decrease)</button><button class="btn" id="pr" disabled>Demand shifts RIGHT (increase) →</button></div><p class="fb" id="rfb"></p><p class="explain" id="rx" hidden></p><p class="score" id="rscore" style="margin-top:10px"></p><button class="btn" id="rreset" style="margin-top:10px">Reset curve</button></div></div></div>
+</section>
+
+<section class="step" id="sort"><div class="shead"><span class="num">06</span><h2>Movement or shift?</h2><p>A change in the good’s <b>own price</b> causes a <b>movement along</b> the demand curve: an <b>expansion</b> when the price falls, a <b>contraction</b> when it rises. Any <b>other factor</b> <b>shifts</b> the whole curve: an increase or a decrease in demand.</p></div>
+  <div class="lab sorter"><div class="card"><div class="row" style="justify-content:space-between"><span class="pill" id="srtn"></span><span class="score" id="srtsc"></span></div><p id="srtq"></p>
+  <div class="row"><button class="btn" data-a="exp">Movement: expansion ↓</button><button class="btn" data-a="con">Movement: contraction ↑</button><button class="btn" data-a="inc">Shift: increase →</button><button class="btn" data-a="dec">Shift: decrease ←</button></div><p class="fb" id="srtfb"></p><div class="row"><button class="btn pri" id="srtnext" hidden>Next card</button></div></div></div>
+</section>
+
+<section class="step" id="related"><div class="shead"><span class="num">07</span><h2>Related goods: substitutes and complements</h2><p><b>Substitutes</b> (competitive demand) replace each other: if Pepsi gets dearer, demand for Coca-Cola rises. <b>Complements</b> (joint demand) are used together: if petrol gets dearer, demand for large petrol cars falls. Cut supply in market 1 and watch market 2.</p></div>
+  <div class="lab"><div class="row" style="margin-bottom:12px"><button class="btn" id="rsub" aria-pressed="true">Substitutes: Pepsi → Coca-Cola</button><button class="btn" id="rcomp" aria-pressed="false">Complements: petrol → large cars</button><button class="btn pri" id="rgo">Reduce supply in market 1</button><button class="btn" id="rrst">Reset</button></div>
+  <div class="two"><div id="lfig1"></div><div id="lfig2"></div></div><p class="explain" id="lx"></p></div>
+</section>
+
+<section class="step" id="income"><div class="shead"><span class="num">08</span><h2>Income: normal goods vs inferior goods</h2><p>For a <b>normal good</b>, demand rises when real income rises. For an <b>inferior good</b>, demand <b>falls</b> when income rises, because people switch to something they prefer. “Inferior” describes how buyers respond to income, not poor quality.</p></div>
+  <div class="lab"><label class="ctl" for="inc" style="max-width:420px"><span>Change in households’ real income</span><input type="range" id="inc" min="-20" max="20" step="2" value="0"><output id="inco"></output></label>
+  <div class="two"><div id="nfig"></div><div id="ifig"></div></div><p class="explain" id="incx"></p></div>
+</section>
+
+<section class="step" id="draw"><div class="shead"><span class="num">09</span><h2>Draw it like an examiner wants</h2><p>Step through the build of a full demand diagram, then draw it yourself on paper with <b>every label</b>.</p></div>
+  <div class="lab lab2"><div id="drawfig"></div><div><h3 id="drawt"></h3><p id="drawx" style="margin-top:8px"></p><div class="stepper"><button class="btn" id="dprev">← Back</button><button class="btn pri" id="dnext">Next step →</button><div class="dots" id="ddots"></div></div>
+  <div class="explain" style="margin-top:16px"><b>Label checklist:</b> axes (P and Q per time period) · curve names D₁, D₂ · P₁, Q₁ on the axes with dotted lines · arrow showing the direction · the cause written next to the shift.</div></div></div>
+</section>
+
+<section class="step" id="cases"><div class="shead"><span class="num">10</span><h2>Real-world cases</h2><p>Answer in your notebook, sketch the diagram, then open the model answer.</p></div><div class="cases" id="casebox"></div></section>
+
+<section class="step" id="quiz"><div class="shead"><span class="num">11</span><h2>Check yourself</h2><p>Auto-marked multiple choice first, then quick-fire questions with model answers.</p><p class="score" id="mcqscore"></p></div><div class="quiz" id="mcqs"></div>
+  <h3 style="margin:30px 0 12px">Quick-fire checklist</h3><div class="quiz" id="qf"></div></section>
+
+<section class="step" id="mistakes"><div class="shead"><span class="num">12</span><h2>Common mistakes to avoid</h2></div><div class="mist" id="mist"></div></section>
+
+<section class="step" id="exam"><div class="shead"><span class="num">13</span><h2>Exam practice</h2><p>Plan each answer before opening the guide. For Paper 1 (a) aim for definitions, a fully labelled diagram, an explanation and a real-world example.</p></div><div class="cases" id="exambox"></div></section>
+
+<footer>Demand Lab · based on the IB Economics guide (2.1 Demand) and Hoang, Wray &amp; Chakraborty, <i>Economics for the IB Diploma</i> (Hodder 2020), Chapter 3. Figures used: 3.2 (demand curve), 3.3 (market demand), 3.6 and 3.9 (related goods), 3.11 (movements), 3.13 (shifts).</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const st={get(k,d){try{const v=localStorage.getItem('demandlab.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('demandlab.'+k,JSON.stringify(v))}catch(e){}}};
+const f2=v=>(Math.round(v*100)/100).toLocaleString(), f0=v=>Math.round(v).toLocaleString();
+const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tween(from,to,ms,cb){if(RM||document.hidden){cb(to);return}const t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;cb(from+(to-from)*e);if(k<1)requestAnimationFrame(f)})(t0)}
+const LC={s:'ls',s2:'ls',d:'ld',d2:'ld2',sm:'lm'};
+function Plot(o){const W=o.w||540,H=o.h||380,L=54,R=26,T=24,B=44;const sx=x=>L+x/o.xmax*(W-L-R),sy=y=>H-B-y/o.ymax*(H-T-B);const out=[];
+ const path=(f)=>{let d='',pen=false;for(let i=0;i<=120;i++){const x=o.xmax*i/120,y=f(x);if(!isFinite(y)||y<0||y>o.ymax){pen=false;continue}d+=(pen?'L':'M')+sx(x).toFixed(1)+' '+sy(y).toFixed(1)+' ';pen=true}return d};
+ return{sx,sy,
+  fn(f,cls,label,lx){const d=path(f);if(d)out.push(`<path class="${cls}" d="${d}"/>`);if(label){const x=lx!=null?lx:o.xmax*.86,y=f(x);if(isFinite(y)&&y>=0&&y<=o.ymax)out.push(`<text class="${LC[cls]||'lg'}" x="${sx(x)+6}" y="${sy(y)-6}">${label}</text>`)}},
+  pts(p,cls){out.push(`<path class="${cls}" d="${p.map((q,i)=>(i?'L':'M')+sx(q[0]).toFixed(1)+' '+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  seg(x0,y0,x1,y1,cls){out.push(`<path class="${cls}" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  rect(x,y,cls){out.push(`<rect class="${cls}" x="${sx(0)}" y="${sy(y)}" width="${sx(x)-sx(0)}" height="${sy(0)-sy(y)}"/>`)},
+  dot(x,y,c){out.push(`<circle class="${c||'dot'}" cx="${sx(x)}" cy="${sy(y)}" r="5"/>`)},
+  guide(x,y,xl,yl){out.push(`<path class="guide" d="M${sx(0)} ${sy(y)} L${sx(x)} ${sy(y)} L${sx(x)} ${sy(0)}"/>`);if(yl)out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${yl}</text>`);if(xl)out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${xl}</text>`)},
+  text(x,y,t,c,a){out.push(`<text class="${c||'note'}" x="${sx(x)}" y="${sy(y)}" text-anchor="${a||'start'}">${t}</text>`)},
+  arrow(x0,y0,x1,y1){out.push(`<path class="arrow" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  svg(aria){return `<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria||''}"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0 0 L10 5 L0 10z"/></marker></defs>${out.join('')}<path class="axis" d="M${sx(0)} ${sy(o.ymax)} L${sx(0)} ${sy(0)} L${sx(o.xmax)} ${sy(0)}"/><text class="axl" x="${sx(0)-8}" y="${T-8}">${o.yl}</text><text class="axl" x="${sx(o.xmax)}" y="${H-8}" text-anchor="end">${o.xl}</text><text class="tick" x="${sx(0)-6}" y="${sy(0)+17}" text-anchor="end">0</text></svg>`}}}
+function bars(vals,max,xl,yl,cls,labels){const W=540,H=260,L=54,B=40,bw=(W-L-20)/vals.length;let b='';vals.forEach((v,i)=>{const h=v/max*(H-B-34);b+=`<rect class="bar ${cls?cls(i):''}" x="${L+i*bw+6}" y="${H-B-h}" width="${bw-12}" height="${h}"/><text class="note" x="${L+i*bw+bw/2}" y="${H-B-h-6}" text-anchor="middle">${labels?labels[i]:v}</text><text class="tick" x="${L+i*bw+bw/2}" y="${H-B+16}" text-anchor="middle">${i+1}</text>`});
+ return `<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="${yl}"><path class="axis" d="M${L} 16 L${L} ${H-B} L${W-10} ${H-B}"/>${b}<text class="axl" x="${L-8}" y="12">${yl}</text><text class="axl" x="${W-10}" y="${H-6}" text-anchor="end">${xl}</text></svg>`}
+
+/* level */
+let LVL=st.get('lvl','HL');
+function setLvl(l){LVL=l;st.set('lvl',l);$$('.lvl button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lvl===l));$$('.hlonly').forEach(e=>e.hidden=l==='SL');renderCards();renderGoals();renderMCQ();renderQF()}
+$$('.lvl button').forEach(b=>b.addEventListener('click',()=>setLvl(b.dataset.lvl)));
+
+const GOALS=[['Define demand and state the law of demand',0],['Explain why demand slopes downward: diminishing marginal utility, income and substitution effects',1],['Calculate market demand by horizontal summation',0],['Explain the five non-price determinants (RIPEN)',0],['Distinguish substitutes from complements, and normal from inferior goods',0],['Draw and label movements along and shifts of the demand curve',0]];
+function renderGoals(){const d=st.get('goals',[]);$('#goals').innerHTML=GOALS.map((g,i)=>g[1]&&LVL==='SL'?'':`<li><input type="checkbox" id="g${i}" ${d.includes(i)?'checked':''}><label for="g${i}">${g[0]} ${g[1]?'<span class="badge b-hl">HL</span>':''}</label></li>`).join('');$$('#goals input').forEach(c=>c.addEventListener('change',()=>{const i=+c.id.slice(1);let v=st.get('goals',[]);v=c.checked?[...new Set([...v,i])]:v.filter(x=>x!==i);st.set('goals',v)}))}
+
+/* 01 cards */
+const TERMS=[['Demand','The quantity of a good or service that consumers are willing and able to buy at each possible price in a given time period, ceteris paribus.',0],
+['Quantity demanded','The amount consumers are willing and able to buy at one particular price: a single point on the demand curve.',0],
+['Law of demand','There is an inverse relationship between price and quantity demanded, ceteris paribus: price up, quantity demanded down.',0],
+['Ceteris paribus','“All other things being equal”: only the price changes while every other influence on demand stays constant.',0],
+['Market demand','The horizontal sum of all individual consumers’ quantities demanded at each price.',0],
+['Non-price determinants','Factors other than the good’s own price that shift the whole demand curve: RIPEN (Related goods, Income, Preferences, Expectations, Number of consumers).',0],
+['Normal good','A good whose demand rises when real income rises (and falls when income falls).',0],
+['Inferior good','A good whose demand falls when real income rises, as buyers switch to preferred alternatives.',0],
+['Substitutes','Goods in competitive demand that can replace each other (tea and coffee). A price rise for one increases demand for the other.',0],
+['Complements','Goods in joint demand that are used together (printers and ink). A price rise for one decreases demand for the other.',0],
+['Expansion / contraction','A movement along the demand curve caused only by a change in the good’s own price: down the curve (expansion) or up it (contraction).',0],
+['Increase / decrease in demand','A shift of the whole curve right (increase) or left (decrease), caused by a non-price determinant.',0],
+['Diminishing marginal utility','Each extra unit consumed gives less additional satisfaction, so consumers buy more only at a lower price.',1],
+['Income effect','A lower price raises consumers’ real income (purchasing power), so they can afford more of the good.',1],
+['Substitution effect','A lower price makes the good cheaper relative to substitutes, so consumers switch towards it.',1]];
+function renderCards(){$('#cards').innerHTML=TERMS.filter(t=>!(t[2]&&LVL==='SL')).map(t=>`<button class="flip" aria-label="${t[0]}: show definition"><div class="in"><div class="f"><b>${t[0]}</b><span class="hint">${t[2]?'<span class="badge b-hl">HL</span> ':''}Click to flip</span></div><div class="b">${t[1]}</div></div></button>`).join('');$$('.flip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on')))}
+
+/* 02 law */
+function drawLaw(){const P=+$('#lawp').value;$('#lawpo').textContent='$'+f2(P);const D=q=>20-q/25,Q=(20-P)*25;
+ const g=Plot({xmax:500,ymax:22,xl:'Tickets demanded per week (Q)',yl:'Price ($)'});g.rect(Q,P,'spend');g.fn(D,'d','D',420);
+ g.dot(200,12,'dot2');g.guide(Q,P,f0(Q),'$'+f2(P));g.dot(Q,P);if(Math.abs(Q-200)>12)g.arrow(200+(Q>200?6:-6),12+(Q>200?-.3:.3),Q+(Q>200?-8:8),P+(Q>200?.3:-.3));
+ g.text(Q/2,P/2,'spending = $'+f0(P*Q),'lm','middle');
+ $('#lawfig').innerHTML=g.svg('Demand curve for cinema tickets');
+ $('#lawread').innerHTML=`<dt>Quantity demanded</dt><dd>${f0(Q)} tickets</dd><dt>Change from the $12 start</dt><dd>${Q>=200?'+':''}${f0(Q-200)} tickets</dd><dt>Consumer spending (P × Q)</dt><dd>$${f0(P*Q)}</dd>`;
+ $('#lawx').innerHTML=P<12?'<b>Expansion</b> in quantity demanded: at a lower price more people are willing <em>and able</em> to go, and some switch from streaming at home. The curve has <b>not</b> moved.':P>12?'<b>Contraction</b> in quantity demanded: fewer people can or will pay the higher price. Same curve, new point.':'Start: $12 a ticket, 200 tickets a week. Move the slider. The shaded box is total spending, P × Q.'}
+$('#lawp').addEventListener('input',drawLaw);
+
+/* 03 HL: DMU + effects */
+const MU=[10,8,6,4,2,1];let n=st.get('choc',2);
+function drawMU(){n=Math.max(1,Math.min(6,n));st.set('choc',n);$('#choc').textContent=n+' chocolate'+(n>1?'s':'');$('#eat').disabled=n>=6;$('#uneat').disabled=n<=1;
+ $('#mufig').innerHTML=bars(MU.slice(0,n),10,'Chocolate number','Marginal utility (utils)',i=>i>=1?'dim':'');
+ const g=Plot({xmax:7,ymax:6,xl:'Chocolates bought (Q)',yl:'Price willing to pay ($)',h:260});const pts=MU.slice(0,n).map((u,i)=>[i+1,u*.5]);
+ if(pts.length>1)g.pts(pts,'d');pts.forEach(p=>g.dot(p[0],p[1]));const l=pts[pts.length-1];g.guide(l[0],l[1],l[0],'$'+f2(l[1]));if(pts.length>1)g.text(l[0]+.1,l[1]+.35,'D','ld');
+ $('#wtpfig').innerHTML=g.svg('Demand curve derived from marginal utility');
+ $('#mux').innerHTML=`Chocolate ${n} adds <b>${MU[n-1]} utils</b>, worth about <b>$${f2(MU[n-1]*.5)}</b> to you. `+(n===1?'The first one is the most satisfying.':'Each extra chocolate satisfies less than the one before, so you would only buy it at a <b>lower price</b>. Join the points and you have a downward-sloping demand curve.')}
+$('#eat').addEventListener('click',()=>{n++;drawMU()});$('#uneat').addEventListener('click',()=>{n--;drawMU()});
+function drawPz(){const p=+$('#pz').value;$('#pzo').textContent='$'+f2(p);const slices=Math.floor(30/p),rel=p/4;
+ $('#pzread').innerHTML=`<dt>Slices your $30 can buy</dt><dd>${slices}</dd><dt>Price of pizza relative to a burger</dt><dd>${f2(rel)} ×</dd><dt>Compared with the $5 start</dt><dd>${p<5?'cheaper':p>5?'dearer':'same'}</dd>`;
+ $('#pzx').innerHTML=p<5?`<b>Income effect:</b> your $30 now buys ${slices} slices instead of 6; your real income (purchasing power) has risen. <b>Substitution effect:</b> pizza is now ${f2(rel)} × the price of a burger, so you swap some burgers for pizza. Both effects raise the quantity of pizza demanded.`:p>5?`<b>Income effect:</b> your $30 buys only ${slices} slices, so your real income has fallen. <b>Substitution effect:</b> pizza is now ${f2(rel)} × the price of a burger, so you switch towards burgers. Both effects reduce the quantity of pizza demanded.`:'At $5 a slice your $30 buys 6 slices, and pizza costs 1.25 × a burger. Lower the price and watch both effects.'}
+$('#pz').addEventListener('input',drawPz);
+
+/* 04 market */
+function drawMkt(){const P=+$('#mktp').value,t=$('#mkt3').checked;$('#mktpo').textContent='$'+P;
+ const qm=p=>Math.max(0,1100-40*p),qf=p=>Math.max(0,850-30*p),qt=p=>t?Math.max(0,600-20*p):0,Q=p=>qm(p)+qf(p)+qt(p);
+ const g=Plot({xmax:2400,ymax:30,xl:'Tickets demanded',yl:'Price ($)'});const curve=(fq,cls)=>{const a=[];for(let p=0;p<=28.6;p+=.2){if(fq(p)>0||a.length===0)a.push([fq(p),p])}g.pts(a,cls)};
+ curve(qm,'ghost');curve(qf,'ghost');if(t)curve(qt,'ghost');g.text(qm(24)+20,24,'Male fans','lg');g.text(qf(24)+20,24.8,'Female fans','lg');if(t)g.text(qt(26)+30,26.2,'Visitors','lg');
+ if(t)curve(p=>qm(p)+qf(p),'d2');curve(Q,'d');g.text(Q(8)+30,8.4,t?'Market D (with visitors)':'Market D','ld');
+ g.seg(0,P,2400,P,'guide');[qm(P),qf(P)].concat(t?[qt(P)]:[]).forEach(q=>q>0&&g.dot(q,P,'dot2'));g.dot(Q(P),P);g.guide(Q(P),P,f0(Q(P)),'$'+P);
+ $('#mktfig').innerHTML=g.svg('Individual and market demand for concert tickets');
+ $('#mktread').innerHTML=`<dt>Male fans</dt><dd>${f0(qm(P))}</dd><dt>Female fans</dt><dd>${f0(qf(P))}</dd>${t?`<dt>Visitors</dt><dd>${f0(qt(P))}</dd>`:''}<dt><b>Market demand</b></dt><dd>${f0(Q(P))}</dd>`;
+ $('#mktx').innerHTML=`At $${P}: ${f0(qm(P))} + ${f0(qf(P))}${t?' + '+f0(qt(P)):''} = <b>${f0(Q(P))} tickets</b>. Add the <b>quantities</b> at the same price (horizontally).`+(t?' More buyers is the <b>N</b> in RIPEN: market demand <b>shifts right</b>.':' Tick the box to add more consumers.')}
+$('#mktp').addEventListener('input',drawMkt);$('#mkt3').addEventListener('change',drawMkt);
+
+/* 05 RIPEN shifter */
+const EV=[['R','Prices of petrol cars rise sharply',1,'Petrol cars are a substitute. When they get dearer, some buyers switch to electric cars, so demand for EVs increases (shifts right).'],
+['R','Electricity prices for home charging double',-1,'Electricity is a complement to an electric car. A higher running cost reduces demand for EVs (shifts left).'],
+['I','Average household incomes rise by 10%',1,'Cars are normal goods, so higher real incomes increase demand (shift right).'],
+['I','A recession cuts incomes and job security',-1,'Lower real incomes reduce demand for normal goods like new cars (shift left).'],
+['P','A viral news report on battery fires',-1,'Tastes and preferences turn against EVs, so demand decreases (shifts left).'],
+['P','A climate campaign makes EVs fashionable',1,'Tastes and preferences move towards EVs, so demand increases (shifts right).'],
+['E','Buyers expect EV prices to fall next year',-1,'If consumers expect lower prices later, they delay buying, so current demand decreases (shifts left).'],
+['E','The government says its EV purchase grant ends next month',1,'Buyers expect the effective price to rise soon, so they buy now: current demand increases (shifts right).'],
+['N','The population of young drivers grows',1,'More consumers means more demand at every price: market demand shifts right.']];
+let cur=null,sh=st.get('rsh',0),ans=st.get('rans',{});
+function drawR(s){const g=Plot({xmax:100,ymax:12,xl:'Quantity of electric cars (Q)',yl:'Price (P)'});const D0=q=>10-q*.08,D=q=>10+s-q*.08;
+ if(Math.abs(s)>.01){g.fn(D0,'ghost','D₁',80);g.fn(D,'d','D₂',s>0?88:55)}else g.fn(D0,'d','D₁',80);
+ const P=5,q0=(10-P)/.08,q1=(10+s-P)/.08;g.seg(0,P,100,P,'guide');g.text(1,P+.25,'at a constant price','note');g.dot(q0,P,'dot2');g.guide(q0,P,'Q₁','P₁');
+ if(Math.abs(s)>.3){g.dot(q1,P);g.guide(q1,P,'Q₂','');g.arrow(q0+(s>0?3:-3),P-.6,q1+(s>0?-3:3),P-.6)}
+ $('#rfig').innerHTML=g.svg('Demand for electric cars with a possible shift')}
+function rscore(){const v=Object.values(ans);$('#rscore').textContent=v.length?`Predictions: ${v.filter(Boolean).length} / ${v.length} correct`:''}
+$('#evs').innerHTML=EV.map((e,i)=>`<button class="btn ev" data-i="${i}" aria-pressed="false"><span class="l">${e[0]}</span><span>${e[1]}</span></button>`).join('');
+$$('.ev').forEach(b=>b.addEventListener('click',()=>{cur=+b.dataset.i;$$('.ev').forEach(x=>x.setAttribute('aria-pressed',x===b));$('#rq').innerHTML=`<b>${EV[cur][1]}.</b> Which way does demand for electric cars shift?`;$('#pl').disabled=$('#pr').disabled=false;$('#rfb').textContent='';$('#rx').hidden=true}));
+function guess(d){if(cur==null)return;const e=EV[cur],ok=d===e[2];ans[cur]=ok;st.set('rans',ans);$('#rfb').textContent=ok?'Correct!':'Not quite. Watch the curve.';$('#rfb').className='fb '+(ok?'ok':'no');$('#rx').hidden=false;$('#rx').textContent=e[3];$('#pl').disabled=$('#pr').disabled=true;const to=2.2*e[2];tween(sh,to,650,drawR);sh=to;st.set('rsh',sh);rscore()}
+$('#pl').addEventListener('click',()=>guess(-1));$('#pr').addEventListener('click',()=>guess(1));$('#rreset').addEventListener('click',()=>{tween(sh,0,500,drawR);sh=0;st.set('rsh',0)});
+
+/* 06 sorter */
+const SRT=[['Concert ticket prices fall. What happens in the ticket market?','exp','Own-price fall: move down the demand curve (expansion in quantity demanded).'],
+['Coffee prices rise. What happens to demand for tea?','inc','Tea is a substitute, so its demand shifts right (an increase).'],
+['The price of printers falls sharply. What happens to demand for ink cartridges?','inc','Complements: more printers sold means more ink needed, so demand for ink shifts right.'],
+['Petrol prices rise. What happens to demand for large SUVs?','dec','Complements: running an SUV costs more, so demand shifts left.'],
+['A popular streaming service raises its monthly price. What happens to its own subscriptions?','con','Own-price rise: move up the curve (contraction in quantity demanded).'],
+['A health study shows blueberries protect against illness. Demand for blueberries?','inc','Tastes and preferences shift demand right.'],
+['Incomes rise, and people travel by bus less. What happens to demand for bus travel?','dec','Here bus travel behaves as an inferior good: higher income leads to a fall (shift left) in demand.'],
+['A sugar tax raises the price of fizzy drinks. What happens to the quantity of fizzy drinks demanded?','con','Careful! The tax shifts SUPPLY; for demand, the higher price causes a contraction along the existing curve.'],
+['Buyers expect house prices to rise next year. Current demand for houses?','inc','Expectations of higher future prices increase current demand (shift right).'],
+['A city’s population grows by 200,000 people. Demand for housing?','inc','More consumers means market demand shifts right.']];
+let si=st.get('srti',0),ss=st.get('srts',[0,0]);const LAB={exp:'Movement: expansion',con:'Movement: contraction',inc:'Shift: increase (right)',dec:'Shift: decrease (left)'};
+function drawSrt(){si=si%SRT.length;$('#srtn').textContent=`Card ${si+1} of ${SRT.length}`;$('#srtq').textContent=SRT[si][0];$('#srtfb').textContent='';$('#srtnext').hidden=true;$$('.sorter [data-a]').forEach(b=>b.disabled=false);$('#srtsc').textContent=`Score ${ss[0]} / ${ss[1]}`}
+$$('.sorter [data-a]').forEach(b=>b.addEventListener('click',()=>{const c=SRT[si],ok=b.dataset.a===c[1];ss[1]++;if(ok)ss[0]++;st.set('srts',ss);$('#srtfb').className='fb '+(ok?'ok':'no');$('#srtfb').textContent=(ok?'✓ Correct. ':'✗ Answer: '+LAB[c[1]]+'. ')+c[2];$$('.sorter [data-a]').forEach(x=>x.disabled=true);$('#srtnext').hidden=false;$('#srtsc').textContent=`Score ${ss[0]} / ${ss[1]}`}));
+$('#srtnext').addEventListener('click',()=>{si++;st.set('srti',si);drawSrt()});
+
+/* 07 related */
+let mode='sub',rk=0;
+function drawRel(k){const sub=mode==='sub',m1=sub?'Pepsi':'Petrol',m2=sub?'Coca-Cola':'Large petrol cars',dir=sub?1:-1;
+ const g1=Plot({xmax:100,ymax:12,xl:'Q of '+m1.toLowerCase(),yl:'Price',w:420,h:330});const D=q=>11-q*.08,S0=q=>2+q*.08,S=q=>2+2.4*k+q*.08;
+ g1.fn(D,'d','D',80);if(k>.02)g1.fn(S0,'ghost','S₁',85);g1.fn(S,'s',k>.02?'S₂':'S',k>.02?75:85);
+ const q0=9/.16,q1=(9-2.4*k)/.16;g1.dot(q0,D(q0),'dot2');g1.guide(q0,D(q0),'Q₁','P₁');if(k>.3){g1.dot(q1,D(q1));g1.guide(q1,D(q1),'Q₂','P₂');g1.arrow(q0-2,D(q0)+.2,q1+2,D(q1)-.2)}
+ $('#lfig1').innerHTML=`<p class="eyebrow" style="margin-bottom:6px">Market 1 · ${m1}</p>`+g1.svg(m1+' market');
+ const g2=Plot({xmax:100,ymax:12,xl:'Q of '+m2.toLowerCase(),yl:'Price',w:420,h:330});const T0=q=>10-q*.08,T=q=>10+2*dir*k-q*.08;
+ if(k>.02)g2.fn(T0,'ghost','D₁',80);g2.fn(T,'d',k>.02?'D₂':'D',dir>0?88:60);g2.seg(0,5,100,5,'guide');const a=5/.08,b=(5+2*dir*k)/.08;g2.dot(a,5,'dot2');if(k>.3)g2.arrow(a+(dir>0?3:-3),4.3,b+(dir>0?-3:3),4.3);
+ $('#lfig2').innerHTML=`<p class="eyebrow" style="margin-bottom:6px">Market 2 · ${m2}</p>`+g2.svg(m2+' market');
+ $('#lx').innerHTML=k<.5?'Press “Reduce supply in market 1”.':sub?'Less Pepsi is supplied, so its price rises and buyers <b>contract</b> along Pepsi’s demand curve (a movement). Many switch to its <b>substitute</b>: demand for Coca-Cola <b>increases</b> (shifts right). This is Hoang Fig 3.9.':'Less petrol is supplied, so its price rises and drivers <b>contract</b> along the petrol demand curve. Because petrol and big cars are <b>complements</b>, owning a large car now costs more to run, so demand for large cars <b>decreases</b> (shifts left).'}
+function setMode(m){mode=m;$('#rsub').setAttribute('aria-pressed',m==='sub');$('#rcomp').setAttribute('aria-pressed',m==='comp');rk=0;drawRel(0)}
+$('#rsub').addEventListener('click',()=>setMode('sub'));$('#rcomp').addEventListener('click',()=>setMode('comp'));$('#rgo').addEventListener('click',()=>{tween(rk,1,800,drawRel);rk=1});$('#rrst').addEventListener('click',()=>{rk=0;drawRel(0)});
+
+/* 08 income */
+function drawInc(){const v=+$('#inc').value;$('#inco').textContent=(v>0?'+':'')+v+'%';const s=v*.12;
+ const mk=(sgn,title)=>{const g=Plot({xmax:100,ymax:12,xl:'Quantity',yl:'Price',w:420,h:320});const D0=q=>10-q*.08,D=q=>10+sgn*s-q*.08;if(v)g.fn(D0,'ghost','D₁',80);g.fn(D,'d',v?'D₂':'D',sgn*s>0?90:55);g.seg(0,5,100,5,'guide');const a=5/.08,b=(5+sgn*s)/.08;g.dot(a,5,'dot2');if(Math.abs(s)>.3)g.arrow(a+(sgn*s>0?3:-3),4.3,b+(sgn*s>0?-3:3),4.3);return `<p class="eyebrow" style="margin-bottom:6px">${title}</p>`+g.svg(title)};
+ $('#nfig').innerHTML=mk(1,'Premium coffee brand · normal good');$('#ifig').innerHTML=mk(-1,'Own-label instant coffee · inferior good');
+ $('#incx').innerHTML=v>0?'Incomes <b>rise</b>: demand for the premium brand (normal good) <b>increases</b>, while demand for own-label instant coffee (inferior for these buyers) <b>decreases</b> as they trade up.':v<0?'Incomes <b>fall</b> (as UK real wages did in 2023): demand for premium brands <b>decreases</b>, while demand for own-label goods <b>increases</b>. Remember it is <b>real</b> income that matters: a pay rise below inflation is a fall in real income.':'Move the slider to change real income.'}
+$('#inc').addEventListener('input',drawInc);
+
+/* 09 draw */
+const DR=[['Axes first','Vertical axis: <b>Price (P)</b>. Horizontal axis: <b>Quantity (Q)</b>, per time period. Never label an axis “Demand”.'],['Draw the demand curve','A downward-sloping line, labelled <b>D₁</b> at its bottom end.'],['Mark the starting point','Pick a point on D₁ with dotted lines to both axes, labelled <b>P₁</b> and <b>Q₁</b>.'],['Movement: the price falls','Price falls to <b>P₂</b>: move <b>down the same curve</b> to Q₂. This is an <b>expansion</b> in quantity demanded. Draw an arrow along the curve.'],['Shift: a non-price determinant','For example, <b>incomes rise</b> (normal good): draw <b>D₂</b> to the right. At P₁, quantity demanded is now Q₃. Write the cause next to the arrow. This is an <b>increase in demand</b>.']];
+let ds=0;
+function drawDraw(){const g=Plot({xmax:100,ymax:12,xl:'Quantity (Q)',yl:'Price (P)'});const D=q=>10.5-q*.08,D2=q=>12.3-q*.08;
+ if(ds>=1)g.fn(D,'d','D₁',96);if(ds>=2){g.dot(40,D(40));g.guide(40,D(40),'Q₁','P₁')}if(ds>=3){g.dot(65,D(65));g.guide(65,D(65),'Q₂','P₂');g.arrow(43,D(43)-.25,62,D(62)+.15);g.text(50,D(52)-.9,'expansion','note')}
+ if(ds>=4){g.fn(D2,'d2','D₂',100);const q3=(12.3-D(40))/.08;g.dot(q3,D(40),'dot2');g.guide(q3,D(40),'Q₃','');g.arrow(43,D(40)+.5,q3-3,D(40)+.5);g.text(44,D(40)+1.1,'income rises → increase in demand','note')}
+ $('#drawfig').innerHTML=g.svg('Demand diagram build, step '+(ds+1));$('#drawt').textContent=`Step ${ds+1}: ${DR[ds][0]}`;$('#drawx').innerHTML=DR[ds][1];$('#ddots').innerHTML=DR.map((_,i)=>`<i class="${i<=ds?'on':''}"></i>`).join('');$('#dprev').disabled=ds===0;$('#dnext').disabled=ds===DR.length-1}
+$('#dnext').addEventListener('click',()=>{ds++;drawDraw()});$('#dprev').addEventListener('click',()=>{ds--;drawDraw()});
+
+/* 10 cases */
+const CASES=[['Oat milk in Sweden','Oat-milk sales in Sweden have grown fast as more people adopt plant-based diets, helped by strong marketing. In 2022 dairy milk prices also rose by about 15% because of higher feed and energy costs.',['What happens to the demand for oat milk?','Which two determinants are involved?','What happens in the dairy milk market itself?'],['Demand for oat milk increases: D₁ shifts right to D₂, so more is demanded at every price.','Tastes and preferences (P) move towards plant-based food, and dairy milk is a substitute (R) whose price has risen.','The dairy price rise causes a contraction along dairy milk’s own demand curve. That is a movement, not a shift.']],
+['A console price cut','A games company cuts the price of its console by $100. In the next quarter demand for new games rises by 12%, while demand for a rival console falls.',['What happens in the console market?','What happens to demand for games?','And demand for the rival console?'],['The price cut causes an expansion along the console demand curve (a movement).','Games are complements, so more console owners means demand for games increases (shifts right).','The rival console is a substitute that is now relatively dearer, so its demand decreases (shifts left).']],
+['Hard times and own-brand food in the UK','In 2023 UK prices rose faster than wages, so real incomes fell. Supermarkets reported rising sales of own-label products and falling sales of premium brands.',['Classify own-label and premium goods.','Explain the shift in each market.','Why do we use real rather than nominal income?'],['Premium brands are normal goods; for many households own-label goods behave as inferior goods.','Lower real incomes shift demand for premium brands left and demand for own-label goods right.','Real income measures purchasing power. A pay rise below inflation still means people can buy less.']],
+['Housing demand in Hong Kong','Hong Kong has one of the world’s least affordable housing markets (Hoang p. 52). Migration and smaller households raise the number of households every year, and many buyers expect prices to keep rising.',['Which two determinants increase housing demand?','Show the combined effect.','Why can’t we tell the new price from the demand curve alone?'],['The number of consumers (N) and expectations of future price rises (E).','Both shift D right, from D₁ to D₂ and possibly further to D₃, a large increase in demand.','The price depends on supply too; you will combine demand and supply in Chapter 5 (equilibrium).']]];
+$('#casebox').innerHTML=CASES.map(c=>`<article class="case"><h3>${c[0]}</h3><p>${c[1]}</p><ol>${c[2].map(q=>`<li>${q}</li>`).join('')}</ol><details><summary>Model answer</summary><ol>${c[3].map(a=>`<li>${a}</li>`).join('')}</ol></details></article>`).join('');
+
+/* 11 quiz */
+const MCQ=[['The price of concert tickets falls. This causes…',['An increase in demand','An expansion in quantity demanded','A decrease in demand','A contraction in quantity demanded'],1,'An own-price change is a movement along the curve, not a shift.',0],
+['Which of these shifts the demand for tea to the RIGHT?',['A fall in the price of tea','A rise in the price of coffee','A tax on tea producers','A fall in the price of coffee'],1,'Coffee is a substitute: when it gets dearer, people switch to tea.',0],
+['Petrol prices rise sharply. Demand for large SUVs will…',['Increase','Decrease','Stay the same','Expand along the curve'],1,'Petrol and SUVs are complements, so demand for SUVs shifts left.',0],
+['Incomes rise and demand for bus travel falls. Bus travel is…',['A normal good','A luxury good','An inferior good','A complement'],2,'Demand falls as income rises, which is the definition of an inferior good.',0],
+['At $15, 500 male and 400 female fans want tickets. Market demand at $15 is…',['400','500','900','$13,500'],2,'Horizontal summation: 500 + 400 = 900 tickets.',0],
+['Consumers expect smartphone prices to rise next month. Current demand…',['Increases (shifts right)','Decreases (shifts left)','Expands','Is unaffected'],0,'People buy now before the price rises.',0],
+['Which does NOT shift the demand curve for pizza?',['A rise in consumers’ incomes','A fall in the price of pizza','A cheaper substitute, burgers','A new university opening nearby'],1,'Pizza’s own price only causes a movement along its demand curve.',0],
+['(HL) A lower price raises consumers’ purchasing power so they buy more. This is the…',['Substitution effect','Income effect','Law of supply','Diminishing marginal utility'],1,'A lower price raises real income: the income effect.',1],
+['(HL) Diminishing marginal utility means that consumers…',['Buy extra units only at lower prices','Always buy more as income rises','Never buy more than one unit','Prefer substitutes'],0,'Each extra unit gives less satisfaction, so willingness to pay falls.',1]];
+function renderMCQ(){const list=MCQ.map((q,i)=>[q,i]).filter(x=>!(x[0][4]&&LVL==='SL'));
+ $('#mcqs').innerHTML=list.map(([q,i],k)=>`<div class="mcq" data-i="${i}"><p><b>${k+1}.</b> ${q[0]}</p><div class="opts">${q[1].map((o,j)=>`<button class="btn opt" data-j="${j}">${String.fromCharCode(65+j)}. ${o}</button>`).join('')}</div><p class="why" hidden></p></div>`).join('');
+ const sc=()=>{const a=st.get('mcq',{});const done=list.filter(x=>a[x[1]]!=null);const ok=done.filter(x=>a[x[1]]===x[0][2]).length;$('#mcqscore').innerHTML=done.length?`Score: ${ok} / ${list.length} <button class="btn" id="mcqreset" style="margin-left:10px;padding:4px 10px">Try again</button>`:'';const r=$('#mcqreset');if(r)r.addEventListener('click',()=>{st.set('mcq',{});renderMCQ()})};
+ $$('.mcq').forEach(el=>{const i=+el.dataset.i,q=MCQ[i];const mark=j=>{el.querySelectorAll('.opt').forEach(b=>{const k=+b.dataset.j;b.disabled=true;if(k===q[2])b.classList.add('ok');else if(k===j)b.classList.add('no')});const w=el.querySelector('.why');w.hidden=false;w.textContent=(j===q[2]?'✓ ':'✗ ')+q[3]};
+  const a=st.get('mcq',{});if(a[i]!=null)mark(a[i]);el.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{const a=st.get('mcq',{});a[i]=+b.dataset.j;st.set('mcq',a);mark(+b.dataset.j);sc()}))});sc()}
+const QF=[['Define demand.','The quantity consumers are willing and able to buy at each price in a given period, ceteris paribus.',0],['State the law of demand.','As price rises, quantity demanded falls (and vice versa), ceteris paribus.',0],['What is market demand?','The horizontal sum of individual demands at each price.',0],['What does RIPEN stand for?','Related goods, Income, Preferences, Expectations, Number of consumers.',0],['Petrol prices rise. What happens to demand for large cars?','It decreases (shifts left), because petrol and cars are complements.',0],['Coffee prices rise. What happens to demand for tea?','It increases (shifts right), because tea is a substitute.',0],['What causes a movement along the demand curve?','Only a change in the good’s own price.',0],['Name the movement when the price falls.','An expansion (extension) of quantity demanded.',0],['(HL) Explain the substitution effect of a price fall.','The good becomes cheaper relative to alternatives, so consumers switch towards it.',1],['(HL) How does diminishing marginal utility explain the slope of demand?','Each extra unit gives less satisfaction, so consumers will buy more only at a lower price.',1]];
+function renderQF(){$('#qf').innerHTML=QF.filter(q=>!(q[2]&&LVL==='SL')).map(q=>`<div class="qa"><p><b>${q[0]}</b></p><details><summary>Show answer</summary><p>${q[1]}</p></details></div>`).join('')}
+
+/* 12 mistakes */
+const MI=[['“Demand is what people want”','Demand is what people are willing and able to buy (p. 47).'],['“A fall in price increases demand”','It increases quantity demanded: a movement along the curve (p. 54).'],['“Demand and quantity demanded mean the same”','Demand is the whole curve; quantity demanded is one point on it (p. 48).'],['“Inferior goods are poor quality”','The term describes how demand responds to income, not quality.'],['“A dearer complement shifts demand right”','It shifts demand left, because using the pair together costs more.'],['“A sales tax shifts demand left”','It shifts supply; demand contracts along the existing curve.']];
+$('#mist').innerHTML=MI.map(m=>`<div><b>✗ ${m[0]}</b>${m[1]}</div>`).join('');
+
+/* 13 exam */
+const EX=[['Paper 1 (a) · 10 marks','Using diagrams, explain the difference between a movement along a demand curve and a shift of the demand curve.',['Define demand, quantity demanded and the law of demand.','Diagram 1: one D curve with P₁→P₂, Q₁→Q₂ and an arrow labelled expansion/contraction.','Diagram 2: D₁→D₂ (and/or D₃) at a constant price, with the cause labelled.','Explain: own price → movement; RIPEN → shift.','A real-world example for each.']],
+['Paper 1 (a) · 10 marks','Explain, using examples, the difference between substitutes and complements.',['Define both: competitive demand vs joint demand.','Substitutes: a price rise of A increases demand for B (Pepsi and Coca-Cola), with a diagram showing D shifting right.','Complements: a price rise of A decreases demand for B (petrol and large cars), with a diagram showing D shifting left.','Mention that the strength of the link varies (close vs weak substitutes).']],
+['Paper 2 · 4 marks','Using a demand diagram, explain how rising incomes may affect demand for public transport in a city.',['A correctly labelled diagram with a shift, either left (inferior) or right (normal), with the cause labelled [2].','Explanation: if public transport is an inferior good, higher incomes lead people to switch to cars, so demand decreases. If it is normal (for example a new metro), demand increases [2].']],
+['Paper 3 HL · 4 marks','Explain how the income and substitution effects cause the demand curve for a normal good to slope downwards.',['Income effect: a lower price raises real income, so more of a normal good is bought.','Substitution effect: the good becomes cheaper relative to substitutes, so consumers switch towards it.','Both effects work in the same direction, so a lower price leads to a higher quantity demanded, giving a downward-sloping curve.']]];
+$('#exambox').innerHTML=EX.map(e=>`<article class="case ${/HL/.test(e[0])?'hlonly':''}"><span class="badge ${/HL/.test(e[0])?'b-hl':'b-sl'}">${e[0]}</span><p style="font-family:var(--serif);font-size:17px">${e[1]}</p><details><summary>What a strong answer includes</summary><ol>${e[2].map(x=>`<li>${x}</li>`).join('')}</ol></details></article>`).join('');
+
+setLvl(LVL);drawLaw();drawMU();drawPz();drawMkt();drawR(sh);rscore();drawSrt();setMode('sub');drawInc();drawDraw();
+})();
+</script>
+<script id="cg-js">
+(function(){
+const CG={"title": "Chapter 3 · Demand", "intro": "Demand explains the buying side of a market: how much consumers are willing and able to buy, why they buy more at lower prices, and what makes them change their buying plans even when the price stays the same.", "groups": [{"name": "The basics of demand", "terms": [{"term": "Demand", "level": "SL/HL", "definition": "The quantity of a good or service that consumers are willing and able to buy at each possible price during a given time period, ceteris paribus.", "explanation": "Demand is not the same as want or desire. Many people would like a sports car, but only those who can afford it and are prepared to pay count as demand. Economists call this effective demand. Demand is always measured over a time period (per day, per week, per year), because '500 cups of coffee' means something very different per hour and per year. Demand refers to the whole relationship between price and quantity, which is why it is shown as a complete curve rather than a single number.", "example": "A student would love a $1,200 laptop but has only $400 in savings. The wish is not demand. If the same student is willing to spend $400 and a laptop costs $400, that purchase is part of the demand for laptops.", "exam_tip": "In definitions always include 'willing and able', 'at each price', 'in a given time period' and 'ceteris paribus'.", "related": ["Quantity demanded", "Ceteris paribus"]}, {"term": "Quantity demanded", "level": "SL/HL", "definition": "The amount of a good consumers are willing and able to buy at one particular price; a single point on the demand curve.", "explanation": "Demand is the whole curve; quantity demanded is one point on it. When only the good's own price changes, we say quantity demanded changes, not demand. Keeping the two words separate is one of the most tested skills in Unit 2, because it tells the examiner whether you understand the difference between a movement and a shift.", "example": "At $12 a cinema sells 200 tickets a week; at $8 it sells 300. Quantity demanded rose from 200 to 300, but demand (the curve) did not change.", "exam_tip": "Say 'a fall in price increases the quantity demanded', never 'a fall in price increases demand'.", "related": ["Demand", "Expansion and contraction of demand"]}, {"term": "Law of demand", "level": "SL/HL", "definition": "There is an inverse (negative) relationship between the price of a good and the quantity demanded, ceteris paribus.", "explanation": "As price rises, fewer people are willing or able to pay, and existing buyers buy fewer units; as price falls, more is bought. This is why the demand curve slopes downward from left to right. The law holds for almost all goods because of the income effect, the substitution effect and diminishing marginal utility (HL). It is called a 'law' because it is observed so consistently, although economists recognise rare exceptions.", "example": "When a supermarket cuts the price of strawberries from $5 to $3 a punnet, it sells 700 punnets a day instead of 400.", "exam_tip": "State the direction ('inverse relationship') and add ceteris paribus: 2 marks in Paper 2 definitions usually need both.", "related": ["Demand curve", "Income effect", "Substitution effect"]}, {"term": "Demand curve", "level": "SL/HL", "definition": "A graph showing the relationship between the price of a good (vertical axis) and the quantity demanded (horizontal axis); it slopes downward from left to right.", "explanation": "Each point on the curve pairs a price with the quantity demanded at that price. It is drawn for a given time period and on the assumption that everything except price is held constant. If one of those other factors changes, a new curve must be drawn: that is a shift.", "example": "A demand schedule for bubble tea: $6 → 50 cups, $5 → 80, $4 → 110, $3 → 140. Plotting these points and joining them gives a downward-sloping demand curve.", "exam_tip": "Label the axes 'Price' and 'Quantity', never 'Demand'. Label the curve D (or D₁, D₂ when it shifts).", "related": ["Law of demand", "Movement along vs shift of the demand curve"]}, {"term": "Ceteris paribus", "level": "SL/HL", "definition": "Latin for 'all other things being equal': the assumption that only one variable changes while all others are held constant.", "explanation": "Many things affect how much people buy at the same time. To isolate the effect of price on quantity demanded, economists hold every other influence (income, tastes, prices of related goods, and so on) constant. This lets us draw a single demand curve and makes cause and effect clear.", "example": "If the price of ice cream falls in the same week that a heatwave arrives, sales will rise for two reasons. Ceteris paribus lets us say how much of the rise is due to the price cut alone.", "exam_tip": "Use the phrase in every definition of a 'law' (demand, supply) and when explaining a single cause.", "related": ["Law of demand"]}, {"term": "Market demand", "level": "SL/HL", "definition": "The sum of all individual consumers' quantities demanded at each price; the horizontal summation of individual demand curves.", "explanation": "To find market demand we add up quantities (not prices) at each possible price. Because many buyers are added together, the market demand curve lies further to the right and is flatter than any individual demand curve. If more buyers join the market, the market demand curve shifts to the right.", "example": "At $15, male fans want 500 concert tickets and female fans want 400, so market demand at $15 is 900 tickets (Hoang Fig 3.3). If a tour group arrives wanting 300 tickets at $15, market demand becomes 1,200.", "exam_tip": "'Horizontal summation' is the key phrase. Show the calculation in data questions.", "related": ["Number of consumers"]}]}, {"name": "Why demand slopes downward (HL)", "terms": [{"term": "Diminishing marginal utility", "level": "HL", "definition": "As a consumer consumes more units of a good, the additional satisfaction (utility) gained from each extra unit falls.", "explanation": "Utility means satisfaction. The first slice of pizza when you are hungry gives a lot of satisfaction; the fifth gives much less. Because each extra unit is worth less to the consumer, they will only buy more if the price falls. This links satisfaction to willingness to pay and explains the downward slope of the individual demand curve.", "example": "A student values the first chocolate at $5, the second at $4, the third at $3 and the fourth at $2. At a price of $3 they buy three chocolates; the price must fall to $2 before they buy a fourth.", "exam_tip": "Do not confuse diminishing marginal utility (consumption, Ch 3) with diminishing marginal returns (production, Ch 4).", "related": ["Law of demand"]}, {"term": "Income effect", "level": "HL", "definition": "When the price of a good falls, consumers' real income (purchasing power) rises, so they can afford to buy more of it (and vice versa).", "explanation": "Money income stays the same, but a lower price means the same money buys more. This rise in real income allows consumers to buy more of the good. For a normal good the income effect reinforces the law of demand.", "example": "With a $30 weekly lunch budget, pizza slices at $5 allow 6 slices. If the price falls to $3, the same $30 buys 10 slices: purchasing power has increased.", "exam_tip": "The income effect of a price change is different from a change in income (a RIPEN determinant that shifts the curve).", "related": ["Substitution effect", "Real income"]}, {"term": "Substitution effect", "level": "HL", "definition": "When the price of a good falls, it becomes cheaper relative to substitutes, so consumers switch towards it (and away from it when its price rises).", "explanation": "Consumers compare prices of alternatives. A lower price for one good changes relative prices, making it better value than its substitutes, so some buyers switch. Together with the income effect, this explains why quantity demanded rises when price falls.", "example": "If the price of a pizza slice falls from $5 to $3 while a burger stays at $4, pizza is now cheaper than a burger, so some students switch from burgers to pizza.", "exam_tip": "In HL answers explain both effects and say they work in the same direction for a normal good.", "related": ["Income effect", "Substitutes"]}]}, {"name": "Movements and shifts", "terms": [{"term": "Expansion and contraction of demand", "level": "SL/HL", "definition": "Movements along an existing demand curve caused only by a change in the good's own price: an expansion (extension) when price falls, a contraction when price rises.", "explanation": "When the price of the good itself changes, consumers respond by buying more or less, but their underlying demand (the curve) has not changed. We move from one point to another on the same curve. Expansion = down the curve; contraction = up the curve.", "example": "A streaming service raises its monthly price from $10 to $13 and loses 15% of its subscribers. That is a contraction of quantity demanded along its demand curve.", "exam_tip": "Draw an arrow along the curve and label it 'expansion' or 'contraction'.", "related": ["Quantity demanded", "Increase and decrease in demand"]}, {"term": "Increase and decrease in demand", "level": "SL/HL", "definition": "A shift of the whole demand curve caused by a change in a non-price determinant: an increase is a shift to the right; a decrease is a shift to the left.", "explanation": "If something other than the good's own price changes (income, tastes, prices of related goods, expectations, number of consumers), consumers want to buy a different quantity at every price. A new curve must be drawn. At the same price, more (right shift) or less (left shift) is demanded.", "example": "A health study shows blueberries reduce the risk of illness. At the unchanged price of $4 a box, shoppers now buy 1,500 boxes a week instead of 1,000: demand has increased (shifted right).", "exam_tip": "Show the shift at a constant price and write the cause next to the arrow.", "related": ["Non-price determinants of demand (RIPEN)"]}, {"term": "Non-price determinants of demand (RIPEN)", "level": "SL/HL", "definition": "Factors other than the good's own price that change demand and shift the demand curve: Related goods, Income, Preferences (tastes), Expectations of future prices, Number of consumers.", "explanation": "Each determinant changes how much consumers want to buy at every price. Related goods: a change in the price of a substitute or complement. Income: higher income raises demand for normal goods and lowers it for inferior goods. Preferences: advertising, fashion, health information. Expectations: expecting a price rise makes people buy now. Number of consumers: population growth, migration, new customer groups.", "example": "The electric-car market: dearer petrol cars (substitute) → demand rises; dearer electricity (complement) → demand falls; higher incomes → demand rises; a battery-fire scare → demand falls; expected end of a purchase grant → demand rises now; more young drivers → demand rises.", "exam_tip": "Use the mnemonic to plan, but in answers name the determinant in full (for example 'a change in tastes and preferences').", "related": ["Substitutes", "Complements", "Normal good", "Inferior good"]}]}, {"name": "Related goods and income", "terms": [{"term": "Substitutes", "level": "SL/HL", "definition": "Goods in competitive demand that can be used in place of each other; a rise in the price of one increases demand for the other.", "explanation": "When one substitute becomes more expensive, consumers switch to the alternative, so the alternative's demand curve shifts right. The closer the substitute (for example two brands of cola), the stronger the effect. In the market whose price changed, there is only a movement along its own demand curve.", "example": "A poor harvest pushes up coffee prices. Some coffee drinkers switch to tea, so demand for tea increases (shifts right), while coffee's quantity demanded contracts.", "exam_tip": "Draw two diagrams: the original good (movement) and the substitute (shift).", "related": ["Complements", "Substitution effect"]}, {"term": "Complements", "level": "SL/HL", "definition": "Goods in joint demand that are used together; a rise in the price of one decreases demand for the other.", "explanation": "Because complements are consumed together, the relevant cost is the cost of the pair. If one becomes dearer, using both becomes more expensive, so demand for the other falls (shifts left). A fall in the price of one increases demand for the other.", "example": "When a console maker cuts its console price by $100, more consoles are sold and demand for its games rises by 12% (shift right). If petrol prices rise sharply, demand for large, fuel-hungry SUVs falls (shift left).", "exam_tip": "Common error: saying a dearer complement shifts demand right. It shifts it left.", "related": ["Substitutes"]}, {"term": "Normal good", "level": "SL/HL", "definition": "A good for which demand increases when consumers' real income rises (and decreases when real income falls), ceteris paribus.", "explanation": "Most goods are normal goods: as people earn more they buy more clothes, meals out, holidays and cars. Normal goods include both necessities (demand rises slightly with income) and luxuries (demand rises strongly), a distinction you will measure with YED in Chapter 8.", "example": "As incomes in China rose, BMW sold over 500,000 cars there in the first three quarters of 2019: demand for cars shifted right (Hoang p. 53).", "exam_tip": "Say 'real income'. A pay rise smaller than inflation is a fall in real income.", "related": ["Inferior good"]}, {"term": "Inferior good", "level": "SL/HL", "definition": "A good for which demand falls when consumers' real income rises, because they switch to preferred alternatives.", "explanation": "Inferior does not mean poor quality. It describes how buyers respond to income: when they can afford something they prefer, they buy less of the cheaper option. Which goods are inferior depends on the country and the consumer.", "example": "When UK real wages fell in 2023, supermarkets sold more own-label products and fewer premium brands: demand for own-label goods increased as incomes fell, the typical pattern of an inferior good.", "exam_tip": "Always justify your classification. Bus travel may be inferior in one city and normal in another.", "related": ["Normal good"]}, {"term": "Future price expectations", "level": "SL/HL", "definition": "Consumers' beliefs about future prices: expecting a price rise increases current demand, while expecting a price fall reduces current demand.", "explanation": "Buyers try to buy at the best time. If they expect prices to rise (housing, shares, a product before a tax rise) they buy now, so current demand shifts right. If they expect prices to fall (end-of-season sales, a new model launch) they wait, so current demand shifts left.", "example": "In Hong Kong, buyers who expect flat prices to keep rising buy sooner, adding to current housing demand (Hoang p. 52).", "exam_tip": "Be precise: expectations shift current demand, not the price directly.", "related": ["Non-price determinants of demand (RIPEN)"]}, {"term": "Number of consumers", "level": "SL/HL", "definition": "The size of the market: more buyers increase market demand, fewer buyers reduce it.", "explanation": "Because market demand is the sum of individual demands, anything that adds buyers (population growth, migration, tourism, new age groups, opening to exports) shifts market demand right.", "example": "A city's population grows by 200,000 people in five years, so demand for flats, school places and public transport increases.", "exam_tip": "Link this determinant directly to horizontal summation.", "related": ["Market demand"]}]}]};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const box=document.getElementById('cgbox'),q=document.getElementById('cgq'),cnt=document.getElementById('cgcount');
+const id=t=>'cg-'+t.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+box.innerHTML='<p style="max-width:72ch">'+esc(CG.intro)+'</p>'+CG.groups.map(g=>{const hl=g.terms.every(t=>t.level==='HL');return `<div class="cg-group ${hl?'hlonly cg-hl':''}"><h3>${esc(g.name)}</h3>`+g.terms.map(t=>`<details class="cg-item ${t.level==='HL'?'cg-hl':''}" id="${id(t.term)}" data-s="${esc((t.term+' '+t.definition+' '+t.explanation+' '+t.example).toLowerCase())}"><summary><b>${esc(t.term)}</b><span class="badge ${t.level==='HL'?'b-hl':'b-sl'}">${t.level}</span><span class="cg-def">${esc(t.definition)}</span></summary><div class="cg-body"><div><span class="lbl">Definition</span><p class="defn">${esc(t.definition)}</p></div><div><span class="lbl">Explanation</span><p>${esc(t.explanation)}</p></div><div class="cg-ex"><span class="lbl">Example</span><p>${esc(t.example)}</p></div><div class="cg-tip"><span class="lbl">Exam tip</span><p>${esc(t.exam_tip)}</p></div>${(t.related||[]).length?`<div><span class="lbl">Related terms</span><div class="cg-rel">${t.related.map(r=>`<button type="button" data-go="${id(r)}">${esc(r)}</button>`).join('')}</div></div>`:''}</div></details>`).join('')+'</div>'}).join('')+'<p class="cg-empty" id="cgnone" hidden>No terms match your search.</p>';
+function lvl(){let l='HL';try{l=JSON.parse(localStorage.getItem('demandlab.lvl'))||'HL'}catch(e){}return l}
+function apply(){const sl=document.querySelector('.lvl [data-lvl="SL"][aria-pressed="true"]')||lvl()==='SL';const s=(q.value||'').trim().toLowerCase();let n=0;
+ box.querySelectorAll('.cg-item').forEach(d=>{const show=!(sl&&d.classList.contains('cg-hl'))&&(!s||d.dataset.s.includes(s));d.hidden=!show;if(show)n++;if(s&&show)d.open=true});
+ box.querySelectorAll('.cg-group').forEach(g=>{g.hidden=![...g.querySelectorAll('.cg-item')].some(d=>!d.hidden)});
+ cnt.textContent=n+' term'+(n===1?'':'s');document.getElementById('cgnone').hidden=n>0}
+q.addEventListener('input',apply);
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(apply,0)));
+document.getElementById('cgopen').addEventListener('click',()=>box.querySelectorAll('.cg-item:not([hidden])').forEach(d=>d.open=true));
+document.getElementById('cgclose').addEventListener('click',()=>box.querySelectorAll('.cg-item').forEach(d=>d.open=false));
+box.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const t=document.getElementById(b.dataset.go);if(t){q.value='';apply();t.open=true;t.scrollIntoView({block:'center'})}});
+apply();
+})();
+</script>

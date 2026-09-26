@@ -1,0 +1,17 @@
+# Publish the generated site and nothing else.
+#
+# Ignore everything at the top level, then re-include only the published README
+# and docs/ — the folder GitHub Pages serves straight from the branch. The course
+# sources, build scripts, textbook PDFs, past papers, IA examples and study guides
+# all stay on this machine.
+
+/*
+
+!/.gitignore
+!/README.md
+!/docs/
+
+# --- local tooling, ignored even inside the folders above ------------------
+__pycache__/
+*.pyc
+*.bak

@@ -1,0 +1,412 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Supply Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#f4f5f1; --panel:#ffffff; --panel2:#f8f9f5; --ink:#1a2029; --muted:#5a636c; --rule:#d9ddd3; --grid:#e7eae2;
+  --supply:#c0441f; --supply2:#e8876a; --demand:#2451c4; --good:#12795f; --bad:#b3261e; --hl:#6f3aa8; --hlbg:#efe6f8; --slbg:#e2efe9; --sl:#0d6b5c;
+  --tint:#fbeee8; --focus:#2451c4; --shade:rgba(192,68,31,.14); --shadeb:rgba(36,81,196,.14);
+  --serif:"Source Serif 4",Georgia,serif; --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#2c1f1a; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#2c1f1a; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:16px/1.6 var(--sans);margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:0 80px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--ground);border-bottom:1px solid var(--rule)}
+.topin{max-width:1120px;margin:0 auto;padding:10px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{font:650 18px var(--serif);margin-right:auto}
+.brand span{font:600 12px var(--sans);color:var(--muted);margin-left:8px}
+nav.jump{display:flex;gap:2px;flex-wrap:wrap}
+nav.jump a{font:600 12.5px var(--sans);color:var(--muted);text-decoration:none;padding:6px 9px;border-radius:6px}
+nav.jump a:hover{background:var(--panel);color:var(--ink)}
+.lvl{display:flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden}
+.lvl button{font:700 12px var(--sans);border:0;background:var(--panel);color:var(--muted);padding:6px 12px;cursor:pointer}
+.lvl button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+h1,h2,h3{font-family:var(--serif);font-weight:650;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h1{font-size:40px;line-height:1.1} h2{font-size:27px;line-height:1.2} h3{font-size:19px}
+p{margin:0} .muted{color:var(--muted)}
+.eyebrow{font:700 11.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--supply)}
+.badge{display:inline-block;font:700 10.5px var(--sans);letter-spacing:.06em;padding:2px 7px;border-radius:4px;vertical-align:3px}
+.b-hl{background:var(--hlbg);color:var(--hl)} .b-sl{background:var(--slbg);color:var(--sl)}
+button:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+section.step{padding-top:56px;scroll-margin-top:70px}
+.shead{display:grid;gap:8px;max-width:72ch;margin-bottom:20px}
+.shead .num{font:600 13px var(--mono);color:var(--muted)}
+.hero{padding-top:44px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:36px;align-items:center}
+.hero p.lead{font-size:18px;margin-top:14px;max-width:56ch}
+.goals{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px}
+.goals ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.goals li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:15px}
+.goals input{width:18px;height:18px;accent-color:var(--good);margin-top:3px}
+.lab{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:20px}
+.lab2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+svg.g{width:100%;height:auto;display:block;border-radius:8px;background:var(--panel2);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px}
+svg .axis{stroke:var(--ink);stroke-width:1.7;fill:none} svg .axl{fill:var(--ink);font:700 12.5px var(--sans)} svg .tick{fill:var(--muted);font:11.5px var(--mono)}
+svg .guide{stroke:var(--muted);stroke-dasharray:4 4;fill:none}
+svg .s{stroke:var(--supply);stroke-width:3;fill:none;stroke-linecap:round} svg .s2{stroke:var(--supply2);stroke-width:2.2;fill:none;stroke-dasharray:7 5}
+svg .sm{stroke:var(--ink);stroke-width:3;fill:none} svg .d{stroke:var(--demand);stroke-width:3;fill:none}
+svg .ghost{stroke:var(--muted);stroke-width:1.6;stroke-dasharray:3 4;fill:none}
+svg text.ls{fill:var(--supply);font:700 13px var(--sans)} svg text.ld{fill:var(--demand);font:700 13px var(--sans)} svg text.lm{fill:var(--ink);font:700 13px var(--sans)} svg text.lg{fill:var(--muted);font:700 12px var(--sans)}
+svg .dot{fill:var(--ink)} svg .dot2{fill:var(--panel);stroke:var(--ink);stroke-width:1.8}
+svg .arrow{stroke:var(--good);stroke-width:2.4;fill:none;marker-end:url(#ah)} svg .ahead{fill:var(--good)}
+svg .bar{fill:var(--demand);opacity:.7} svg .bar.dim{fill:var(--supply);opacity:.75}
+svg .note{fill:var(--muted);font:600 11.5px var(--sans)} svg .area{fill:var(--shade)}
+.ctl{display:grid;grid-template-columns:1fr 70px;gap:2px 10px;align-items:center;font-size:14px;margin-bottom:12px}
+.ctl span{grid-column:1/-1;font-weight:600;color:var(--muted)} .ctl input{width:100%;accent-color:var(--supply)} .ctl output{font:600 13px var(--mono);text-align:right}
+.read{display:grid;grid-template-columns:1fr auto;gap:6px 14px;font-size:14.5px;margin:6px 0 0}
+.read dt{color:var(--muted)} .read dd{margin:0;font:600 13.5px var(--mono);text-align:right}
+.explain{margin-top:14px;padding:12px 14px;border-left:3px solid var(--supply);background:var(--tint);border-radius:0 8px 8px 0;font-size:14.5px}
+.btn{font:600 14px var(--sans);border:1px solid var(--rule);background:var(--panel);color:var(--ink);padding:9px 13px;border-radius:8px;cursor:pointer;text-align:left}
+.btn:hover{border-color:var(--supply)} .btn.pri{background:var(--ink);color:var(--ground);border-color:var(--ink)} .btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.flip{perspective:900px;height:170px;border:0;background:none;padding:0;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:6px}
+.flip .f{background:var(--panel);justify-content:space-between} .flip .f b{font:650 19px var(--serif)}
+.flip .b{background:var(--tint);transform:rotateY(180deg);font-size:14.5px;overflow:auto}
+.flip .hint{font-size:12px;color:var(--muted)}
+.events{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;margin:14px 0}
+.ev{display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:start}
+.ev .l{font:700 14px var(--mono);color:var(--supply);background:var(--tint);border-radius:6px;text-align:center;padding:2px 0}
+.ev[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.predict{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.fb{font-weight:600} .fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+.sorter .card{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px;display:grid;gap:10px}
+.sorter .card p{font-size:16.5px;font-family:var(--serif)}
+.score{font:600 14px var(--mono)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--grid);text-align:right;font-variant-numeric:tabular-nums}
+th{font:700 11.5px var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule)}
+td:first-child,th:first-child{text-align:left} tr.cur td{background:var(--tint);font-weight:700} tr.dmr td:nth-child(3){color:var(--supply)}
+.tblwrap{overflow-x:auto}
+.case{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;display:grid;gap:10px}
+.case details{border-top:1px solid var(--grid);padding-top:10px}
+.case summary,.qa summary{cursor:pointer;font-weight:700;color:var(--demand)}
+.case ol{margin:8px 0 0;padding-left:20px}
+.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px}
+.mcq{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;display:grid;gap:8px}
+.mcq .opts{display:grid;gap:6px}
+.mcq .opt{font:500 14.5px var(--sans)} .mcq .opt.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--panel))} .mcq .opt.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--panel))}
+.mcq .why{font-size:14px;color:var(--muted)}
+.quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.qa{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 16px}
+.qa details p{margin-top:6px;padding:8px 10px;background:var(--panel2);border-radius:6px}
+.mist{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.mist div{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;font-size:14.5px}
+.mist b{display:block;color:var(--bad);font-size:13px;letter-spacing:.03em;margin-bottom:4px} .mist i{display:block;color:var(--good);font-style:normal;font-weight:600;margin-top:6px}
+.stepper{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.dots{display:flex;gap:5px} .dots i{width:9px;height:9px;border-radius:50%;background:var(--rule)} .dots i.on{background:var(--supply)}
+.pill{font:600 12.5px var(--mono);padding:3px 9px;border-radius:99px;background:var(--panel2);border:1px solid var(--rule)}
+footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+.hlonly[hidden]{display:none!important}
+@media (max-width:860px){.hero,.lab2{grid-template-columns:1fr} h1{font-size:32px} nav.jump{display:none}}
+@media (max-width:520px){.wrap,.topin{padding-inline:16px} .lab{padding:14px} h1{font-size:28px} h2{font-size:23px}}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}}
+</style>
+<style id="cg-css">
+.cg-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.cg-tools input{flex:1;min-width:220px;max-width:420px;font:15px var(--sans);padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink)}
+.cg-group{margin-top:22px} .cg-group h3{margin-bottom:10px}
+.cg-item{background:var(--panel);border:1px solid var(--rule);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.cg-item summary{cursor:pointer;list-style:none;padding:14px 18px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:baseline}
+.cg-item summary::-webkit-details-marker{display:none}
+.cg-item summary b{font:650 18px var(--serif)} .cg-item summary .cg-def{grid-column:1/-1;color:var(--muted);font-size:14.5px}
+.cg-item[open] summary .cg-def{display:none}
+.cg-body{padding:0 18px 16px;display:grid;gap:10px}
+.cg-body .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+.cg-body .defn{font-weight:600}
+.cg-ex{background:var(--tint);border-radius:8px;padding:10px 12px}
+.cg-tip{border-left:3px solid var(--good);padding:6px 12px;background:var(--panel2);border-radius:0 8px 8px 0}
+.cg-rel{display:flex;gap:6px;flex-wrap:wrap} .cg-rel button{font:600 12.5px var(--sans);border:1px solid var(--rule);background:var(--panel2);color:var(--ink);border-radius:99px;padding:3px 10px;cursor:pointer}
+.cg-empty{color:var(--muted)}
+</style>
+
+
+
+<header class="top"><div class="topin">
+  <div class="brand">Supply Lab <span>IB Economics 2.2 · Hoang Ch 4</span></div>
+  <nav class="jump" aria-label="Sections"><a href="#terms">Terms</a><a href="#guide">Guide</a><a href="#law">Law</a><a href="#market">Market</a><a href="#dmr" class="hlonly">DMR</a><a href="#cistern">Shifts</a><a href="#sort">Sort</a><a href="#related">Related</a><a href="#draw">Draw</a><a href="#cases">Cases</a><a href="#quiz">Quiz</a><a href="#exam">Exam</a></nav>
+  <div class="lvl" role="group" aria-label="Level"><button data-lvl="HL">HL</button><button data-lvl="SL">SL</button></div>
+</div></header>
+
+<div class="wrap">
+<section class="hero">
+  <div><p class="eyebrow">Unit 2 · Microeconomics · Chapter 4</p><h1>Why does a higher price bring out more supply?</h1>
+  <p class="lead">This lab covers the law of supply, how market supply is built from individual firms, what shifts the supply curve (CISTERN), and how a movement along the curve differs from a shift. Move the sliders, predict before you click, and test yourself at the end.</p>
+  <p class="muted" style="margin-top:12px;font-size:14px">Textbook: Hoang, Wray &amp; Chakraborty, pp. 56–66. HL sections are marked <span class="badge b-hl">HL</span>; switch to SL at the top to hide them.</p></div>
+  <div class="goals"><p class="eyebrow" style="color:var(--muted)">By the end I can…</p><ul id="goals"></ul></div>
+</section>
+
+<section class="step" id="terms"><div class="shead"><span class="num">01</span><h2>Key terms: flip the cards</h2><p class="muted">Say the definition out loud, then click to check. Exam answers need these exact ideas.</p></div><div class="cards" id="cards"></div></section>
+<section class="step" id="guide"><div class="shead"><span class="num">01b</span><h2>Concept guide: every term explained</h2><p>A fuller explanation of each term in this chapter, with a worked real-world example and an exam tip. Open a term, read it, then close the page and explain it to a partner in your own words.</p></div>
+  <div class="cg-tools"><input id="cgq" type="search" placeholder="Search terms, examples…" aria-label="Search the concept guide"><button class="btn" id="cgopen">Open all</button><button class="btn" id="cgclose">Close all</button><span class="pill" id="cgcount"></span></div>
+  <div id="cgbox"></div></section>
+
+<section class="step" id="law"><div class="shead"><span class="num">02</span><h2>The law of supply</h2><p>A <b>higher price</b> means <b>more quantity supplied</b>, ceteris paribus. Firms earn a bigger profit margin on each unit, and higher prices attract new producers. Drag the price for a bubble-tea shop and watch it move <em>along</em> its supply curve.</p></div>
+  <div class="lab lab2"><div id="lawfig"></div><div><label class="ctl" for="lawp"><span>Price of a bubble tea ($)</span><input type="range" id="lawp" min="1" max="8" step="0.25" value="4"><output id="lawpo"></output></label><dl class="read" id="lawread"></dl><p class="explain" id="lawx"></p></div></div>
+</section>
+
+<section class="step" id="market"><div class="shead"><span class="num">03</span><h2>From one firm to the whole market</h2><p><b>Market supply</b> is the <b>horizontal sum</b> of every firm’s quantity supplied at each price. Hoang’s example is organic grapes: at $10, Firm 1 sells 200 kg and Firm 2 sells 300 kg, so market supply is 500 kg.</p></div>
+  <div class="lab lab2"><div id="mktfig"></div><div><label class="ctl" for="mktp"><span>Price per kg ($)</span><input type="range" id="mktp" min="2" max="14" step="1" value="10"><output id="mktpo"></output></label>
+  <label class="ctl" style="display:flex;gap:8px;align-items:center" for="mkt3"><input type="checkbox" id="mkt3" style="width:18px;height:18px"><span style="color:var(--ink);font-weight:500">A third grower enters the market</span></label><dl class="read" id="mktread"></dl><p class="explain" id="mktx"></p></div></div>
+</section>
+
+<section class="step hlonly" id="dmr"><div class="shead"><span class="num">04</span><h2>Why supply slopes upward: diminishing marginal returns <span class="badge b-hl">HL</span></h2><p>In the <b>short run</b> the bakery has one oven (a fixed factor). Hire workers one at a time. Eventually each extra worker adds less output, so each extra loaf costs more (<b>rising marginal cost</b>). The bakery will only supply more loaves at a <b>higher price</b>.</p></div>
+  <div class="lab"><div class="row" style="margin-bottom:14px"><button class="btn pri" id="hire">Hire one more worker</button><button class="btn" id="fire">Remove a worker</button><span class="pill" id="wk"></span><span class="muted" style="font-size:14px;align-self:center">Wage: $50 per worker per shift</span></div>
+  <div class="lab2"><div><div id="dmrfig"></div><div id="dmrfig2" style="margin-top:12px"></div></div><div><div class="tblwrap"><table><thead><tr><th>Workers</th><th>Total loaves</th><th>Marginal product</th><th>MC per loaf</th></tr></thead><tbody id="dmrtb"></tbody></table></div><p class="explain" id="dmrx"></p></div></div></div>
+</section>
+
+<section class="step" id="cistern"><div class="shead"><span class="num">05</span><h2>What shifts supply? Remember CISTERN</h2><p><b>C</b>osts of factors · <b>I</b>ndirect taxes · <b>S</b>ubsidies · <b>T</b>echnology · <b>E</b>xpectations · <b>R</b>elated goods · <b>N</b>umber of firms. Pick an event in the smartphone market, <b>predict</b> the shift, then check.</p></div>
+  <div class="lab"><div class="events" id="evs"></div>
+  <div class="lab2"><div id="cisfig"></div><div><p id="cisq" class="muted">Choose an event above.</p><div class="predict"><button class="btn" id="pl" disabled>← Supply shifts LEFT (decrease)</button><button class="btn" id="pr" disabled>Supply shifts RIGHT (increase) →</button></div><p class="fb" id="cisfb"></p><p class="explain" id="cisx" hidden></p><p class="score" id="cisscore" style="margin-top:10px"></p><button class="btn" id="cisreset" style="margin-top:10px">Reset curve</button></div></div></div>
+</section>
+
+<section class="step" id="sort"><div class="shead"><span class="num">06</span><h2>Movement or shift?</h2><p>A change in the good’s <b>own price</b> causes a <b>movement along</b> the supply curve (an expansion or a contraction). A change in any <b>other factor</b> <b>shifts</b> the whole curve (an increase or a decrease in supply).</p></div>
+  <div class="lab sorter"><div class="card"><div class="row" style="justify-content:space-between"><span class="pill" id="srtn"></span><span class="score" id="srtsc"></span></div><p id="srtq"></p>
+  <div class="row"><button class="btn" data-a="exp">Movement: expansion ↑</button><button class="btn" data-a="con">Movement: contraction ↓</button><button class="btn" data-a="inc">Shift: increase →</button><button class="btn" data-a="dec">Shift: decrease ←</button></div><p class="fb" id="srtfb"></p><div class="row"><button class="btn pri" id="srtnext" hidden>Next card</button></div></div></div>
+</section>
+
+<section class="step" id="related"><div class="shead"><span class="num">07</span><h2>Related goods: joint and competitive supply</h2><p><b>Joint supply</b>: goods produced together (beef and leather). <b>Competitive supply</b>: goods that compete for the same resources (apples and oranges grown on the same land). Raise demand in the first market and watch what happens in the second.</p></div>
+  <div class="lab"><div class="row" style="margin-bottom:12px"><button class="btn" id="rjoint" aria-pressed="true">Joint supply: beef → leather</button><button class="btn" id="rcomp" aria-pressed="false">Competitive supply: apples → oranges</button><button class="btn pri" id="rgo">Increase demand in market 1</button><button class="btn" id="rrst">Reset</button></div>
+  <div class="lab2" style="grid-template-columns:1fr 1fr"><div id="rfig1"></div><div id="rfig2"></div></div><p class="explain" id="rx"></p></div>
+</section>
+
+<section class="step" id="draw"><div class="shead"><span class="num">08</span><h2>Draw it like an examiner wants</h2><p>Step through the build of a full supply diagram. Then draw it yourself on paper, with <b>every label</b>.</p></div>
+  <div class="lab lab2"><div id="drawfig"></div><div><h3 id="drawt"></h3><p id="drawx" style="margin-top:8px"></p><div class="stepper"><button class="btn" id="dprev">← Back</button><button class="btn pri" id="dnext">Next step →</button><div class="dots" id="ddots"></div></div>
+  <div class="explain" style="margin-top:16px"><b>Label checklist:</b> axes (P and Q) · curve names S₁, S₂ · P₁, Q₁ on the axes with dotted lines · arrow showing the direction · the cause written next to the shift.</div></div></div>
+</section>
+
+<section class="step" id="cases"><div class="shead"><span class="num">09</span><h2>Real-world cases</h2><p>Read each case, answer the questions in your notebook, then open the model answer.</p></div><div class="cases" id="casebox"></div></section>
+
+<section class="step" id="quiz"><div class="shead"><span class="num">10</span><h2>Check yourself</h2><p>Auto-marked multiple choice first, then quick-fire questions with model answers.</p><p class="score" id="mcqscore"></p></div><div class="quiz" id="mcqs"></div>
+  <h3 style="margin:30px 0 12px">Quick-fire checklist</h3><div class="quiz" id="qf"></div></section>
+
+<section class="step" id="mistakes"><div class="shead"><span class="num">11</span><h2>Common mistakes to avoid</h2></div><div class="mist" id="mist"></div></section>
+
+<section class="step" id="exam"><div class="shead"><span class="num">12</span><h2>Exam practice</h2><p>Plan each answer before opening the guide. For Paper 1 (a) aim for definitions, a fully labelled diagram, an explanation and a real-world example.</p></div><div class="cases" id="exambox"></div></section>
+
+<footer>Supply Lab · based on the IB Economics guide (2.2 Supply) and Hoang, Wray &amp; Chakraborty, <i>Economics for the IB Diploma</i> (Hodder 2020), Chapter 4. Note: on p. 64 the textbook text refers to Figs 4.13/4.14 for the diagrams printed as Figs 4.12/4.13.</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const st={get(k,d){try{const v=localStorage.getItem('supplylab.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('supplylab.'+k,JSON.stringify(v))}catch(e){}}};
+const f2=v=>(Math.round(v*100)/100).toLocaleString(), f0=v=>Math.round(v).toLocaleString();
+const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tween(from,to,ms,cb,done){if(RM||document.hidden||ms<=0){cb(to);done&&done();return}const t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;cb(from+(to-from)*e);k<1?requestAnimationFrame(f):done&&done()})(t0)}
+
+/* ---- plot helper ---- */
+function Plot(o){const W=o.w||540,H=o.h||380,L=54,R=26,T=24,B=44;const sx=x=>L+x/o.xmax*(W-L-R),sy=y=>H-B-y/o.ymax*(H-T-B);const out=[];
+ const clipLine=(f,x0,x1)=>{let d='',pen=false;for(let i=0;i<=120;i++){const x=x0+(x1-x0)*i/120,y=f(x);if(!isFinite(y)||y<0||y>o.ymax||x<0||x>o.xmax){pen=false;continue}d+=(pen?'L':'M')+sx(x).toFixed(1)+' '+sy(y).toFixed(1)+' ';pen=true}return d};
+ return{sx,sy,
+  fn(f,cls,label,lx){const d=clipLine(f,0,o.xmax);if(d)out.push(`<path class="${cls}" d="${d}"/>`);if(label){let x=lx!=null?lx:o.xmax*.86;let y=f(x);if(y>o.ymax*.95){x=Math.min(o.xmax*.95,Math.max(0,(o.inv?o.inv(o.ymax*.93,f):x)));y=f(x)}if(isFinite(y)&&y>=0&&y<=o.ymax)out.push(`<text class="${cls==='s'||cls==='s2'?'ls':cls==='d'?'ld':cls==='sm'?'lm':'lg'}" x="${sx(x)+6}" y="${sy(y)-6}">${label}</text>`)}},
+  seg(x0,y0,x1,y1,cls){out.push(`<path class="${cls}" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  dot(x,y,c){out.push(`<circle class="${c||'dot'}" cx="${sx(x)}" cy="${sy(y)}" r="5"/>`)},
+  guide(x,y,xl,yl){out.push(`<path class="guide" d="M${sx(0)} ${sy(y)} L${sx(x)} ${sy(y)} L${sx(x)} ${sy(0)}"/>`);if(yl)out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${yl}</text>`);if(xl)out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${xl}</text>`)},
+  text(x,y,t,c,a){out.push(`<text class="${c||'note'}" x="${sx(x)}" y="${sy(y)}" text-anchor="${a||'start'}">${t}</text>`)},
+  arrow(x0,y0,x1,y1){out.push(`<path class="arrow" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  raw(s){out.push(s)},
+  svg(aria){return `<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria||''}"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0 0 L10 5 L0 10z"/></marker></defs>${out.join('')}<path class="axis" d="M${sx(0)} ${sy(o.ymax)} L${sx(0)} ${sy(0)} L${sx(o.xmax)} ${sy(0)}"/><text class="axl" x="${sx(0)-8}" y="${T-8}">${o.yl}</text><text class="axl" x="${sx(o.xmax)}" y="${H-8}" text-anchor="end">${o.xl}</text><text class="tick" x="${sx(0)-6}" y="${sy(0)+17}" text-anchor="end">0</text></svg>`}}}
+
+/* ---- level ---- */
+let LVL=st.get('lvl','HL');
+function setLvl(l){LVL=l;st.set('lvl',l);$$('.lvl button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lvl===l));$$('.hlonly').forEach(e=>e.hidden=l==='SL');renderCards();renderGoals();renderMCQ();renderQF()}
+$$('.lvl button').forEach(b=>b.addEventListener('click',()=>setLvl(b.dataset.lvl)));
+
+/* ---- goals ---- */
+const GOALS=[['Define supply and state the law of supply',0],['Explain why supply slopes upward using diminishing marginal returns and rising marginal cost',1],['Calculate market supply by horizontal summation',0],['Explain the seven non-price determinants (CISTERN)',0],['Distinguish joint and competitive supply',0],['Draw and label movements along and shifts of the supply curve',0]];
+function renderGoals(){const d=st.get('goals',[]);$('#goals').innerHTML=GOALS.map((g,i)=>g[1]&&LVL==='SL'?'':`<li><input type="checkbox" id="g${i}" ${d.includes(i)?'checked':''}><label for="g${i}">${g[0]} ${g[1]?'<span class="badge b-hl">HL</span>':''}</label></li>`).join('');$$('#goals input').forEach(c=>c.addEventListener('change',()=>{const i=+c.id.slice(1);let v=st.get('goals',[]);v=c.checked?[...new Set([...v,i])]:v.filter(x=>x!==i);st.set('goals',v)}))}
+
+/* ---- 01 cards ---- */
+const TERMS=[['Supply','The quantity of a good or service that producers are willing and able to sell at each possible price in a given time period, ceteris paribus.',0],
+['Quantity supplied','The amount producers are willing and able to sell at one particular price: a single point on the supply curve.',0],
+['Law of supply','Price and quantity supplied are positively related, ceteris paribus: a higher price raises profit margins and attracts new firms.',0],
+['Market supply','The horizontal sum of all individual firms’ quantities supplied at each price.',0],
+['Non-price determinants','Factors other than price that shift the whole supply curve: CISTERN (Costs, Indirect taxes, Subsidies, Technology, Expectations, Related goods, Number of firms).',0],
+['Indirect tax','A tax on spending, paid to the government by producers. It raises costs and shifts supply left (upwards).',0],
+['Subsidy','A government payment to producers that lowers their costs and shifts supply right (downwards).',0],
+['Joint supply','Goods produced together, so more output of one automatically raises the supply of the other (beef and leather).',0],
+['Competitive supply','Goods that compete for the same resources, so producing more of one means less of the other (apples and oranges).',0],
+['Expansion / contraction','A movement along the supply curve caused only by a change in the good’s own price: up (expansion) or down (contraction).',0],
+['Increase / decrease in supply','A shift of the whole curve right (increase) or left (decrease), caused by a non-price determinant.',0],
+['Short run / long run','Short run: at least one factor (usually capital) is fixed. Long run: all factors of production can be varied.',1],
+['Law of diminishing marginal returns','In the short run, as more of a variable factor is added to a fixed factor, the extra output from each extra unit eventually falls.',1],
+['Marginal cost','The extra cost of producing one more unit of output: MC = ΔTC ÷ ΔQ. It rises because of diminishing returns.',1]];
+function renderCards(){$('#cards').innerHTML=TERMS.filter(t=>!(t[2]&&LVL==='SL')).map(t=>`<button class="flip" aria-label="${t[0]}: show definition"><div class="in"><div class="f"><b>${t[0]}</b><span class="hint">${t[2]?'<span class="badge b-hl">HL</span> ':''}Click to flip</span></div><div class="b">${t[1]}</div></div></button>`).join('');$$('.flip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on')))}
+
+/* ---- 02 law of supply ---- */
+function drawLaw(){const P=+$('#lawp').value;$('#lawpo').textContent='$'+f2(P);const S=q=>1+q/20,Q=(P-1)*20;
+ const g=Plot({xmax:160,ymax:9,xl:'Quantity supplied per day (Q)',yl:'Price ($)'});g.fn(S,'s','S',140);g.guide(80,5,'','');g.dot(80,5,'dot2');
+ g.guide(Q,P,f0(Q),'$'+f2(P));g.dot(Q,P);if(Math.abs(Q-80)>4)g.arrow(80,5,Q+(Q>80?-4:4),P+(Q>80?-.2:.2));
+ $('#lawfig').innerHTML=g.svg('Supply curve for bubble tea with the current price and quantity');const cost=2.2,margin=P-cost;
+ $('#lawread').innerHTML=`<dt>Quantity supplied</dt><dd>${f0(Q)} cups</dd><dt>Change from $5 starting point</dt><dd>${Q>=80?'+':''}${f0(Q-80)} cups</dd><dt>Profit margin per cup (cost $2.20)</dt><dd>${margin>=0?'$':'−$'}${f2(Math.abs(margin))}</dd>`;
+ $('#lawx').innerHTML=P>5?'<b>Expansion</b> in quantity supplied: the higher price makes each cup more profitable, so the shop opens longer and hires more staff. The curve itself has <b>not</b> moved.':P<5?'<b>Contraction</b> in quantity supplied: at a lower price each cup earns less, so the shop supplies fewer. Same curve, different point.':'Starting point: $5 a cup, 80 cups a day. Move the slider.'}
+$('#lawp').addEventListener('input',drawLaw);
+
+/* ---- 03 market supply ---- */
+function drawMkt(){const P=+$('#mktp').value,three=$('#mkt3').checked;$('#mktpo').textContent='$'+P;
+ const q1=20*P,q2=30*P,q3=three?25*P:0,qm=q1+q2+q3;
+ const g=Plot({xmax:1100,ymax:15,xl:'Quantity (kg per week)',yl:'Price ($ per kg)'});
+ g.fn(q=>q/20,'ghost','Firm 1',260);g.fn(q=>q/30,'ghost','Firm 2',400);if(three)g.fn(q=>q/25,'ghost','Firm 3',330);
+ if(three)g.fn(q=>q/50,'s2','S (2 firms)',640);g.fn(q=>q/(three?75:50),'sm',three?'Market S (3 firms)':'Market S',three?900:640);
+ g.seg(0,P,1100,P,'guide');g.dot(q1,P,'dot2');g.dot(q2,P,'dot2');if(three)g.dot(q3,P,'dot2');g.dot(qm,P);g.guide(qm,P,f0(qm),'$'+P);
+ $('#mktfig').innerHTML=g.svg('Individual and market supply curves for organic grapes');
+ $('#mktread').innerHTML=`<dt>Firm 1</dt><dd>${f0(q1)} kg</dd><dt>Firm 2</dt><dd>${f0(q2)} kg</dd>${three?`<dt>Firm 3</dt><dd>${f0(q3)} kg</dd>`:''}<dt><b>Market supply</b></dt><dd>${f0(qm)} kg</dd>`;
+ $('#mktx').innerHTML=`At $${P}: ${f0(q1)} + ${f0(q2)}${three?' + '+f0(q3):''} = <b>${f0(qm)} kg</b>. We add <b>quantities</b> at the same price (horizontally), never prices.`+(three?' A new firm entering is the <b>N</b> in CISTERN: market supply <b>shifts right</b>.':' Notice the market curve is flatter than each firm’s curve.')}
+$('#mktp').addEventListener('input',drawMkt);$('#mkt3').addEventListener('change',drawMkt);
+
+/* ---- 04 DMR ---- */
+const TP=[0,20,45,65,80,90,95];let W=st.get('workers',3);
+function drawDMR(){W=Math.max(1,Math.min(6,W));st.set('workers',W);$('#wk').textContent=W+' worker'+(W>1?'s':'');$('#hire').disabled=W>=6;$('#fire').disabled=W<=1;
+ let rows='';for(let i=1;i<=6;i++){const mp=TP[i]-TP[i-1],mc=50/mp;rows+=`<tr class="${i===W?'cur':''} ${i>=3?'dmr':''}" ${i>W?'style="opacity:.35"':''}><td>${i}</td><td>${TP[i]}</td><td>${mp}</td><td>$${f2(mc)}</td></tr>`}$('#dmrtb').innerHTML=rows;
+ const Wd=540,H=230,L=54,B=40,bw=(Wd-L-20)/6;let bars='';for(let i=1;i<=W;i++){const mp=TP[i]-TP[i-1],h=mp/25*(H-B-30);bars+=`<rect class="bar ${i>=3?'dim':''}" x="${L+(i-1)*bw+6}" y="${H-B-h}" width="${bw-12}" height="${h}"/><text class="note" x="${L+(i-1)*bw+bw/2}" y="${H-B-h-6}" text-anchor="middle">${mp}</text>`}
+ for(let i=1;i<=6;i++)bars+=`<text class="tick" x="${L+(i-1)*bw+bw/2}" y="${H-B+16}" text-anchor="middle">${i}</text>`;
+ $('#dmrfig').innerHTML=`<svg class="g" viewBox="0 0 ${Wd} ${H}" role="img" aria-label="Marginal product of each worker"><path class="axis" d="M${L} 16 L${L} ${H-B} L${Wd-10} ${H-B}"/>${bars}<text class="axl" x="${L-8}" y="12">Marginal product (extra loaves)</text><text class="axl" x="${Wd-10}" y="${H-6}" text-anchor="end">Worker number</text></svg>`;
+ const pts=[];for(let i=2;i<=W;i++)pts.push([TP[i],50/(TP[i]-TP[i-1])]);
+ const g=Plot({xmax:100,ymax:11,xl:'Loaves supplied',yl:'Price needed = MC ($)',h:260});
+ if(pts.length>1)g.raw(`<path class="s" d="${pts.map((p,i)=>(i?'L':'M')+g.sx(p[0])+' '+g.sy(p[1])).join(' ')}"/>`);pts.forEach(p=>g.dot(p[0],p[1]));if(pts.length){const l=pts[pts.length-1];g.guide(l[0],l[1],l[0],'$'+f2(l[1]));if(pts.length>1)g.text(l[0]-2,l[1]+.7,'S (rising MC)','ls','end')}
+ $('#dmrfig2').innerHTML=g.svg('Supply curve derived from rising marginal cost');
+ const mp=TP[W]-TP[W-1];$('#dmrx').innerHTML=W<3?`Worker ${W} adds <b>${mp}</b> loaves. Early on, extra workers can specialise (one mixes, one shapes), so marginal product can even rise.`:`Worker ${W} adds only <b>${mp}</b> loaves. With one oven they start queuing for it: <b>diminishing marginal returns</b>. Each loaf now costs $50 ÷ ${mp} = <b>$${f2(50/mp)}</b> extra, so the bakery needs a higher price to supply more. That is why the supply curve slopes upward. Total output still rises, just more slowly.`}
+$('#hire').addEventListener('click',()=>{W++;drawDMR()});$('#fire').addEventListener('click',()=>{W--;drawDMR()});
+
+/* ---- 05 CISTERN shifter ---- */
+const EV=[['C','Wages of phone assembly workers rise by 15%',-1,'Higher costs of a factor of production (labour) make every phone more expensive to make, so firms supply fewer at each price: supply decreases (shifts left).'],
+['C','The world price of lithium for batteries falls',1,'A cheaper raw material lowers production costs, so firms can supply more at every price: supply increases (shifts right).'],
+['I','The government adds a $20 indirect tax on each phone sold',-1,'An indirect tax is a cost to the producer, which pays it to the government. Supply shifts left (upward by the amount of the tax). It does not shift demand.'],
+['S','Domestic phone makers receive a $15 subsidy per phone',1,'A subsidy lowers producers’ costs per unit, so supply shifts right (downward by the amount of the subsidy).'],
+['T','Robots automate the assembly line',1,'Better technology raises productivity and lowers unit costs, so supply increases (shifts right).'],
+['E','Firms expect phone prices to rise sharply next quarter',-1,'Producers may hold back stock now to sell later at the higher price, so current supply decreases (shifts left).'],
+['R','Tablet prices rise, and factories switch lines to tablets',-1,'Phones and tablets are in competitive supply (same factories and components). Resources move to tablets, so phone supply decreases (shifts left).'],
+['N','Three new brands enter the smartphone market',1,'More firms means more output at every price: market supply increases (shifts right).'],
+['N','A major manufacturer closes two factories',-1,'Fewer producers (or less capacity) means less supply at every price: supply decreases (shifts left).']];
+let cur=null,shift=st.get('cisshift',0),answered=st.get('cisans',{});
+function drawCis(sh){const g=Plot({xmax:100,ymax:12,xl:'Quantity of smartphones (Q)',yl:'Price (P)'});const S0=q=>2+q*.08,S=q=>2-sh+q*.08;
+ if(Math.abs(sh)>.01){g.fn(S0,'ghost','S₁',86);g.fn(S,'s','S₂',sh>0?95:62)}else g.fn(S0,'s','S₁',86);
+ const P=7,q0=(P-2)/.08,q1=(P-2+sh)/.08;g.seg(0,P,100,P,'guide');g.text(1,P+.25,'at a constant price','note');g.dot(q0,P,'dot2');g.guide(q0,P,'Q₁','P₁');
+ if(Math.abs(sh)>.3&&q1>0&&q1<100){g.dot(q1,P);g.guide(q1,P,'Q₂','');g.arrow(q0+(sh>0?3:-3),P-.6,q1+(sh>0?-3:3),P-.6)}
+ $('#cisfig').innerHTML=g.svg('Supply curve for smartphones with a possible shift')}
+function score(){const v=Object.values(answered);$('#cisscore').textContent=v.length?`Predictions: ${v.filter(Boolean).length} / ${v.length} correct`:''}
+$('#evs').innerHTML=EV.map((e,i)=>`<button class="btn ev" data-i="${i}" aria-pressed="false"><span class="l">${e[0]}</span><span>${e[1]}</span></button>`).join('');
+$$('.ev').forEach(b=>b.addEventListener('click',()=>{cur=+b.dataset.i;$$('.ev').forEach(x=>x.setAttribute('aria-pressed',x===b));$('#cisq').innerHTML=`<b>${EV[cur][1]}.</b> Which way does supply of smartphones shift?`;$('#pl').disabled=$('#pr').disabled=false;$('#cisfb').textContent='';$('#cisx').hidden=true}));
+function guess(dir){if(cur==null)return;const e=EV[cur],ok=dir===e[2];answered[cur]=ok;st.set('cisans',answered);$('#cisfb').textContent=ok?'Correct!':'Not quite. Watch the curve.';$('#cisfb').className='fb '+(ok?'ok':'no');$('#cisx').hidden=false;$('#cisx').textContent=e[3];$('#pl').disabled=$('#pr').disabled=true;const to=2.2*e[2];tween(shift,to,650,drawCis);shift=to;st.set('cisshift',shift);score()}
+$('#pl').addEventListener('click',()=>guess(-1));$('#pr').addEventListener('click',()=>guess(1));
+$('#cisreset').addEventListener('click',()=>{tween(shift,0,500,drawCis);shift=0;st.set('cisshift',0)});
+
+/* ---- 06 sorter ---- */
+const SRT=[['The price of laptops rises. What happens in the laptop market?','exp','Own-price change: move up the supply curve (expansion in quantity supplied).'],
+['Wages of garment workers rise. What happens to the supply of shirts?','dec','Higher factor costs shift supply left (a decrease).'],
+['The government subsidises organic farmers. Supply of organic vegetables?','inc','A subsidy lowers costs, so supply shifts right (an increase).'],
+['The price of wheat falls. What happens to the quantity of wheat supplied?','con','Own-price fall: move down the curve (contraction in quantity supplied).'],
+['Ten new bubble-tea shops open in the city. Market supply of bubble tea?','inc','More firms means market supply shifts right.'],
+['A new indirect tax on petrol retailers. Supply of petrol?','dec','An indirect tax is a cost to producers, so supply shifts left.'],
+['Demand for beef rises and ranchers raise more cattle. Supply of leather?','inc','Joint supply: more cattle means more hides, so leather supply shifts right.'],
+['Demand for cars rises and car prices increase. Supply of cars?','exp','Careful! Higher demand raises the price, which causes an expansion along the existing supply curve. Supply itself does not shift.'],
+['Oil producers expect much higher prices next year. Current supply of oil?','dec','Expectations: producers hold back output now, so current supply shifts left.'],
+['A drought destroys a third of the coffee harvest. Supply of coffee?','dec','Less output is possible at every price, so supply shifts left.']];
+let si=st.get('srti',0),ss=st.get('srts',[0,0]);
+const LAB={exp:'Movement: expansion',con:'Movement: contraction',inc:'Shift: increase (right)',dec:'Shift: decrease (left)'};
+function drawSrt(){si=si%SRT.length;$('#srtn').textContent=`Card ${si+1} of ${SRT.length}`;$('#srtq').textContent=SRT[si][0];$('#srtfb').textContent='';$('#srtnext').hidden=true;$$('.sorter [data-a]').forEach(b=>b.disabled=false);$('#srtsc').textContent=`Score ${ss[0]} / ${ss[1]}`}
+$$('.sorter [data-a]').forEach(b=>b.addEventListener('click',()=>{const c=SRT[si],ok=b.dataset.a===c[1];ss[1]++;if(ok)ss[0]++;st.set('srts',ss);$('#srtfb').className='fb '+(ok?'ok':'no');$('#srtfb').textContent=(ok?'✓ Correct. ':'✗ Answer: '+LAB[c[1]]+'. ')+c[2];$$('.sorter [data-a]').forEach(x=>x.disabled=true);$('#srtnext').hidden=false;$('#srtsc').textContent=`Score ${ss[0]} / ${ss[1]}`}));
+$('#srtnext').addEventListener('click',()=>{si++;st.set('srti',si);drawSrt()});
+
+/* ---- 07 related goods ---- */
+let mode='joint',rk=0;
+function drawRel(k){const m1=mode==='joint'?'Beef':'Apples',m2=mode==='joint'?'Leather':'Oranges',dir=mode==='joint'?1:-1;
+ const g1=Plot({xmax:100,ymax:12,xl:'Q of '+m1.toLowerCase(),yl:'Price of '+m1.toLowerCase(),w:420,h:330});
+ const S=q=>2+q*.08,D0=q=>11-q*.08,D=q=>11+2.4*k-q*.08;g1.fn(S,'s','S',85);if(k>.02)g1.fn(D0,'ghost','D₁',96);g1.fn(D,'d',k>.02?'D₂':'D',96);
+ const q0=9/.16,q1=(9+2.4*k)/.16;g1.dot(q0,S(q0),'dot2');g1.guide(q0,S(q0),'Q₁','P₁');if(k>.3){g1.dot(q1,S(q1));g1.guide(q1,S(q1),'Q₂','P₂');g1.arrow(q0+2,S(q0)+.2,q1-2,S(q1)-.2)}
+ $('#rfig1').innerHTML=`<p class="eyebrow" style="margin-bottom:6px">Market 1 · ${m1}</p>`+g1.svg(m1+' market');
+ const g2=Plot({xmax:100,ymax:12,xl:'Q of '+m2.toLowerCase(),yl:'Price of '+m2.toLowerCase(),w:420,h:330});const T0=q=>2+q*.08,T=q=>2-2*dir*k+q*.08;
+ if(k>.02)g2.fn(T0,'ghost','S₁',85);g2.fn(T,'s',k>.02?'S₂':'S',dir>0?96:70);g2.seg(0,7,100,7,'guide');const a=(7-2)/.08,b=(7-2+2*dir*k)/.08;g2.dot(a,7,'dot2');if(k>.3)g2.arrow(a+(dir>0?3:-3),6.3,b+(dir>0?-3:3),6.3);
+ $('#rfig2').innerHTML=`<p class="eyebrow" style="margin-bottom:6px">Market 2 · ${m2}</p>`+g2.svg(m2+' market');
+ $('#rx').innerHTML=k<.5?'Press “Increase demand in market 1”.':mode==='joint'?'Higher demand raises the price of beef, and ranchers <b>expand</b> quantity supplied along S (a movement). More cattle slaughtered means more hides, so the <b>supply of leather increases</b> (shifts right) even though nothing changed in the leather market itself.':'Higher demand raises the price of apples, and growers <b>expand</b> apple output along S. The same land and labour are switched away from oranges, so the <b>supply of oranges decreases</b> (shifts left).'}
+function setMode(m){mode=m;$('#rjoint').setAttribute('aria-pressed',m==='joint');$('#rcomp').setAttribute('aria-pressed',m==='comp');rk=0;drawRel(0)}
+$('#rjoint').addEventListener('click',()=>setMode('joint'));$('#rcomp').addEventListener('click',()=>setMode('comp'));
+$('#rgo').addEventListener('click',()=>{tween(rk,1,800,drawRel);rk=1});$('#rrst').addEventListener('click',()=>{rk=0;drawRel(0)});
+
+/* ---- 08 draw builder ---- */
+const DR=[['Axes first','Vertical axis: <b>Price (P)</b>. Horizontal axis: <b>Quantity (Q)</b>, per time period. Write “0” at the origin. Never label an axis “Supply”.'],
+['Draw the supply curve','An upward-sloping straight line, labelled <b>S₁</b> at its top end.'],
+['Mark the starting point','Pick a point on S₁. Dotted lines to both axes, labelled <b>P₁</b> and <b>Q₁</b>.'],
+['Movement: the price rises','Price rises to <b>P₂</b>: move <b>up the same curve</b> to Q₂. This is an <b>expansion</b> in quantity supplied. Draw an arrow along the curve.'],
+['Shift: a non-price determinant','For example, a <b>subsidy</b>: draw <b>S₂</b> to the right. At P₁, quantity supplied is now Q₃. Write the cause next to the arrow. This is an <b>increase in supply</b>.']];
+let ds=0;
+function drawDraw(){const g=Plot({xmax:100,ymax:12,xl:'Quantity (Q)',yl:'Price (P)'});const S=q=>2+q*.08,S2=q=>.4+q*.08;
+ if(ds>=1)g.fn(S,'s','S₁',88);if(ds>=2){g.dot(45,S(45));g.guide(45,S(45),'Q₁','P₁')}if(ds>=3){g.dot(70,S(70));g.guide(70,S(70),'Q₂','P₂');g.arrow(48,S(48)+.25,67,S(67)-.1);g.text(52,S(60)+.9,'expansion','note')}
+ if(ds>=4){g.fn(S2,'s2','S₂',98);const q3=(S(45)-.4)/.08;g.dot(q3,S(45),'dot2');g.guide(q3,S(45),'Q₃','');g.arrow(48,S(45)-.5,q3-3,S(45)-.5);g.text(49,S(45)-1.1,'subsidy → increase in supply','note')}
+ $('#drawfig').innerHTML=g.svg('Supply diagram build, step '+(ds+1));$('#drawt').textContent=`Step ${ds+1}: ${DR[ds][0]}`;$('#drawx').innerHTML=DR[ds][1];
+ $('#ddots').innerHTML=DR.map((_,i)=>`<i class="${i<=ds?'on':''}"></i>`).join('');$('#dprev').disabled=ds===0;$('#dnext').disabled=ds===DR.length-1}
+$('#dnext').addEventListener('click',()=>{ds++;drawDraw()});$('#dprev').addEventListener('click',()=>{ds--;drawDraw()});
+
+/* ---- 09 cases ---- */
+const CASES=[['Frost hits Brazilian coffee','Brazil grows roughly a third of the world’s coffee. In July 2021 severe frosts damaged many arabica trees in Minas Gerais, and new trees take about three years to produce beans.',['Which curve shifts, and in which direction?','Why can farmers not respond quickly?','Does coffee supply from Vietnam shift?'],['The frost reduces the productive capacity of land (a factor of production), so less coffee can be supplied at every price: Brazilian supply shifts left, S₁ → S₂.','Trees take years to mature, so the fall in supply lasts several seasons.','No. Vietnam’s costs are unchanged, so its supply curve does not shift. If the world price rises, Vietnamese growers expand along their existing curve (a movement).']],
+['Solar power in Germany','Germany has supported solar installations with subsidies and guaranteed payments. The cost of solar cells has also fallen by around 90% since 2010 thanks to new technology and mass production.',['Identify two determinants of supply involved.','What is the combined effect on the supply curve?','Why might a government subsidise solar power?'],['Subsidies (S) and technology (T) in CISTERN.','Both lower costs, so supply shifts right twice: S₁ → S₂ → S₃, a large increase in supply.','Solar power cuts carbon emissions, which links to sustainability and to positive externalities (Chapter 11).']],
+['Cigarette tax in India','India’s taxes on cigarettes (GST plus a compensation cess) amount to roughly half the retail price. Hoang uses a 40% tax example (p. 66).',['Which curve does the tax shift?','Why does it not shift demand?','What happens to the quantity demanded?'],['An indirect tax raises each producer’s cost per packet, so supply shifts left (up by the tax per unit).','The tax does not change consumers’ income, tastes or other demand determinants. They respond to the higher price by moving along the demand curve.','Quantity demanded contracts. How much depends on price elasticity of demand (Chapter 7); cigarette demand is price inelastic, so the fall is small.']]];
+$('#casebox').innerHTML=CASES.map(c=>`<article class="case"><h3>${c[0]}</h3><p>${c[1]}</p><ol>${c[2].map(q=>`<li>${q}</li>`).join('')}</ol><details><summary>Model answer</summary><ol>${c[3].map(a=>`<li>${a}</li>`).join('')}</ol></details></article>`).join('');
+
+/* ---- 10 quiz ---- */
+const MCQ=[['The price of coffee rises. For coffee producers this causes…',['A rightward shift of supply','An expansion in quantity supplied','A leftward shift of supply','A contraction in quantity supplied'],1,'An own-price change is a movement along the curve, not a shift.',0],
+['Which of these would shift the supply of cars to the LEFT?',['A subsidy for car makers','New robotic assembly lines','Higher steel prices','A rise in the price of cars'],2,'Steel is an input, so higher input costs mean a decrease in supply.',0],
+['A new indirect tax on sugary drinks will…',['Shift the supply curve left','Shift the demand curve left','Cause a movement along supply only','Have no effect on the market'],0,'Indirect taxes are costs to producers, so supply shifts left and price rises.',0],
+['Beef and leather are an example of…',['Competitive supply','Joint supply','Complements in demand','Substitutes in supply'],1,'They are produced together from the same animal.',0],
+['Farmers switch land from wheat to rapeseed because rapeseed prices rise. The supply of wheat…',['Shifts right','Shifts left','Expands','Is unchanged'],1,'Competitive supply: resources move away from wheat.',0],
+['At $8, Firm A supplies 40, Firm B 25 and Firm C 35 units. Market supply at $8 is…',['35','40','100','$800'],2,'Horizontal summation: 40 + 25 + 35 = 100 units.',0],
+['Which does NOT shift the supply curve of restaurant meals?',['Higher chef wages','A subsidy to restaurants','A rise in consumers’ income tax','Five new restaurants opening'],2,'Income tax affects consumers’ disposable income, so it shifts demand, not supply.',0],
+['(HL) Diminishing marginal returns happen because…',['All factors are variable','At least one factor of production is fixed in the short run','Firms dislike hiring workers','Prices are falling'],1,'Adding variable factors to a fixed factor (e.g. one oven) eventually lowers marginal product.',1],
+['(HL) Output rises from 65 to 80 loaves when a 4th worker is hired at $50. The marginal cost per loaf is about…',['$0.77','$3.33','$5.00','$15.00'],1,'MC = ΔTC ÷ ΔQ = $50 ÷ 15 = $3.33.',1]];
+function renderMCQ(){const ans=st.get('mcq',{});const list=MCQ.map((q,i)=>[q,i]).filter(x=>!(x[0][4]&&LVL==='SL'));
+ $('#mcqs').innerHTML=list.map(([q,i])=>`<div class="mcq" data-i="${i}"><p><b>${list.findIndex(x=>x[1]===i)+1}.</b> ${q[0]}</p><div class="opts">${q[1].map((o,j)=>`<button class="btn opt" data-j="${j}">${String.fromCharCode(65+j)}. ${o}</button>`).join('')}</div><p class="why" hidden></p></div>`).join('');
+ $$('.mcq').forEach(el=>{const i=+el.dataset.i,q=MCQ[i];const mark=j=>{el.querySelectorAll('.opt').forEach(b=>{const k=+b.dataset.j;b.disabled=true;if(k===q[2])b.classList.add('ok');else if(k===j)b.classList.add('no')});const w=el.querySelector('.why');w.hidden=false;w.textContent=(j===q[2]?'✓ ':'✗ ')+q[3]};
+  if(ans[i]!=null)mark(ans[i]);el.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{const a=st.get('mcq',{});a[i]=+b.dataset.j;st.set('mcq',a);mark(+b.dataset.j);sc()}))});
+ const sc=()=>{const a=st.get('mcq',{});const done=list.filter(x=>a[x[1]]!=null);const ok=done.filter(x=>a[x[1]]===x[0][2]).length;$('#mcqscore').innerHTML=done.length?`Score: ${ok} / ${list.length} <button class="btn" id="mcqreset" style="margin-left:10px;padding:4px 10px">Try again</button>`:'';const r=$('#mcqreset');if(r)r.addEventListener('click',()=>{st.set('mcq',{});renderMCQ()})};sc()}
+const QF=[['Define supply.','The quantity producers are willing and able to sell at each price in a given time period, ceteris paribus.',0],['Give two reasons for the law of supply.','Higher prices increase profit margins for existing firms and attract new firms into the market.',0],['What does CISTERN stand for?','Costs of factors, Indirect taxes, Subsidies, Technology, Expectations, Related goods, Number of firms.',0],['Distinguish joint supply from competitive supply.','Joint: produced together (beef and leather). Competitive: compete for the same resources (wheat and barley).',0],['Why does an indirect tax not shift demand?','It changes producers’ costs, not consumers’ income or preferences. Consumers respond to the higher price by moving along the demand curve.',0],['A decrease in supply: which way does the curve move?','Left (and up). It is not a “downward” shift.',0],['(HL) State the law of diminishing marginal returns.','As more of a variable factor is added to a fixed factor, the extra output from each additional unit eventually falls.',1],['(HL) Why does marginal cost rise in the short run?','Because of diminishing marginal returns, each extra unit needs more of the variable input, so it costs more.',1]];
+function renderQF(){$('#qf').innerHTML=QF.filter(q=>!(q[2]&&LVL==='SL')).map(q=>`<div class="qa"><p><b>${q[0]}</b></p><details><summary>Show answer</summary><p>${q[1]}</p></details></div>`).join('')}
+
+/* ---- 11 mistakes ---- */
+const MI=[['“Higher price increases supply”','A higher price increases quantity supplied: a movement along the curve.'],['“Rising demand increases supply and lowers the price”','Rising demand raises the price, which causes an expansion along the existing supply curve.'],['“Any tax shifts supply”','Only indirect taxes shift supply. Income taxes affect consumers, so they shift demand.'],['“A sales tax shifts demand left”','It shifts supply left and causes a contraction along demand.'],['“A decrease in supply shifts the curve down”','A decrease moves the curve up and to the left.'],['“Diminishing returns means output falls” (HL)','Total output still rises, but by smaller and smaller amounts.']];
+$('#mist').innerHTML=MI.map(m=>`<div><b>✗ ${m[0]}</b>${m[1]}</div>`).join('');
+
+/* ---- 12 exam ---- */
+const EX=[['Paper 1 (a) · 10 marks','Using diagrams, explain the difference between a movement along a supply curve and a shift of the supply curve.',['Define supply, quantity supplied and the law of supply.','Diagram 1: a single S curve with P₁→P₂ and Q₁→Q₂ and an arrow (expansion/contraction), fully labelled.','Diagram 2: S₁→S₂ (and/or S₃) at a constant price, with the cause labelled.','Explain: own price → movement; non-price determinants (CISTERN) → shift.','Real-world example for each (e.g. higher coffee prices vs frost damage).']],
+['Paper 1 (a) · 10 marks','Explain two factors that could cause a firm’s supply curve to shift to the left.',['Define supply and a decrease in supply.','Factor 1, e.g. higher wages: costs rise, so less is profitable to supply at each price.','Factor 2, e.g. an indirect tax: an extra cost per unit, so the curve shifts up by the tax.','One accurate diagram showing S₁ → S₂ to the left, with labels.','A real example for each factor.']],
+['Paper 2 · 4 marks','Using a supply diagram, explain the effect of a government subsidy on the supply of solar panels.',['Diagram: S₁ shifts right/down to S₂ (by the subsidy per unit); axes, curves and P and Q labelled [2].','Explanation: the subsidy lowers producers’ costs, so more is supplied at every price [2].']],
+['Paper 3 HL · 4 marks','Using the bakery data (1–5 workers: 20, 45, 65, 80, 90 loaves), explain how diminishing marginal returns lead to an upward-sloping supply curve.',['Calculate MP: 20, 25, 20, 15, 10. Diminishing returns start with the 3rd worker.','With a fixed oven, each extra worker adds less output, so MC per loaf rises ($50 ÷ 15 = $3.33, then $50 ÷ 10 = $5).','Firms supply extra units only if price covers the rising MC, so a higher price is needed for more output: supply slopes upward.']]];
+$('#exambox').innerHTML=EX.map((e,i)=>`<article class="case ${/HL/.test(e[0])?'hlonly':''}"><span class="badge ${/HL/.test(e[0])?'b-hl':'b-sl'}">${e[0]}</span><p style="font-family:var(--serif);font-size:17px">${e[1]}</p><details><summary>What a strong answer includes</summary><ol>${e[2].map(x=>`<li>${x}</li>`).join('')}</ol></details></article>`).join('');
+
+/* ---- init ---- */
+setLvl(LVL);drawLaw();drawMkt();drawDMR();drawCis(shift);score();drawSrt();setMode('joint');drawDraw();
+})();
+</script>
+<script id="cg-js">
+(function(){
+const CG={"title": "Chapter 4 · Supply", "intro": "Supply explains the selling side of a market: how much producers are willing and able to sell, why they offer more at higher prices, and which changes in costs and conditions make them supply more or less at every price.", "groups": [{"name": "The basics of supply", "terms": [{"term": "Supply", "level": "SL/HL", "definition": "The quantity of a good or service that producers are willing and able to sell at each possible price during a given time period, ceteris paribus.", "explanation": "Firms must be both willing (it is profitable) and able (they have the resources and capacity) to sell. Like demand, supply refers to the whole relationship between price and quantity and is measured per time period.", "example": "A bakery would like to sell 1,000 loaves a day but its oven can bake only 400. Its supply at current prices is 400 loaves, not 1,000.", "exam_tip": "Mirror the demand definition, replacing 'consumers' and 'buy' with 'producers' and 'sell'.", "related": ["Quantity supplied", "Law of supply"]}, {"term": "Quantity supplied", "level": "SL/HL", "definition": "The amount producers are willing and able to sell at one particular price; a single point on the supply curve.", "explanation": "A change in the good's own price changes quantity supplied (a movement along the curve), not supply itself.", "example": "Coffee farmers offer 1,000 tonnes at $3 per kg and 1,200 tonnes at $4 per kg. Quantity supplied rose by 200 tonnes; supply (the curve) is unchanged.", "exam_tip": "'Higher price → higher quantity supplied', never 'higher price → more supply'.", "related": ["Expansion and contraction of supply"]}, {"term": "Law of supply", "level": "SL/HL", "definition": "There is a positive (direct) relationship between the price of a good and the quantity supplied, ceteris paribus.", "explanation": "Two reasons: a higher price raises the profit margin on each unit, so existing firms produce more; and higher prices attract new firms into the market. At HL, rising marginal costs (from diminishing marginal returns) mean firms need a higher price to cover the extra cost of more output. The supply curve therefore slopes upward.", "example": "When the price of avocados reached record highs in 2017, growers in Mexico and Peru planted more trees and new producers entered the market.", "exam_tip": "Give both reasons (profit incentive and entry of new firms) for full explanation marks.", "related": ["Supply curve", "Increasing marginal costs"]}, {"term": "Supply curve", "level": "SL/HL", "definition": "A graph showing the relationship between price (vertical axis) and quantity supplied (horizontal axis); it slopes upward from left to right.", "explanation": "Each point pairs a price with the quantity producers would sell at that price, holding other factors constant. When any non-price factor changes, a new curve is drawn.", "example": "A supply schedule for bubble tea: $3 → 40 cups, $4 → 60, $5 → 80, $6 → 100. Plotted, this gives an upward-sloping curve.", "exam_tip": "Avoid drawing every supply curve from the origin; that implies unit elasticity (Chapter 9).", "related": ["Law of supply"]}, {"term": "Market supply", "level": "SL/HL", "definition": "The sum of all individual producers' quantities supplied at each price; the horizontal summation of individual supply curves.", "explanation": "Add the quantities offered by every firm at each price. More firms mean more is supplied at every price, so market supply shifts right. The market curve is flatter than each individual firm's curve.", "example": "At $10 per kg, Firm 1 supplies 200 kg of organic grapes and Firm 2 supplies 300 kg, so market supply is 500 kg (Hoang Fig 4.4). If a third grower offers 250 kg, market supply becomes 750 kg.", "exam_tip": "Add quantities, never prices.", "related": ["Number of firms"]}]}, {"name": "Why supply slopes upward (HL)", "terms": [{"term": "Short run and long run", "level": "HL", "definition": "The short run is the period in which at least one factor of production (usually capital) is fixed; the long run is the period in which all factors are variable.", "explanation": "The length of the short run depends on the industry. A café can add a coffee machine in a week; a steel plant may take years to build new furnaces. Diminishing marginal returns apply only in the short run, because they depend on a fixed factor.", "example": "A restaurant can hire extra waiters tonight (variable factor), but cannot add a second kitchen until next year (fixed factor in the short run).", "exam_tip": "Define the short run by fixed factors, not by a number of months.", "related": ["Law of diminishing marginal returns"]}, {"term": "Law of diminishing marginal returns", "level": "HL", "definition": "In the short run, as more units of a variable factor are added to a fixed factor, the extra output (marginal product) from each additional unit eventually falls.", "explanation": "At first extra workers can specialise, so output may rise quickly. Eventually they must share the same fixed equipment and space, and each additional worker adds less than the one before. Total output still rises, but more slowly.", "example": "A bakery with one oven: 1 worker makes 20 loaves, 2 make 45, 3 make 65, 4 make 80, 5 make 90. Marginal product is 20, 25, 20, 15, 10, so diminishing returns start with the third worker.", "exam_tip": "Diminishing returns do not mean total output falls; marginal product falls.", "related": ["Increasing marginal costs", "Short run and long run"]}, {"term": "Increasing marginal costs", "level": "HL", "definition": "Marginal cost (MC = ΔTC ÷ ΔQ) is the extra cost of producing one more unit; because of diminishing marginal returns it rises as output increases in the short run.", "explanation": "If each extra worker costs the same wage but adds fewer units, the cost of each extra unit rises. Firms supply extra units only if the price covers this higher marginal cost, so more output is supplied only at higher prices. This is the theoretical foundation of the upward-sloping supply curve.", "example": "The bakery pays $50 per worker. The 4th worker adds 15 loaves, so MC = $50 ÷ 15 = $3.33 per loaf; the 5th adds 10 loaves, so MC = $5.00 per loaf.", "exam_tip": "Link the chain explicitly: fixed factor → diminishing returns → rising MC → higher price needed → upward-sloping supply.", "related": ["Law of diminishing marginal returns", "Law of supply"]}]}, {"name": "Movements and shifts", "terms": [{"term": "Expansion and contraction of supply", "level": "SL/HL", "definition": "Movements along an existing supply curve caused only by a change in the good's own price: an expansion when price rises, a contraction when price falls.", "explanation": "Producers respond to a price change by moving to a new point on the same curve. Expansion = up the curve; contraction = down the curve. The ability and willingness to supply at each price are unchanged.", "example": "Higher demand for cars pushes car prices up, and manufacturers add extra shifts: that is an expansion of quantity supplied, not an increase in supply.", "exam_tip": "A rise in demand causes a movement along supply, not a shift of supply.", "related": ["Quantity supplied", "Increase and decrease in supply"]}, {"term": "Increase and decrease in supply", "level": "SL/HL", "definition": "A shift of the whole supply curve caused by a non-price determinant: an increase is a shift to the right (down); a decrease is a shift to the left (up).", "explanation": "When costs, taxes, subsidies, technology, expectations, related goods or the number of firms change, producers are willing and able to sell a different quantity at every price. At the same price, more (right shift) or less (left shift) is supplied.", "example": "Automation and cheaper cells cut the cost of making solar panels by about 90% between 2010 and 2020. At an unchanged price of $200 per panel, firms now offer 16,000 panels a week instead of 10,000: supply has increased.", "exam_tip": "A decrease in supply shifts the curve left and up, not 'down'. Write the cause on the diagram.", "related": ["Non-price determinants of supply (CISTERN)"]}, {"term": "Non-price determinants of supply (CISTERN)", "level": "SL/HL", "definition": "Factors other than the good's own price that change supply and shift the supply curve: Costs of factors of production, Indirect taxes, Subsidies, Technology, Expectations, Related goods (joint and competitive supply), Number of firms.", "explanation": "Most determinants work through the cost of production. Lower costs, subsidies, better technology and more firms increase supply (right). Higher costs, indirect taxes, removal of subsidies, exit of firms and switching resources to more profitable related goods decrease supply (left). Expectations of higher future prices can reduce current supply as firms hold stock back. Weather and natural disasters also shift supply, especially in agriculture.", "example": "Smartphone market: wages of assembly workers rise → left; the price of lithium falls → right; a $20 tax per phone → left; robots automate assembly → right; three new brands enter → right; factories switch to making tablets → left.", "exam_tip": "Explain the mechanism (cost, profitability, capacity), not just the direction.", "related": ["Indirect tax", "Subsidy", "Joint supply", "Competitive supply"]}]}, {"name": "Government and related goods", "terms": [{"term": "Indirect tax", "level": "SL/HL", "definition": "A tax on spending on goods and services, paid to the government by producers; it raises the cost of supplying each unit and shifts the supply curve left (up by the amount of the tax).", "explanation": "Examples are VAT/GST, excise duties on cigarettes, alcohol and fuel, and sugar taxes. Because the tax is a cost for producers, the supply curve shifts, not the demand curve. Consumers react to the higher price by moving along their demand curve.", "example": "India's taxes on cigarettes (GST plus a compensation cess) add roughly half to the retail price, shifting cigarette supply sharply to the left.", "exam_tip": "Only indirect taxes shift supply. Income tax reduces disposable income and so affects demand.", "related": ["Subsidy"]}, {"term": "Subsidy", "level": "SL/HL", "definition": "A payment from the government to producers that lowers their costs of production and shifts the supply curve right (down by the amount of the subsidy per unit).", "explanation": "Governments subsidise goods they want more of (renewable energy, public transport, farming, education) or to protect jobs. With lower costs, firms supply more at every price.", "example": "Germany's subsidies and guaranteed payments for solar installations increased the supply of solar power, shifting the supply curve to the right.", "exam_tip": "Show the vertical distance between S₁ and S₂ as the subsidy per unit.", "related": ["Indirect tax"]}, {"term": "Joint supply", "level": "SL/HL", "definition": "Goods produced together, so an increase in the output of one automatically increases the supply of the other (by-products).", "explanation": "Raising more cattle for beef also produces more hides for leather; refining more crude oil produces more petrol and diesel together. A rise in the price of one good causes an expansion in its own market and an increase in supply (right shift) of the joint product.", "example": "Rising incomes in China and Indonesia increase demand for beef. Australian ranchers raise their herds, and tanneries find more hides available: the supply of leather shifts right.", "exam_tip": "Two diagrams: movement along S in the main market, rightward shift of S in the joint product's market.", "related": ["Competitive supply"]}, {"term": "Competitive supply", "level": "SL/HL", "definition": "Goods that compete for the same resources, so producing more of one means producing less of the other.", "explanation": "Land, labour and machinery can be switched between products. If one product becomes more profitable, resources move towards it and supply of the alternative falls (left shift).", "example": "A rise in the price of rapeseed encourages farmers to plant rapeseed instead of wheat on the same land, so the supply of wheat decreases (Hoang uses apples and oranges, Fig 4.6).", "exam_tip": "Explain the reallocation of resources; that is the mechanism the examiner looks for.", "related": ["Joint supply"]}, {"term": "Number of firms", "level": "SL/HL", "definition": "The number of producers in a market: entry of new firms increases market supply; exit of firms decreases it.", "explanation": "Market supply is the sum of individual firms' supply, so more firms mean more output at every price. Firms enter when a market is profitable and barriers to entry are low; they leave when making losses.", "example": "Ten new bubble-tea shops open in a city, so market supply of bubble tea shifts right. Markets for CDs and DVDs have shrunk as producers left (Hoang pp. 62–63).", "exam_tip": "Link to market supply as horizontal summation.", "related": ["Market supply"]}, {"term": "Producer expectations", "level": "SL/HL", "definition": "Producers' beliefs about future prices and conditions; expecting higher future prices may reduce current supply as firms hold back stock, while expecting lower prices may increase current supply.", "explanation": "Firms that can store their product time sales to earn the highest price. Expectations about future demand can also lead firms to invest in capacity, which increases supply over time.", "example": "Oil producers who expect prices to rise next year store more crude oil now, reducing current supply.", "exam_tip": "Say whether the effect is on current or future supply.", "related": ["Non-price determinants of supply (CISTERN)"]}, {"term": "Technology", "level": "SL/HL", "definition": "Improvements in methods, machinery and processes that raise productivity and lower costs per unit, shifting the supply curve right.", "explanation": "Better technology means more output from the same inputs, so each unit is cheaper to produce and firms can supply more at every price. Examples include automation, AI, better seeds and fertilisers, and e-commerce.", "example": "Drought-resistant seed varieties allow farmers in Kenya to harvest more maize from the same land, increasing supply.", "exam_tip": "Technology almost always increases supply; a decrease would need something like equipment failure.", "related": ["Increase and decrease in supply"]}]}]};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const box=document.getElementById('cgbox'),q=document.getElementById('cgq'),cnt=document.getElementById('cgcount');
+const id=t=>'cg-'+t.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+box.innerHTML='<p style="max-width:72ch">'+esc(CG.intro)+'</p>'+CG.groups.map(g=>{const hl=g.terms.every(t=>t.level==='HL');return `<div class="cg-group ${hl?'hlonly cg-hl':''}"><h3>${esc(g.name)}</h3>`+g.terms.map(t=>`<details class="cg-item ${t.level==='HL'?'cg-hl':''}" id="${id(t.term)}" data-s="${esc((t.term+' '+t.definition+' '+t.explanation+' '+t.example).toLowerCase())}"><summary><b>${esc(t.term)}</b><span class="badge ${t.level==='HL'?'b-hl':'b-sl'}">${t.level}</span><span class="cg-def">${esc(t.definition)}</span></summary><div class="cg-body"><div><span class="lbl">Definition</span><p class="defn">${esc(t.definition)}</p></div><div><span class="lbl">Explanation</span><p>${esc(t.explanation)}</p></div><div class="cg-ex"><span class="lbl">Example</span><p>${esc(t.example)}</p></div><div class="cg-tip"><span class="lbl">Exam tip</span><p>${esc(t.exam_tip)}</p></div>${(t.related||[]).length?`<div><span class="lbl">Related terms</span><div class="cg-rel">${t.related.map(r=>`<button type="button" data-go="${id(r)}">${esc(r)}</button>`).join('')}</div></div>`:''}</div></details>`).join('')+'</div>'}).join('')+'<p class="cg-empty" id="cgnone" hidden>No terms match your search.</p>';
+function lvl(){let l='HL';try{l=JSON.parse(localStorage.getItem('supplylab.lvl'))||'HL'}catch(e){}return l}
+function apply(){const sl=document.querySelector('.lvl [data-lvl="SL"][aria-pressed="true"]')||lvl()==='SL';const s=(q.value||'').trim().toLowerCase();let n=0;
+ box.querySelectorAll('.cg-item').forEach(d=>{const show=!(sl&&d.classList.contains('cg-hl'))&&(!s||d.dataset.s.includes(s));d.hidden=!show;if(show)n++;if(s&&show)d.open=true});
+ box.querySelectorAll('.cg-group').forEach(g=>{g.hidden=![...g.querySelectorAll('.cg-item')].some(d=>!d.hidden)});
+ cnt.textContent=n+' term'+(n===1?'':'s');document.getElementById('cgnone').hidden=n>0}
+q.addEventListener('input',apply);
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(apply,0)));
+document.getElementById('cgopen').addEventListener('click',()=>box.querySelectorAll('.cg-item:not([hidden])').forEach(d=>d.open=true));
+document.getElementById('cgclose').addEventListener('click',()=>box.querySelectorAll('.cg-item').forEach(d=>d.open=false));
+box.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const t=document.getElementById(b.dataset.go);if(t){q.value='';apply();t.open=true;t.scrollIntoView({block:'center'})}});
+apply();
+})();
+</script>

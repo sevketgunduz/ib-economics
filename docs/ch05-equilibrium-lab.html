@@ -1,0 +1,406 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Equilibrium Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#f4f5f1; --panel:#ffffff; --panel2:#f8f9f5; --ink:#1a2029; --muted:#5a636c; --rule:#d9ddd3; --grid:#e7eae2;
+  --supply:#c0441f; --supply2:#e8876a; --demand:#2451c4; --good:#12795f; --bad:#b3261e; --hl:#6f3aa8; --hlbg:#efe6f8; --slbg:#e2efe9; --sl:#0d6b5c;
+  --tint:#eaf0fc; --focus:#2451c4; --shade:rgba(192,68,31,.14); --shadeb:rgba(36,81,196,.14);
+  --serif:"Source Serif 4",Georgia,serif; --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:16px/1.6 var(--sans);margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:0 80px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--ground);border-bottom:1px solid var(--rule)}
+.topin{max-width:1120px;margin:0 auto;padding:10px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{font:650 18px var(--serif);margin-right:auto}
+.brand span{font:600 12px var(--sans);color:var(--muted);margin-left:8px}
+nav.jump{display:flex;gap:2px;flex-wrap:wrap}
+nav.jump a{font:600 12.5px var(--sans);color:var(--muted);text-decoration:none;padding:6px 9px;border-radius:6px}
+nav.jump a:hover{background:var(--panel);color:var(--ink)}
+.lvl{display:flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden}
+.lvl button{font:700 12px var(--sans);border:0;background:var(--panel);color:var(--muted);padding:6px 12px;cursor:pointer}
+.lvl button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+h1,h2,h3{font-family:var(--serif);font-weight:650;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h1{font-size:40px;line-height:1.1} h2{font-size:27px;line-height:1.2} h3{font-size:19px}
+p{margin:0} .muted{color:var(--muted)}
+.eyebrow{font:700 11.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--demand)}
+.badge{display:inline-block;font:700 10.5px var(--sans);letter-spacing:.06em;padding:2px 7px;border-radius:4px;vertical-align:3px}
+.b-hl{background:var(--hlbg);color:var(--hl)} .b-sl{background:var(--slbg);color:var(--sl)}
+button:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+section.step{padding-top:56px;scroll-margin-top:70px}
+.shead{display:grid;gap:8px;max-width:72ch;margin-bottom:20px}
+.shead .num{font:600 13px var(--mono);color:var(--muted)}
+.hero{padding-top:44px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:36px;align-items:center}
+.hero p.lead{font-size:18px;margin-top:14px;max-width:56ch}
+.goals{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px}
+.goals ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.goals li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:15px}
+.goals input{width:18px;height:18px;accent-color:var(--good);margin-top:3px}
+.lab{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:20px}
+.lab2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+svg.g{width:100%;height:auto;display:block;border-radius:8px;background:var(--panel2);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px}
+svg .axis{stroke:var(--ink);stroke-width:1.7;fill:none} svg .axl{fill:var(--ink);font:700 12.5px var(--sans)} svg .tick{fill:var(--muted);font:11.5px var(--mono)}
+svg .guide{stroke:var(--muted);stroke-dasharray:4 4;fill:none}
+svg .s{stroke:var(--supply);stroke-width:3;fill:none;stroke-linecap:round} svg .s2{stroke:var(--supply2);stroke-width:2.2;fill:none;stroke-dasharray:7 5}
+svg .sm{stroke:var(--ink);stroke-width:3;fill:none} svg .d{stroke:var(--demand);stroke-width:3;fill:none}
+svg .ghost{stroke:var(--muted);stroke-width:1.6;stroke-dasharray:3 4;fill:none}
+svg text.ls{fill:var(--supply);font:700 13px var(--sans)} svg text.ld{fill:var(--demand);font:700 13px var(--sans)} svg text.lm{fill:var(--ink);font:700 13px var(--sans)} svg text.lg{fill:var(--muted);font:700 12px var(--sans)}
+svg .dot{fill:var(--ink)} svg .dot2{fill:var(--panel);stroke:var(--ink);stroke-width:1.8}
+svg .arrow{stroke:var(--good);stroke-width:2.4;fill:none;marker-end:url(#ah)} svg .ahead{fill:var(--good)}
+svg .bar{fill:var(--demand);opacity:.7} svg .bar.dim{fill:var(--supply);opacity:.75}
+svg .note{fill:var(--muted);font:600 11.5px var(--sans)} svg .area{fill:var(--shade)}
+.ctl{display:grid;grid-template-columns:1fr 70px;gap:2px 10px;align-items:center;font-size:14px;margin-bottom:12px}
+.ctl span{grid-column:1/-1;font-weight:600;color:var(--muted)} .ctl input{width:100%;accent-color:var(--demand)} .ctl output{font:600 13px var(--mono);text-align:right}
+.read{display:grid;grid-template-columns:1fr auto;gap:6px 14px;font-size:14.5px;margin:6px 0 0}
+.read dt{color:var(--muted)} .read dd{margin:0;font:600 13.5px var(--mono);text-align:right}
+.explain{margin-top:14px;padding:12px 14px;border-left:3px solid var(--demand);background:var(--tint);border-radius:0 8px 8px 0;font-size:14.5px}
+.btn{font:600 14px var(--sans);border:1px solid var(--rule);background:var(--panel);color:var(--ink);padding:9px 13px;border-radius:8px;cursor:pointer;text-align:left}
+.btn:hover{border-color:var(--demand)} .btn.pri{background:var(--ink);color:var(--ground);border-color:var(--ink)} .btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.flip{perspective:900px;height:170px;border:0;background:none;padding:0;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:6px}
+.flip .f{background:var(--panel);justify-content:space-between} .flip .f b{font:650 19px var(--serif)}
+.flip .b{background:var(--tint);transform:rotateY(180deg);font-size:14.5px;overflow:auto}
+.flip .hint{font-size:12px;color:var(--muted)}
+.events{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;margin:14px 0}
+.ev{display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:start}
+.ev .l{font:700 14px var(--mono);color:var(--demand);background:var(--tint);border-radius:6px;text-align:center;padding:2px 0}
+.ev[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.predict{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.fb{font-weight:600} .fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+.sorter .card{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px;display:grid;gap:10px}
+.sorter .card p{font-size:16.5px;font-family:var(--serif)}
+.score{font:600 14px var(--mono)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--grid);text-align:right;font-variant-numeric:tabular-nums}
+th{font:700 11.5px var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule)}
+td:first-child,th:first-child{text-align:left} tr.cur td{background:var(--tint);font-weight:700} tr.dmr td:nth-child(3){color:var(--supply)}
+.tblwrap{overflow-x:auto}
+.case{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;display:grid;gap:10px}
+.case details{border-top:1px solid var(--grid);padding-top:10px}
+.case summary,.qa summary{cursor:pointer;font-weight:700;color:var(--demand)}
+.case ol{margin:8px 0 0;padding-left:20px}
+.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px}
+.mcq{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;display:grid;gap:8px}
+.mcq .opts{display:grid;gap:6px}
+.mcq .opt{font:500 14.5px var(--sans)} .mcq .opt.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--panel))} .mcq .opt.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--panel))}
+.mcq .why{font-size:14px;color:var(--muted)}
+.quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.qa{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 16px}
+.qa details p{margin-top:6px;padding:8px 10px;background:var(--panel2);border-radius:6px}
+.mist{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.mist div{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;font-size:14.5px}
+.mist b{display:block;color:var(--bad);font-size:13px;letter-spacing:.03em;margin-bottom:4px} .mist i{display:block;color:var(--good);font-style:normal;font-weight:600;margin-top:6px}
+.stepper{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.dots{display:flex;gap:5px} .dots i{width:9px;height:9px;border-radius:50%;background:var(--rule)} .dots i.on{background:var(--demand)}
+.pill{font:600 12.5px var(--mono);padding:3px 9px;border-radius:99px;background:var(--panel2);border:1px solid var(--rule)}
+footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+.hlonly[hidden]{display:none!important}
+@media (max-width:860px){.hero,.lab2{grid-template-columns:1fr} h1{font-size:32px} nav.jump{display:none}}
+@media (max-width:520px){.wrap,.topin{padding-inline:16px} .lab{padding:14px} h1{font-size:28px} h2{font-size:23px}}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}}
+svg .d2{stroke:var(--demand);stroke-width:2.2;fill:none;stroke-dasharray:7 5} svg text.ld2{fill:var(--demand);font:700 12px var(--sans)} svg .spend{fill:var(--shadeb)}
+svg .dwl{fill:rgba(214,151,0,.38)} svg .gap{stroke:var(--supply);stroke-width:5;opacity:.45}
+.sorter .btn[aria-pressed="true"],.lab .btn[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px} @media (max-width:860px){.two{grid-template-columns:1fr}}
+</style>
+<style id="cg-css">
+.cg-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.cg-tools input{flex:1;min-width:220px;max-width:420px;font:15px var(--sans);padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink)}
+.cg-group{margin-top:22px} .cg-group h3{margin-bottom:10px}
+.cg-item{background:var(--panel);border:1px solid var(--rule);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.cg-item summary{cursor:pointer;list-style:none;padding:14px 18px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:baseline}
+.cg-item summary::-webkit-details-marker{display:none}
+.cg-item summary b{font:650 18px var(--serif)} .cg-item summary .cg-def{grid-column:1/-1;color:var(--muted);font-size:14.5px}
+.cg-item[open] summary .cg-def{display:none}
+.cg-body{padding:0 18px 16px;display:grid;gap:10px}
+.cg-body .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+.cg-body .defn{font-weight:600}
+.cg-ex{background:var(--tint);border-radius:8px;padding:10px 12px}
+.cg-tip{border-left:3px solid var(--good);padding:6px 12px;background:var(--panel2);border-radius:0 8px 8px 0}
+.cg-rel{display:flex;gap:6px;flex-wrap:wrap} .cg-rel button{font:600 12.5px var(--sans);border:1px solid var(--rule);background:var(--panel2);color:var(--ink);border-radius:99px;padding:3px 10px;cursor:pointer}
+.cg-empty{color:var(--muted)}
+</style>
+
+
+
+<header class="top"><div class="topin">
+  <div class="brand">Equilibrium Lab <span>IB Economics 2.3 · Hoang Ch 5</span></div>
+  <nav class="jump" aria-label="Sections"><a href="#terms">Terms</a><a href="#guide">Guide</a><a href="#eq">Equilibrium</a><a href="#shift">Shifts</a><a href="#func">Functions</a><a href="#surplus">Surplus</a><a href="#pit">Market game</a><a href="#ae">Efficiency</a><a href="#sort">Sort</a><a href="#draw">Draw</a><a href="#cases">Cases</a><a href="#quiz">Quiz</a><a href="#exam">Exam</a></nav>
+  <div class="lvl" role="group" aria-label="Level"><button data-lvl="HL">HL</button><button data-lvl="SL">SL</button></div>
+</div></header>
+
+<div class="wrap">
+<section class="hero">
+  <div><p class="eyebrow">Unit 2 · Microeconomics · Chapter 5</p><h1>How does a market find its price?</h1>
+  <p class="lead">Put demand and supply together. See how shortages and surpluses push the price to equilibrium, predict what happens when curves shift, discover the three jobs a price does, and measure the welfare a market creates.</p>
+  <p class="muted" style="margin-top:12px;font-size:14px">Textbook: Hoang, Wray &amp; Chakraborty, pp. 67–76. HL material is marked <span class="badge b-hl">HL</span>; switch to SL at the top to hide it.</p></div>
+  <div class="goals"><p class="eyebrow" style="color:var(--muted)">By the end I can…</p><ul id="goals"></ul></div>
+</section>
+
+<section class="step" id="terms"><div class="shead"><span class="num">01</span><h2>Key terms: flip the cards</h2><p class="muted">Say the definition out loud first, then click to check.</p></div><div class="cards" id="cards"></div></section>
+<section class="step" id="guide"><div class="shead"><span class="num">01b</span><h2>Concept guide: every term explained</h2><p>A fuller explanation of each term in this chapter, with a worked real-world example and an exam tip. Open a term, read it, then close the page and explain it to a partner in your own words.</p></div>
+  <div class="cg-tools"><input id="cgq" type="search" placeholder="Search terms, examples…" aria-label="Search the concept guide"><button class="btn" id="cgopen">Open all</button><button class="btn" id="cgclose">Close all</button><span class="pill" id="cgcount"></span></div>
+  <div id="cgbox"></div></section>
+
+<section class="step" id="eq"><div class="shead"><span class="num">02</span><h2>Finding equilibrium</h2><p>Hoang’s practice market (Q in thousands of units). Move the price. If it is <b>above</b> equilibrium there is <b>excess supply</b>, and sellers cut prices. If it is <b>below</b>, there is <b>excess demand</b>, and buyers bid prices up. Then let the market adjust by itself.</p></div>
+  <div class="lab lab2"><div id="eqfig"></div><div><label class="ctl" for="eqp"><span>Market price ($)</span><input type="range" id="eqp" min="2" max="38" step="2" value="30"><output id="eqpo"></output></label>
+   <div class="row" style="margin-bottom:12px"><button class="btn pri" id="adjust">Let the market adjust</button></div>
+   <div class="tblwrap"><table><thead><tr><th>Price</th><th>Qd (000)</th><th>Qs (000)</th><th>Result</th></tr></thead><tbody id="eqtb"></tbody></table></div><p class="explain" id="eqx"></p></div></div>
+</section>
+
+<section class="step" id="shift"><div class="shead"><span class="num">03</span><h2>When the curves shift</h2><p>Shift demand, supply, or both, and read the new equilibrium. Then take the prediction challenge. When <b>both</b> curves shift, one of P or Q is certain and the other is <b>indeterminate</b> (?).</p></div>
+  <div class="lab lab2"><div id="shfig"></div><div><label class="ctl" for="shd"><span>Demand shift (← decrease · increase →)</span><input type="range" id="shd" min="-20" max="20" step="2" value="0"><output id="shdo"></output></label><label class="ctl" for="shs"><span>Supply shift (← decrease · increase →)</span><input type="range" id="shs" min="-20" max="20" step="2" value="0"><output id="shso"></output></label><dl class="read" id="shread"></dl><p class="explain" id="shx"></p></div></div>
+  <div class="lab sorter" style="margin-top:16px"><div class="card"><div class="row" style="justify-content:space-between"><span class="pill" id="pcn"></span><span class="score" id="pcsc"></span></div><p id="pcq"></p>
+   <div class="row" style="align-items:center"><b style="min-width:70px">Price:</b><button class="btn" data-p="up">↑ rises</button><button class="btn" data-p="down">↓ falls</button><button class="btn" data-p="q">? uncertain</button></div>
+   <div class="row" style="align-items:center"><b style="min-width:70px">Quantity:</b><button class="btn" data-q="up">↑ rises</button><button class="btn" data-q="down">↓ falls</button><button class="btn" data-q="q">? uncertain</button></div>
+   <div class="row"><button class="btn pri" id="pccheck" disabled>Check</button><button class="btn" id="pcnext" hidden>Next event</button></div><p class="fb" id="pcfb"></p></div></div>
+</section>
+
+<section class="step" id="func"><div class="shead"><span class="num">04</span><h2>The three functions of price</h2><p><b>Signalling</b>: price changes send information. <b>Incentive</b>: price changes motivate buyers and sellers to act. <b>Rationing</b>: rising prices share out scarce goods. Step through each story.</p></div>
+  <div class="lab"><div class="row" style="margin-bottom:12px"><button class="btn" id="fonion" aria-pressed="true">Onions: signalling &amp; incentive</button><button class="btn" id="fcup" aria-pressed="false">World Cup final: rationing</button></div>
+  <div class="lab2"><div id="ffig"></div><div><h3 id="ft"></h3><p id="fx" style="margin-top:8px"></p><div class="stepper"><button class="btn" id="fprev">← Back</button><button class="btn pri" id="fnext">Next step →</button><div class="dots" id="fdots"></div></div></div></div></div>
+</section>
+
+<section class="step" id="surplus"><div class="shead"><span class="num">05</span><h2>Consumer, producer and social surplus</h2><p><b>Consumer surplus</b> is what buyers would have paid minus what they pay. <b>Producer surplus</b> is what sellers receive minus the least they would accept. Together they make <b>social surplus</b>, which is largest at equilibrium. Force the price away from equilibrium to see welfare lost.</p></div>
+  <div class="lab lab2"><div id="sfig"></div><div><label class="ctl" style="display:flex;gap:8px;align-items:center" for="sforce"><input type="checkbox" id="sforce" style="width:18px;height:18px"><span style="color:var(--ink);font-weight:500">Force the price away from equilibrium</span></label><label class="ctl" for="sp"><span>Forced price ($)</span><input type="range" id="sp" min="6" max="34" step="2" value="10"><output id="spo"></output></label><dl class="read" id="sread"></dl><div class="explain hlonly" id="scalc"></div><p class="explain" id="sx"></p></div></div>
+</section>
+
+<section class="step" id="pit"><div class="shead"><span class="num">06</span><h2>Market game: 8 buyers, 8 sellers</h2><p>Each buyer has a maximum price they will pay; each seller has a minimum price they will accept. Set the market price. Trades happen only when a buyer and a seller are both happy. Find the price that makes the <b>most trades</b> and the <b>largest total surplus</b>.</p></div>
+  <div class="lab lab2"><div id="pitfig"></div><div><label class="ctl" for="pitp"><span>Market price ($)</span><input type="range" id="pitp" min="1" max="11" step="0.5" value="8"><output id="pitpo"></output></label><dl class="read" id="pitread"></dl><p class="explain" id="pitx"></p></div></div>
+</section>
+
+<section class="step" id="ae"><div class="shead"><span class="num">07</span><h2>Allocative efficiency: MB = MC</h2><p>The demand curve shows <b>marginal benefit</b> (MB) to consumers; the supply curve shows <b>marginal cost</b> (MC) to producers. Choose how much to produce. Society gains from each extra unit while MB &gt; MC.</p></div>
+  <div class="lab lab2"><div id="aefig"></div><div><label class="ctl" for="aeq"><span>Output (thousand units)</span><input type="range" id="aeq" min="10" max="70" step="2" value="24"><output id="aeqo"></output></label><dl class="read" id="aeread"></dl><p class="explain" id="aex"></p></div></div>
+</section>
+
+<section class="step" id="sort"><div class="shead"><span class="num">08</span><h2>Which function of price?</h2><p>Decide whether each story shows the <b>signalling</b>, <b>incentive</b> or <b>rationing</b> function.</p></div>
+  <div class="lab sorter"><div class="card"><div class="row" style="justify-content:space-between"><span class="pill" id="srtn"></span><span class="score" id="srtsc"></span></div><p id="srtq"></p>
+  <div class="row"><button class="btn" data-a="sig">Signalling</button><button class="btn" data-a="inc">Incentive</button><button class="btn" data-a="rat">Rationing</button></div><p class="fb" id="srtfb"></p><div class="row"><button class="btn pri" id="srtnext" hidden>Next card</button></div></div></div>
+</section>
+
+<section class="step" id="draw"><div class="shead"><span class="num">09</span><h2>Draw it like an examiner wants</h2><p>Step through a full “change in equilibrium” diagram, then draw it on paper with <b>every label</b>.</p></div>
+  <div class="lab lab2"><div id="drawfig"></div><div><h3 id="drawt"></h3><p id="drawx" style="margin-top:8px"></p><div class="stepper"><button class="btn" id="dprev">← Back</button><button class="btn pri" id="dnext">Next step →</button><div class="dots" id="ddots"></div></div>
+  <div class="explain" style="margin-top:16px"><b>Label checklist:</b> axes P and Q · D₁, D₂, S · Pe, Qe then P₂, Q₂ with dotted lines · the shortage or surplus at the old price · arrows showing the direction of change · the cause written next to the shift.</div></div></div>
+</section>
+
+<section class="step" id="cases"><div class="shead"><span class="num">10</span><h2>Real-world cases</h2><p>Answer in your notebook, sketch the diagram, then open the model answer.</p></div><div class="cases" id="casebox"></div></section>
+
+<section class="step" id="quiz"><div class="shead"><span class="num">11</span><h2>Check yourself</h2><p>Auto-marked multiple choice first, then quick-fire questions with model answers.</p><p class="score" id="mcqscore"></p></div><div class="quiz" id="mcqs"></div>
+  <h3 style="margin:30px 0 12px">Quick-fire checklist</h3><div class="quiz" id="qf"></div></section>
+
+<section class="step" id="mistakes"><div class="shead"><span class="num">12</span><h2>Common mistakes to avoid</h2></div><div class="mist" id="mist"></div></section>
+
+<section class="step" id="exam"><div class="shead"><span class="num">13</span><h2>Exam practice</h2><p>Plan each answer before opening the guide. Paper 1 (b) needs balanced evaluation with real-world examples and a supported conclusion.</p></div><div class="cases" id="exambox"></div></section>
+
+<footer>Equilibrium Lab · based on the IB Economics guide (2.3 Competitive market equilibrium) and Hoang, Wray &amp; Chakraborty, <i>Economics for the IB Diploma</i> (Hodder 2020), Chapter 5. Figures used: 5.1–5.8 (equilibrium and disequilibrium), 5.11 (signalling and incentives), 5.13 (rationing), 5.15–5.17 (surplus and allocative efficiency).</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const st={get(k,d){try{const v=localStorage.getItem('eqlab.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('eqlab.'+k,JSON.stringify(v))}catch(e){}}};
+const f2=v=>(Math.round(v*100)/100).toLocaleString(), f0=v=>Math.round(v).toLocaleString(), money=v=>'$'+Math.round(v).toLocaleString();
+const LC={s:'ls',s2:'ls',d:'ld',d2:'ld2',sm:'lm'};
+function Plot(o){const W=o.w||540,H=o.h||380,L=54,R=26,T=24,B=44;const sx=x=>L+x/o.xmax*(W-L-R),sy=y=>H-B-y/o.ymax*(H-T-B);const out=[];
+ const path=f=>{let d='',pen=false;for(let i=0;i<=120;i++){const x=o.xmax*i/120,y=f(x);if(!isFinite(y)||y<0||y>o.ymax){pen=false;continue}d+=(pen?'L':'M')+sx(x).toFixed(1)+' '+sy(y).toFixed(1)+' ';pen=true}return d};
+ return{sx,sy,
+  fn(f,cls,label,lx){const d=path(f);if(d)out.push(`<path class="${cls}" d="${d}"/>`);if(label){const x=lx!=null?lx:o.xmax*.86,y=f(x);if(isFinite(y)&&y>=0&&y<=o.ymax)out.push(`<text class="${LC[cls]||'lg'}" x="${sx(x)+6}" y="${sy(y)-6}">${label}</text>`)}},
+  poly(p,cls){out.push(`<polygon class="${cls}" points="${p.map(q=>sx(q[0]).toFixed(1)+','+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  pts(p,cls){out.push(`<path class="${cls}" d="${p.map((q,i)=>(i?'L':'M')+sx(q[0]).toFixed(1)+' '+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  seg(x0,y0,x1,y1,cls){out.push(`<path class="${cls}" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  dot(x,y,c){out.push(`<circle class="${c||'dot'}" cx="${sx(x)}" cy="${sy(y)}" r="5"/>`)},
+  guide(x,y,xl,yl){out.push(`<path class="guide" d="M${sx(0)} ${sy(y)} L${sx(x)} ${sy(y)} L${sx(x)} ${sy(0)}"/>`);if(yl)out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${yl}</text>`);if(xl)out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${xl}</text>`)},
+  text(x,y,t,c,a){out.push(`<text class="${c||'note'}" x="${sx(x)}" y="${sy(y)}" text-anchor="${a||'start'}">${t}</text>`)},
+  arrow(x0,y0,x1,y1){out.push(`<path class="arrow" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  gap(x0,x1,y){out.push(`<path class="gap" d="M${sx(x0)} ${sy(y)} L${sx(x1)} ${sy(y)}"/>`)},
+  svg(aria){return `<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria||''}"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0 0 L10 5 L0 10z"/></marker></defs>${out.join('')}<path class="axis" d="M${sx(0)} ${sy(o.ymax)} L${sx(0)} ${sy(0)} L${sx(o.xmax)} ${sy(0)}"/><text class="axl" x="${sx(0)-8}" y="${T-8}">${o.yl}</text><text class="axl" x="${sx(o.xmax)}" y="${H-8}" text-anchor="end">${o.xl}</text><text class="tick" x="${sx(0)-6}" y="${sy(0)+17}" text-anchor="end">0</text></svg>`}}}
+
+let LVL=st.get('lvl','HL');
+function setLvl(l){LVL=l;st.set('lvl',l);$$('.lvl button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lvl===l));$$('.hlonly').forEach(e=>e.hidden=l==='SL');renderCards();renderGoals();renderMCQ();renderQF()}
+$$('.lvl button').forEach(b=>b.addEventListener('click',()=>setLvl(b.dataset.lvl)));
+
+const GOALS=[['Explain how excess demand and excess supply push the price to equilibrium',0],['Show and predict changes in equilibrium, including double shifts',0],['Explain the signalling, incentive and rationing functions of price',0],['Identify consumer, producer and social surplus on a diagram',0],['Calculate consumer and producer surplus from a diagram',1],['Explain allocative efficiency (MB = MC) and welfare loss',0]];
+function renderGoals(){const d=st.get('goals',[]);$('#goals').innerHTML=GOALS.map((g,i)=>g[1]&&LVL==='SL'?'':`<li><input type="checkbox" id="g${i}" ${d.includes(i)?'checked':''}><label for="g${i}">${g[0]} ${g[1]?'<span class="badge b-hl">HL</span>':''}</label></li>`).join('');$$('#goals input').forEach(c=>c.addEventListener('change',()=>{const i=+c.id.slice(1);let v=st.get('goals',[]);v=c.checked?[...new Set([...v,i])]:v.filter(x=>x!==i);st.set('goals',v)}))}
+
+const TERMS=[['Market equilibrium','Quantity demanded equals quantity supplied at the current price, so there is no tendency for price to change.',0],['Equilibrium price','The market-clearing price, at which there is neither a shortage nor a surplus.',0],['Disequilibrium','Quantity demanded does not equal quantity supplied at the current price.',0],['Excess supply (surplus)','Price is above equilibrium, so Qs > Qd, and the price tends to fall.',0],['Excess demand (shortage)','Price is below equilibrium, so Qd > Qs, and the price tends to rise.',0],['Price mechanism','The interaction of demand and supply that sets prices, which then allocate scarce resources.',0],['Signalling function','Price changes carry information about where resources are wanted and where they are not.',0],['Incentive function','Price changes motivate producers and consumers to change what they do.',0],['Rationing function','Rising prices reduce quantity demanded so scarce goods go to those willing and able to pay most.',0],['Consumer surplus','Willingness to pay minus the price actually paid: the area below demand and above price.',0],['Producer surplus','The price received minus the minimum price sellers would accept: the area above supply and below price.',0],['Social surplus','Consumer surplus + producer surplus; the total welfare a market creates.',0],['Allocative efficiency','Output where MB = MC (P = MC), so social surplus is maximised.',0],['Welfare loss','Social surplus lost when output is above or below the allocatively efficient level.',0],['Calculating surplus','Area of a triangle: ½ × quantity × price gap (demand intercept − P, or P − supply intercept).',1]];
+function renderCards(){$('#cards').innerHTML=TERMS.filter(t=>!(t[2]&&LVL==='SL')).map(t=>`<button class="flip" aria-label="${t[0]}: show definition"><div class="in"><div class="f"><b>${t[0]}</b><span class="hint">${t[2]?'<span class="badge b-hl">HL</span> ':''}Click to flip</span></div><div class="b">${t[1]}</div></div></button>`).join('');$$('.flip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on')))}
+
+/* market: Qd = 80 - 2P, Qs = 2P (thousand); inverse D: P = 40 - Q/2, S: P = Q/2 */
+const D=q=>40-q/2,S=q=>q/2,Qd=p=>80-2*p,Qs=p=>2*p;
+/* 02 equilibrium */
+let adjusting=null;
+function drawEq(){const P=+$('#eqp').value;$('#eqpo').textContent='$'+P;const qd=Qd(P),qs=Qs(P);
+ const g=Plot({xmax:90,ymax:45,xl:'Quantity (thousand units)',yl:'Price ($)'});g.fn(D,'d','D',74);g.fn(S,'s','S',78);g.dot(40,20,'dot2');
+ if(P!==20){g.seg(0,P,90,P,'guide');g.gap(Math.min(qd,qs),Math.max(qd,qs),P);g.dot(qd,P);g.dot(qs,P);g.text(qd,P+(P>20?1.8:-2.6),'Qd','ld','middle');g.text(qs,P+(P>20?1.8:-2.6),'Qs','ls','middle');g.text((qd+qs)/2,P+(P>20?-2.4:1.6),P>20?'excess supply '+f0(qs-qd)+'k':'excess demand '+f0(qd-qs)+'k','note','middle');g.text(3,P+.8,'$'+P,'tick');
+  g.arrow(4,P+(P>20?-1:1),4,20+(P>20?1.5:-1.5))}
+ g.guide(40,20,'Qe = 40k','Pe');$('#eqfig').innerHTML=g.svg('Market equilibrium diagram with the current price');
+ $('#eqtb').innerHTML=[0,10,20,30,40].map(p=>`<tr class="${p===P?'cur':''}"><td>$${p}</td><td>${Qd(p)}</td><td>${Qs(p)}</td><td>${p<20?'Excess demand '+(Qd(p)-Qs(p))+'k':p>20?'Excess supply '+(Qs(p)-Qd(p))+'k':'Equilibrium'}</td></tr>`).join('')+([0,10,20,30,40].includes(P)?'':`<tr class="cur"><td>$${P}</td><td>${qd}</td><td>${qs}</td><td>${P<20?'Excess demand '+(qd-qs)+'k':'Excess supply '+(qs-qd)+'k'}</td></tr>`);
+ $('#eqx').innerHTML=P>20?`At $${P}, firms want to sell <b>${qs}k</b> but buyers want only <b>${qd}k</b>: an <b>excess supply of ${qs-qd}k</b>. Unsold stock builds up, so sellers cut prices. As the price falls, quantity demanded expands and quantity supplied contracts.`:P<20?`At $${P}, buyers want <b>${qd}k</b> but firms offer only <b>${qs}k</b>: an <b>excess demand of ${qd-qs}k</b>. Goods sell out and queues form, so the price is bid up. Quantity supplied expands and quantity demanded contracts.`:'<b>Equilibrium</b> at $20 and 40,000 units: the market clears, with no shortage and no surplus, so there is no pressure on the price to change.'}
+$('#eqp').addEventListener('input',()=>{clearTimeout(adjusting);drawEq()});
+$('#adjust').addEventListener('click',()=>{clearTimeout(adjusting);(function stepP(){const r=$('#eqp');let p=+r.value;if(p===20){drawEq();return}p+=p>20?-2:2;r.value=p;drawEq();adjusting=setTimeout(stepP,380)})()});
+
+/* 03 shifts + challenge */
+function drawSh(){const a=+$('#shd').value,b=+$('#shs').value;$('#shdo').textContent=(a>0?'+':'')+a;$('#shso').textContent=(b>0?'+':'')+b;
+ const D2=q=>40-(q-a)/2,S2=q=>(q-b)/2,P=(80+a-b)/4,Q=2*P+b;
+ const g=Plot({xmax:100,ymax:45,xl:'Quantity (thousand units)',yl:'Price ($)'});if(a)g.fn(D,'ghost','D₁',70);if(b)g.fn(S,'ghost','S₁',80);g.fn(D2,'d',a?'D₂':'D',Math.min(88,74+a));g.fn(S2,'s',b?'S₂':'S',Math.min(88,Math.max(20,78+b)));
+ g.dot(40,20,'dot2');if(a||b){g.dot(Q,P);g.guide(Q,P,'Q₂','P₂');g.guide(40,20,'Q₁','P₁');if(Math.hypot(Q-40,P-20)>2)g.arrow(40+(Q-40)*.15,20+(P-20)*.15,40+(Q-40)*.85,20+(P-20)*.85)}else g.guide(40,20,'Qe','Pe');
+ $('#shfig').innerHTML=g.svg('Change in equilibrium');const dP=P-20,dQ=Q-40;
+ $('#shread').innerHTML=`<dt>New equilibrium price</dt><dd>$${f2(P)}</dd><dt>Change in price</dt><dd>${dP>0?'+':''}${f2(dP)}</dd><dt>New equilibrium quantity</dt><dd>${f0(Q)}k</dd><dt>Change in quantity</dt><dd>${dQ>0?'+':''}${f0(dQ)}k</dd>`;
+ let t='';if(!a&&!b)t='Move a slider. Remember the four basic cases: D↑ gives P↑ Q↑; D↓ gives P↓ Q↓; S↑ gives P↓ Q↑; S↓ gives P↑ Q↓.';
+ else if(a&&!b)t=a>0?'<b>Demand increases</b>: at the old price there is excess demand, so the price rises and quantity supplied expands. P ↑ and Q ↑.':'<b>Demand decreases</b>: excess supply at the old price pushes the price down. P ↓ and Q ↓.';
+ else if(b&&!a)t=b>0?'<b>Supply increases</b>: excess supply at the old price pushes the price down, and quantity demanded expands. P ↓ and Q ↑.':'<b>Supply decreases</b>: excess demand at the old price pushes the price up. P ↑ and Q ↓.';
+ else{const same=(a>0)===(b>0);t=same?`Both curves shift ${a>0?'right':'left'}: quantity certainly ${a>0?'rises':'falls'}, but the price change depends on which shift is bigger. Here the price ${Math.abs(dP)<.01?'is unchanged':dP>0?'rose':'fell'}. Try equal shifts.`:`Demand and supply shift in opposite directions: the price certainly ${a>0?'rises':'falls'}, but the quantity change depends on the relative size of the shifts. Here quantity ${Math.abs(dQ)<.5?'is unchanged':dQ>0?'rose':'fell'}. This is the avocado case.`}
+ $('#shx').innerHTML=t}
+$('#shd').addEventListener('input',drawSh);$('#shs').addEventListener('input',drawSh);
+const PC=[['A heatwave raises demand for ice cream.','up','up','Demand ↑ → P ↑, Q ↑.'],['New technology cuts the cost of making TVs.','down','up','Supply ↑ → P ↓, Q ↑.'],['Frost destroys a large part of Brazil’s coffee crop.','up','down','Supply ↓ → P ↑, Q ↓.'],['A Salmonella scare hits the egg market.','down','down','Demand ↓ → P ↓, Q ↓ (Hoang Fig 5.2).'],['Avocados, 2017: poor harvests AND booming demand.','up','q','Supply ↓ and demand ↑: both push P up, but their effects on Q work in opposite directions, so Q is uncertain.'],['Smartphones: better technology AND rising incomes.','q','up','Supply ↑ and demand ↑: both raise Q, but one pushes P down and the other up, so P is uncertain.'],['Sugary drinks: a new tax on producers AND a health campaign.','q','down','Supply ↓ and demand ↓: both cut Q; the effects on P cancel in part, so P is uncertain.'],['Bubble tea: ten new shops open AND the drink goes out of fashion.','down','q','Supply ↑ and demand ↓: both push P down; Q is uncertain.']];
+let pi=st.get('pci',0),ps=st.get('pcs',[0,0]),selP=null,selQ=null;const ARW={up:'↑',down:'↓',q:'?'};
+function drawPC(){pi%=PC.length;selP=selQ=null;$('#pcn').textContent=`Event ${pi+1} of ${PC.length}`;$('#pcq').textContent=PC[pi][0];$('#pcfb').textContent='';$('#pcnext').hidden=true;$('#pccheck').disabled=true;$$('[data-p],[data-q]').forEach(b=>{b.disabled=false;b.setAttribute('aria-pressed','false')});$('#pcsc').textContent=`Score ${ps[0]} / ${ps[1]}`}
+$$('[data-p]').forEach(b=>b.addEventListener('click',()=>{selP=b.dataset.p;$$('[data-p]').forEach(x=>x.setAttribute('aria-pressed',x===b));$('#pccheck').disabled=!(selP&&selQ)}));
+$$('[data-q]').forEach(b=>b.addEventListener('click',()=>{selQ=b.dataset.q;$$('[data-q]').forEach(x=>x.setAttribute('aria-pressed',x===b));$('#pccheck').disabled=!(selP&&selQ)}));
+$('#pccheck').addEventListener('click',()=>{const c=PC[pi],ok=selP===c[1]&&selQ===c[2];ps[1]++;if(ok)ps[0]++;st.set('pcs',ps);$('#pcfb').className='fb '+(ok?'ok':'no');$('#pcfb').textContent=(ok?'✓ Correct. ':`✗ Answer: P ${ARW[c[1]]}, Q ${ARW[c[2]]}. `)+c[3];$$('[data-p],[data-q]').forEach(b=>b.disabled=true);$('#pccheck').disabled=true;$('#pcnext').hidden=false;$('#pcsc').textContent=`Score ${ps[0]} / ${ps[1]}`});
+$('#pcnext').addEventListener('click',()=>{pi++;st.set('pci',pi);drawPC()});
+
+/* 04 functions */
+const FS={onion:[['Start: equilibrium','The onion market is in equilibrium at P₁ and Q₁.'],['Demand rises','Festival season: demand for onions increases, from D₁ to D₂.'],['A shortage at the old price','At P₁ buyers now want more onions than farmers are offering: excess demand.'],['Signalling','Buyers bid the price up. The rising price <b>signals</b> to farmers that consumers want more onions, and to consumers that onions have become scarcer.'],['Incentive and the new equilibrium','Higher prices mean higher profits, giving farmers an <b>incentive</b> to <b>expand</b> quantity supplied along S. Consumers contract along D₂. A new equilibrium is reached at P₂, Q₂: resources have been reallocated towards onions.']],
+ cup:[['A fixed number of seats','A World Cup final stadium holds Qx seats, so supply is perfectly inelastic (vertical).'],['Tickets sold at face value','Face-value price Pf is below the market-clearing price, so many more fans want tickets than there are seats: excess demand.'],['Rationing by price','On resale sites the price rises. As it rises, quantity demanded <b>contracts</b> along D until it equals the Qx seats available: the <b>rationing</b> function.'],['Who gets the tickets?','Tickets go to those most willing <em>and able</em> to pay. This is efficient, because each seat goes to someone who values it highly, but it may seem inequitable, since willingness to pay depends on income. Alternatives are ballots, queues or loyalty points.']]};
+let fm='onion',fs=0;
+function drawF(){const steps=FS[fm];fs=Math.max(0,Math.min(steps.length-1,fs));const g=Plot({xmax:100,ymax:12,xl:fm==='onion'?'Quantity of onions':'Tickets',yl:'Price'});
+ if(fm==='onion'){const S1=q=>2+q*.08,D1=q=>10-q*.08,D2=q=>12.4-q*.08;g.fn(S1,'s','S',85);g.fn(D1,fs>=1?'ghost':'d','D₁',80);g.dot(50,6,fs>=4?'dot2':'dot');g.guide(50,6,'Q₁','P₁');
+  if(fs>=1)g.fn(D2,'d','D₂',92);if(fs===2){g.seg(0,6,100,6,'guide');g.gap(50,80,6);g.text(65,6.6,'excess demand','note','middle')}
+  if(fs>=3){g.arrow(3,6.3,3,7.0);g.text(5,6.6,'price rises','note')}if(fs>=4){const q2=10.4/.16;g.dot(q2,S1(q2));g.guide(q2,S1(q2),'Q₂','P₂');g.arrow(52,S1(52)+.25,q2-2,S1(q2-2)+.25);g.text(58,S1(58)-.8,'expansion of Qs','note')}}
+ else{const Dc=q=>11-q*.1;g.seg(55,0,55,11.5,'s');g.text(56,11,'S (fixed seats)','ls');g.fn(Dc,'d','D',95);const Pe=Dc(55);
+  if(fs>=1){g.seg(0,2.5,100,2.5,'guide');g.text(2,2.9,'face value Pf','note');g.gap(55,85,2.5);g.text(70,3.1,'excess demand','note','middle')}
+  if(fs>=2){g.arrow(83,Dc(83)+.35,58,Dc(58)+.35);g.dot(55,Pe);g.guide(55,Pe,'Qx','Pe');g.text(70,Dc(70)+.6,'contraction of Qd','note')}}
+ $('#ffig').innerHTML=g.svg('Functions of price diagram');$('#ft').textContent=`Step ${fs+1}: ${steps[fs][0]}`;$('#fx').innerHTML=steps[fs][1];$('#fdots').innerHTML=steps.map((_,i)=>`<i class="${i<=fs?'on':''}"></i>`).join('');$('#fprev').disabled=fs===0;$('#fnext').disabled=fs===steps.length-1}
+$('#fnext').addEventListener('click',()=>{fs++;drawF()});$('#fprev').addEventListener('click',()=>{fs--;drawF()});
+const setF=m=>{fm=m;fs=0;$('#fonion').setAttribute('aria-pressed',m==='onion');$('#fcup').setAttribute('aria-pressed',m==='cup');drawF()};$('#fonion').addEventListener('click',()=>setF('onion'));$('#fcup').addEventListener('click',()=>setF('cup'));
+
+/* 05 surplus (Q in thousands, $ in thousands for areas) */
+function drawS(){const force=$('#sforce').checked,p=+$('#sp').value;$('#spo').textContent='$'+p;$('#sp').disabled=!force;
+ const P=force?p:20,Qt=force?Math.min(Qd(P),Qs(P)):40;const CS=(Qt*(40-P)-Qt*Qt/4)*1000,PS=(Qt*P-Qt*Qt/4)*1000,TOT=800000,DWL=TOT-CS-PS;
+ const g=Plot({xmax:90,ymax:45,xl:'Quantity (thousand units)',yl:'Price ($)'});
+ if(!force){g.poly([[0,40],[0,20],[40,20]],'spend');g.poly([[0,0],[0,20],[40,20]],'area')}
+ else{g.poly([[0,40],[0,P],[Qt,P],[Qt,D(Qt)]],'spend');g.poly([[0,0],[0,P],[Qt,P],[Qt,S(Qt)]],'area');g.poly([[Qt,D(Qt)],[Qt,S(Qt)],[40,20]],'dwl');g.seg(0,P,90,P,'guide')}
+ g.fn(D,'d','D = MB',74);g.fn(S,'s','S = MC',78);g.dot(40,20,force?'dot2':'dot');g.guide(40,20,'40k','$20');
+ g.text(Qt*.22,(40+P)/2+ (force?0:1),'CS','lm');g.text(Qt*.22,P/2,'PS','lm');if(force)g.text(Qt+2,(D(Qt)+S(Qt))/2,'welfare loss','note');
+ $('#sfig').innerHTML=g.svg('Consumer and producer surplus');
+ $('#sread').innerHTML=`<dt>Price</dt><dd>$${P}</dd><dt>Quantity traded</dt><dd>${f0(Qt)}k</dd><dt>Consumer surplus</dt><dd>${money(CS)}</dd><dt>Producer surplus</dt><dd>${money(PS)}</dd><dt><b>Social surplus</b></dt><dd>${money(CS+PS)}</dd><dt>Welfare loss</dt><dd>${money(DWL)}</dd>`;
+ $('#scalc').innerHTML=force?`<b>HL calculation.</b> With the price forced to $${P}, only ${f0(Qt)}k units are traded (the smaller of Qd and Qs). The areas are now trapezia, not triangles. Social surplus = $800,000 − welfare-loss triangle = ½ × (40 − ${f0(Qt)})k × ($${f2(D(Qt))} − $${f2(S(Qt))}) = ${money(DWL)} lost.`:`<b>HL calculation.</b> CS = ½ × 40,000 × ($40 − $20) = <b>$400,000</b>. PS = ½ × 40,000 × ($20 − $0) = <b>$400,000</b>. Social surplus = <b>$800,000</b>.`;
+ $('#sx').innerHTML=force?`Moving the price ${P>20?'above':'below'} equilibrium cuts the quantity traded to ${f0(Qt)}k. ${P>20?'Producers gain some surplus from the higher price, but consumers lose more':'Consumers gain from the lower price, but producers lose more'}, and <b>${money(DWL)}</b> of welfare disappears: units worth more to buyers than they cost to produce are no longer traded.`:'At the competitive equilibrium, social surplus (CS + PS) is <b>maximised</b>. This is allocative efficiency. Tick the box to see what happens at any other price.'}
+$('#sforce').addEventListener('change',drawS);$('#sp').addEventListener('input',drawS);
+
+/* 06 pit market */
+const BUY=[10,9,8,7,6,5,4,3],SELL=[2,3,4,5,6,7,8,9];
+function drawPit(){const P=+$('#pitp').value;$('#pitpo').textContent='$'+f2(P);const nb=BUY.filter(v=>v>=P).length,ns=SELL.filter(v=>v<=P).length,t=Math.min(nb,ns);
+ const cs=BUY.slice(0,t).reduce((a,v)=>a+v-P,0),ps=SELL.slice(0,t).reduce((a,v)=>a+P-v,0);
+ const g=Plot({xmax:9,ymax:11,xl:'Number of traders (ranked)',yl:'Price ($)'});const stepD=[],stepS=[];BUY.forEach((v,i)=>{stepD.push([i,v],[i+1,v])});SELL.forEach((v,i)=>{stepS.push([i,v],[i+1,v])});
+ for(let i=0;i<t;i++){g.poly([[i,BUY[i]],[i+1,BUY[i]],[i+1,P],[i,P]],'spend');g.poly([[i,P],[i+1,P],[i+1,SELL[i]],[i,SELL[i]]],'area')}
+ g.pts(stepD,'d');g.pts(stepS,'s');g.text(7.6,3.4,'buyers (D)','ld');g.text(7.6,8.4,'sellers (S)','ls');g.seg(0,P,9,P,'guide');g.text(8.9,P+.25,'$'+f2(P),'tick','end');
+ $('#pitfig').innerHTML=g.svg('Pit market with buyers and sellers');
+ $('#pitread').innerHTML=`<dt>Buyers willing to buy</dt><dd>${nb}</dd><dt>Sellers willing to sell</dt><dd>${ns}</dd><dt><b>Trades that happen</b></dt><dd>${t}</dd><dt>Consumer surplus</dt><dd>$${f2(cs)}</dd><dt>Producer surplus</dt><dd>$${f2(ps)}</dd><dt><b>Total surplus</b></dt><dd>$${f2(cs+ps)}</dd>`;
+ $('#pitx').innerHTML=nb>ns?`At $${f2(P)}, ${nb} buyers want to buy but only ${ns} sellers will sell: <b>excess demand</b>. Only ${t} trades happen. Raise the price.`:ns>nb?`At $${f2(P)}, ${ns} sellers want to sell but only ${nb} buyers will buy: <b>excess supply</b>. Only ${t} trades happen. Lower the price.`:`At $${f2(P)} the market clears: ${t} buyers and ${t} sellers trade. This gives the <b>most trades (${t})</b> and the <b>largest total surplus ($${f2(cs+ps)})</b>, and it is the equilibrium. Notice that the 6th buyer (worth $5) and 6th seller (cost $7) do not trade: that trade would destroy value.`}
+$('#pitp').addEventListener('input',drawPit);
+
+/* 07 allocative efficiency */
+function drawAE(){const Q=+$('#aeq').value;$('#aeqo').textContent=Q+'k';const mb=D(Q),mc=S(Q);const g=Plot({xmax:90,ymax:45,xl:'Output (thousand units)',yl:'MB, MC ($)'});
+ if(Q!==40)g.poly([[Q,D(Q)],[Q,S(Q)],[40,20]],'dwl');g.fn(D,'d','MB (D)',74);g.fn(S,'s','MC (S)',78);g.seg(Q,0,Q,Math.max(mb,mc)+3,'guide');g.dot(Q,mb);g.dot(Q,mc);g.dot(40,20,'dot2');g.guide(40,20,'40k','');
+ g.text(Q+1,mb+1.2,'MB $'+f2(mb),'ld');g.text(Q+1,mc-1.5,'MC $'+f2(mc),'ls');$('#aefig').innerHTML=g.svg('Marginal benefit and marginal cost');
+ const wl=.5*Math.abs(40-Q)*Math.abs(mb-mc)*1000;
+ $('#aeread').innerHTML=`<dt>Marginal benefit of the last unit</dt><dd>$${f2(mb)}</dd><dt>Marginal cost of the last unit</dt><dd>$${f2(mc)}</dd><dt>MB − MC</dt><dd>${mb-mc>=0?'+':''}$${f2(mb-mc)}</dd><dt>Welfare loss (shaded)</dt><dd>${money(wl)}</dd>`;
+ $('#aex').innerHTML=Q<40?`<b>MB &gt; MC</b>: the last unit is worth $${f2(mb)} to consumers but costs only $${f2(mc)} to make. Producing more would add welfare, so resources are <b>under-allocated</b>.`:Q>40?`<b>MB &lt; MC</b>: the last unit costs $${f2(mc)} but is worth only $${f2(mb)}. Resources would be more valuable elsewhere, so they are <b>over-allocated</b>.`:'<b>MB = MC = $20</b>: allocative efficiency. No change in output could make society better off, and this is exactly the competitive equilibrium.'}
+$('#aeq').addEventListener('input',drawAE);
+
+/* 08 sorter */
+const SRT=[['Rising rents in a city encourage builders to construct more flats.','inc','Higher prices motivate producers to expand quantity supplied.'],['Rising petrol prices tell drivers and oil firms that crude oil has become scarcer.','sig','The price change carries information about scarcity.'],['A stadium has 60,000 seats; resale prices rise until only 60,000 fans still want to go.','rat','Price rises until quantity demanded equals the fixed quantity available.'],['Higher nurses’ wages draw more people into nursing courses.','inc','A higher price of labour motivates more people to supply it.'],['Falling DVD prices tell producers that consumers no longer want them.','sig','Falling prices signal where resources are no longer wanted.'],['An auction house sells a painting to the highest bidder.','rat','The price rises until only one buyer remains: rationing by price.'],['Uber surge pricing gets more drivers to log on during a storm.','inc','Higher fares motivate drivers to supply more rides.'],['Record avocado prices show growers where demand is strongest.','sig','The rising price sends a signal about strong demand and scarce supply.']];
+let si=st.get('srti',0),ss=st.get('srts',[0,0]);const LAB={sig:'Signalling',inc:'Incentive',rat:'Rationing'};
+function drawSrt(){si%=SRT.length;$('#srtn').textContent=`Card ${si+1} of ${SRT.length}`;$('#srtq').textContent=SRT[si][0];$('#srtfb').textContent='';$('#srtnext').hidden=true;$$('.sorter [data-a]').forEach(b=>b.disabled=false);$('#srtsc').textContent=`Score ${ss[0]} / ${ss[1]}`}
+$$('.sorter [data-a]').forEach(b=>b.addEventListener('click',()=>{const c=SRT[si],ok=b.dataset.a===c[1];ss[1]++;if(ok)ss[0]++;st.set('srts',ss);$('#srtfb').className='fb '+(ok?'ok':'no');$('#srtfb').textContent=(ok?'✓ Correct. ':'✗ Answer: '+LAB[c[1]]+'. ')+c[2];$$('.sorter [data-a]').forEach(x=>x.disabled=true);$('#srtnext').hidden=false;$('#srtsc').textContent=`Score ${ss[0]} / ${ss[1]}`}));
+$('#srtnext').addEventListener('click',()=>{si++;st.set('srti',si);drawSrt()});
+
+/* 09 draw */
+const DR=[['Axes first','Price (P) on the vertical axis, Quantity (Q) per time period on the horizontal axis, and 0 at the origin.'],['Draw D and S, and mark equilibrium','Downward-sloping D₁ and upward-sloping S. Where they cross, draw dotted lines to <b>Pe</b> and <b>Qe</b>.'],['Shift the curve','Name the cause: for example, <b>incomes rise</b> (normal good), so demand increases from D₁ to D₂.'],['Show the disequilibrium','At the old price Pe, quantity demanded on D₂ is greater than Qe: mark the <b>excess demand</b> (shortage) between Qe and Qd.'],['New equilibrium','The shortage bids the price up to <b>P₂</b>; quantity supplied expands along S to <b>Q₂</b>. Arrows show P ↑ and Q ↑.']];
+let ds=0;
+function drawDraw(){const g=Plot({xmax:100,ymax:12,xl:'Quantity (Q)',yl:'Price (P)'});const S1=q=>2+q*.08,D1=q=>10-q*.08,D2=q=>12.4-q*.08;
+ if(ds>=1){g.fn(S1,'s','S',85);g.fn(D1,ds>=2?'ghost':'d','D₁',80);g.dot(50,6,ds>=4?'dot2':'dot');g.guide(50,6,'Qe','Pe')}
+ if(ds>=2){g.fn(D2,'d','D₂',92);g.arrow(58,D1(58)+.1,66,D2(66)-.1);g.text(70,D2(66)+.3,'income rises','note')}
+ if(ds>=3){g.gap(50,80,6);g.text(65,5.3,'excess demand','note','middle');g.dot(80,6,'dot2')}
+ if(ds>=4){const q2=10.4/.16;g.dot(q2,S1(q2));g.guide(q2,S1(q2),'Q₂','P₂')}
+ $('#drawfig').innerHTML=g.svg('Change in equilibrium diagram, step '+(ds+1));$('#drawt').textContent=`Step ${ds+1}: ${DR[ds][0]}`;$('#drawx').innerHTML=DR[ds][1];$('#ddots').innerHTML=DR.map((_,i)=>`<i class="${i<=ds?'on':''}"></i>`).join('');$('#dprev').disabled=ds===0;$('#dnext').disabled=ds===DR.length-1}
+$('#dnext').addEventListener('click',()=>{ds++;drawDraw()});$('#dprev').addEventListener('click',()=>{ds--;drawDraw()});
+
+/* 10 cases */
+const CASES=[['Avocados: “green gold” in 2017','Mexico supplies about 45% of the world’s avocados. In 2017 poor harvests in Mexico, Peru and California coincided with booming demand in the USA, Europe and China, and prices hit a record high (Hoang p. 71).',['Show and explain the record price.','Can we be sure what happened to quantity?','Which functions of price were at work?'],['Poor harvests shifted supply left (S₁ → S₂), and health trends and rising incomes shifted demand right (D₁ → D₂). Both push the price up, so the price rose sharply.','No. The supply shift lowers quantity while the demand shift raises it, so the change in quantity is indeterminate and depends on which shift was larger.','The high price signalled scarcity, gave farmers an incentive to plant more trees, and rationed avocados to the buyers who valued them most.']],
+['The Eras Tour ticket rush','In 2022 about 14 million users joined the presale for Taylor Swift’s US tour, which had roughly 2.4 million tickets. Face-value tickets of $49–$449 were resold for thousands of dollars.',['Why did a shortage occur?','What function did resale prices perform?','Is rationing by price fair?'],['Stadium seats are fixed (vertical supply) and face-value prices were set below the market-clearing price, so quantity demanded far exceeded the seats available.','Resale prices rose until quantity demanded fell to the number of seats: the rationing function.','It is efficient, since seats go to those who value them most in money terms, but it can be seen as inequitable: loyal fans on low incomes are priced out. Ballots or verified-fan systems are alternatives.']],
+['Salmonella and the egg market','A Salmonella outbreak linked to eggs is reported in the press (Hoang p. 68). Egg sales fall by about 20% within weeks and producers are left with unsold stock.',['Show the effect on equilibrium.','What happens at the original price?','How does the market return to equilibrium?'],['A change in tastes shifts demand left (D₁ → D₂).','At the old price quantity supplied exceeds quantity demanded: excess supply.','Producers cut prices to clear stock; quantity demanded expands and quantity supplied contracts until a new, lower equilibrium price and quantity are reached, with no government action needed.']],
+['Uber surge pricing on New Year’s Eve','After the midnight fireworks in Sydney, demand for rides spikes. Uber’s algorithm raises fares 3–4 times, and drivers who would have stayed home log on.',['Explain surge pricing using the functions of price.','Show it on a diagram.','Who gains and who loses?'],['Demand shifts right. The higher fare signals where drivers are needed, gives drivers an incentive to supply more rides (expansion along S), and rations rides to passengers with the highest willingness to pay.','D₁ → D₂, with the price rising from P₁ to P₂ and quantity from Q₁ to Q₂. Without surge pricing there would be a shortage at P₁.','Drivers gain producer surplus. Passengers who ride pay more, so their consumer surplus falls, but more rides happen than with a fixed fare. Some see high fares in emergencies as unfair.']]];
+$('#casebox').innerHTML=CASES.map(c=>`<article class="case"><h3>${c[0]}</h3><p>${c[1]}</p><ol>${c[2].map(q=>`<li>${q}</li>`).join('')}</ol><details><summary>Model answer</summary><ol>${c[3].map(a=>`<li>${a}</li>`).join('')}</ol></details></article>`).join('');
+
+/* 11 quiz */
+const MCQ=[['If the market price is above equilibrium, there will be…',['Excess demand and the price will rise','Excess supply and the price will fall','Excess supply and the price will rise','Equilibrium'],1,'Above equilibrium Qs > Qd, so sellers cut prices.',0],
+['New technology cuts the cost of producing laptops. The equilibrium…',['Price rises and quantity falls','Price falls and quantity rises','Price and quantity both rise','Price and quantity both fall'],1,'Supply shifts right: P ↓, Q ↑.',0],
+['Demand increases and supply decreases at the same time. Which is certain?',['Quantity rises','Quantity falls','Price rises','Price falls'],2,'Both shifts push price up; the effect on quantity is indeterminate.',0],
+['At $10, Qd = 60,000 and Qs = 20,000. There is…',['Excess supply of 40,000','Excess demand of 40,000','Excess demand of 80,000','Equilibrium'],1,'Qd − Qs = 60,000 − 20,000 = 40,000.',0],
+['Higher wages attract more people to train as nurses. This shows the…',['Rationing function','Signalling function','Incentive function','Law of demand'],2,'A higher price motivates a change in behaviour (more supply).',0],
+['Consumer surplus is…',['The money consumers save in the bank','Willingness to pay minus the price paid','The price minus the cost of production','Total spending by consumers'],1,'It is a measure of welfare: the area below demand and above price.',0],
+['Allocative efficiency occurs where…',['MB > MC','MB = MC','Price is as low as possible','Producer surplus is largest'],1,'At MB = MC, social surplus is maximised.',0],
+['Price rises from $3 to $4 and quantity from 30,000 to 40,000 kg. Total revenue changes by…',['+$10,000','+$40,000','+$70,000','+$160,000'],2,'$160,000 − $90,000 = +$70,000.',0],
+['(HL) Demand meets the price axis at $40, equilibrium is $20 and 40,000 units. Consumer surplus is…',['$200,000','$400,000','$800,000','$1,600,000'],1,'½ × 40,000 × ($40 − $20) = $400,000.',1],
+['(HL) Supply meets the price axis at $0. At a price of $10, 20,000 units are supplied. Producer surplus is…',['$50,000','$100,000','$200,000','$400,000'],1,'½ × 20,000 × $10 = $100,000.',1]];
+function renderMCQ(){const list=MCQ.map((q,i)=>[q,i]).filter(x=>!(x[0][4]&&LVL==='SL'));
+ $('#mcqs').innerHTML=list.map(([q,i],k)=>`<div class="mcq" data-i="${i}"><p><b>${k+1}.</b> ${q[0]}</p><div class="opts">${q[1].map((o,j)=>`<button class="btn opt" data-j="${j}">${String.fromCharCode(65+j)}. ${o}</button>`).join('')}</div><p class="why" hidden></p></div>`).join('');
+ const sc=()=>{const a=st.get('mcq',{});const done=list.filter(x=>a[x[1]]!=null);const ok=done.filter(x=>a[x[1]]===x[0][2]).length;$('#mcqscore').innerHTML=done.length?`Score: ${ok} / ${list.length} <button class="btn" id="mcqreset" style="margin-left:10px;padding:4px 10px">Try again</button>`:'';const r=$('#mcqreset');if(r)r.addEventListener('click',()=>{st.set('mcq',{});renderMCQ()})};
+ $$('.mcq').forEach(el=>{const i=+el.dataset.i,q=MCQ[i];const mark=j=>{el.querySelectorAll('.opt').forEach(b=>{const k=+b.dataset.j;b.disabled=true;if(k===q[2])b.classList.add('ok');else if(k===j)b.classList.add('no')});const w=el.querySelector('.why');w.hidden=false;w.textContent=(j===q[2]?'✓ ':'✗ ')+q[3]};
+  const a=st.get('mcq',{});if(a[i]!=null)mark(a[i]);el.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{const a=st.get('mcq',{});a[i]=+b.dataset.j;st.set('mcq',a);mark(+b.dataset.j);sc()}))});sc()}
+const QF=[['Define equilibrium price.','The price at which quantity demanded equals quantity supplied, so the market clears.',0],['What happens when the price is above equilibrium?','Excess supply (Qs > Qd) puts downward pressure on the price until equilibrium is restored.',0],['A new technology cuts production costs. Effect on P and Q?','Supply shifts right: price falls and quantity rises.',0],['Demand rises and supply falls. What is certain?','The price rises; the change in quantity is indeterminate.',0],['Name the three functions of price.','Signalling, incentive and rationing.',0],['Is the incentive function linked to a shift or a movement?','A movement along the curve (e.g. an expansion of quantity supplied).',0],['How does price ration a fixed supply of tickets?','The price rises until quantity demanded falls to the fixed quantity available.',0],['Define consumer surplus.','The difference between what consumers are willing to pay and what they actually pay.',0],['Define producer surplus.','The difference between the price received and the minimum price producers would accept.',0],['Where is social surplus maximised?','At the competitive equilibrium, where MB = MC.',0],['(HL) D intercept $40, Pe $20, Qe 40,000. Calculate CS.','½ × 40,000 × $20 = $400,000.',1]];
+function renderQF(){$('#qf').innerHTML=QF.filter(q=>!(q[2]&&LVL==='SL')).map(q=>`<div class="qa"><p><b>${q[0]}</b></p><details><summary>Show answer</summary><p>${q[1]}</p></details></div>`).join('')}
+
+const MI=[['“A surplus just means overproduction”','It means the price is above equilibrium, so Qs > Qd (p. 70).'],['“Government is needed to restore equilibrium”','The price mechanism restores it by itself (p. 73).'],['“When demand rises, supply rises too”','Supply does not shift: quantity supplied expands along the curve as the price rises.'],['“Consumer surplus is money saved”','It is a measure of welfare: willingness to pay minus price.'],['“Maximum social surplus means a fair outcome”','Allocative efficiency says nothing about equity.'],['“Signalling and rationing are the same”','Signalling is linked to shifts; incentives and rationing are movements along the curves.']];
+$('#mist').innerHTML=MI.map(m=>`<div><b>✗ ${m[0]}</b>${m[1]}</div>`).join('');
+
+const EX=[['Paper 1 (a) · 10 marks','Using diagrams, explain the signalling and incentive functions of the price mechanism.',['Define the price mechanism, signalling and incentive.','Diagram: demand increases (D₁ → D₂), with excess demand at the old price, P rising to P₂ and Qs expanding to Q₂.','Signalling: the rising price tells producers that consumers want more and tells consumers the good is scarcer.','Incentive: higher profits motivate firms to expand output (a movement along S), and resources are reallocated.','A real-world example (e.g. onions at festival time, surge pricing).']],
+['Paper 1 (b) · 15 marks','Using real-world examples, evaluate the view that the price mechanism always achieves the best allocation of resources.',['Arguments for: the price mechanism coordinates millions of decisions and maximises social surplus at MB = MC (with a diagram); examples such as avocados and the pit market.','Arguments against: market failure (externalities, public goods, information problems, market power); price rationing can be inequitable (concert tickets); prices can be volatile.','Consider stakeholders, short run vs long run, and assumptions (perfect information, competition).','Conclude with a supported judgement: “always” is too strong; efficiency is not the same as equity.']],
+['Paper 2 · 4 marks','Using a demand and supply diagram, explain why the price of avocados reached a record high in 2017.',['Diagram: S shifts left and D shifts right, with P₁ → P₂ clearly higher; axes and curves labelled [2].','Explanation: poor harvests cut supply while rising popularity and incomes raised demand; both push the price up [2].']],
+['Paper 2 · 2 marks','Price rises from $3 to $4 and quantity from 30,000 to 40,000 kg. Calculate the change in total revenue.',['TR before = $3 × 30,000 = $90,000; TR after = $4 × 40,000 = $160,000.','Change = +$70,000 (show working for both marks).']],
+['Paper 3 HL · 4 marks','Using the schedule (P $0–$40; Qd = 80, 60, 40, 20, 0; Qs = 0, 20, 40, 60, 80 thousand), calculate consumer and producer surplus at equilibrium.',['Equilibrium: $20, 40,000 units.','CS = ½ × 40,000 × ($40 − $20) = $400,000.','PS = ½ × 40,000 × ($20 − $0) = $400,000.']],
+['Paper 3 HL · 2 marks','Using the same schedule, calculate the excess supply at a price of $30.',['Qs = 60,000, Qd = 20,000.','Excess supply = 40,000 units.']]];
+$('#exambox').innerHTML=EX.map(e=>`<article class="case ${/HL/.test(e[0])?'hlonly':''}"><span class="badge ${/HL/.test(e[0])?'b-hl':'b-sl'}">${e[0]}</span><p style="font-family:var(--serif);font-size:17px">${e[1]}</p><details><summary>What a strong answer includes</summary><ol>${e[2].map(x=>`<li>${x}</li>`).join('')}</ol></details></article>`).join('');
+
+setLvl(LVL);drawEq();drawSh();drawPC();drawF();drawS();drawPit();drawAE();drawSrt();drawDraw();
+})();
+</script>
+<script id="cg-js">
+(function(){
+const CG={"title": "Chapter 5 · Competitive market equilibrium", "intro": "Chapter 5 puts demand and supply together. It explains how the market settles at a price where buyers and sellers agree, how that price changes when conditions change, how prices guide scarce resources without anyone being in charge, and why the competitive outcome maximises welfare.", "groups": [{"name": "Equilibrium and disequilibrium", "terms": [{"term": "Market equilibrium", "level": "SL/HL", "definition": "The situation where quantity demanded equals quantity supplied at the current price, so there is no tendency for the price to change.", "explanation": "Equilibrium is where the demand and supply curves cross. At that price every buyer who is willing and able to pay finds a seller, and every seller who is willing to sell finds a buyer: the market 'clears'. Equilibrium is a state of rest: it lasts until a non-price determinant of demand or supply changes.", "example": "In the schedule P = $0–$40, Qd = 80,000 − 2,000P and Qs = 2,000P, both sides equal 40,000 units at $20. At $20 there is neither a queue of unsatisfied buyers nor a pile of unsold stock.", "exam_tip": "Label equilibrium Pe and Qe on both axes with dotted lines.", "related": ["Equilibrium (market-clearing) price", "Disequilibrium"]}, {"term": "Equilibrium (market-clearing) price", "level": "SL/HL", "definition": "The price at which quantity demanded equals quantity supplied, leaving no shortage or surplus.", "explanation": "It is called the market-clearing price because all the goods offered for sale are bought. Nobody sets this price: it emerges from the interaction of many buyers and sellers. If the price is anywhere else, market forces push it back.", "example": "A farmers' market sells strawberries. At $6 a box, shoppers want 300 boxes but farmers bring 500; at $4 they want 400 and farmers bring 400. $4 is the market-clearing price.", "exam_tip": "Explain equilibrium as the outcome of the forces of demand and supply, not a price chosen by firms.", "related": ["Market equilibrium", "Price mechanism"]}, {"term": "Disequilibrium", "level": "SL/HL", "definition": "A situation where, at the current price, quantity demanded does not equal quantity supplied.", "explanation": "Disequilibrium is either excess supply (price too high) or excess demand (price too low). In a free market it is temporary: price adjusts until equilibrium is restored. It can persist if something stops the price from adjusting, such as a price control set by the government (Chapter 10) or firms that are slow to change prices.", "example": "A new game console launches at $499, but demand at that price is far higher than the first shipment. Shops sell out and waiting lists form until more stock arrives or the price on resale sites rises.", "exam_tip": "Always say which side is larger and by how much (Qd − Qs or Qs − Qd).", "related": ["Excess supply (surplus)", "Excess demand (shortage)"]}, {"term": "Excess supply (surplus)", "level": "SL/HL", "definition": "When the price is above equilibrium, quantity supplied exceeds quantity demanded; this puts downward pressure on the price.", "explanation": "Sellers cannot sell all their stock, so they cut prices to attract buyers. As the price falls, quantity demanded expands and quantity supplied contracts, until the surplus disappears at equilibrium.", "example": "At $3 a loaf bakers supply 200 loaves but consumers want only 150, leaving an excess supply of 50 loaves (Hoang p. 69). End-of-day discounts and end-of-season sales are how firms clear surpluses.", "exam_tip": "A surplus is not just 'overproduction': it exists because the price is above equilibrium.", "related": ["Excess demand (shortage)", "Disequilibrium"]}, {"term": "Excess demand (shortage)", "level": "SL/HL", "definition": "When the price is below equilibrium, quantity demanded exceeds quantity supplied; this puts upward pressure on the price.", "explanation": "Buyers compete for limited stock: queues form, goods sell out and some buyers offer more. Sellers raise prices. As price rises, quantity demanded contracts and quantity supplied expands until the shortage is removed.", "example": "At $4 a slice a café's customers want 50 pieces of carrot cake but it bakes only 30, a shortage of 20 pieces (Hoang p. 69). Concert tickets sold below the market price create excess demand and a resale market at much higher prices.", "exam_tip": "Show the shortage as the horizontal gap between Qd and Qs at the price below equilibrium.", "related": ["Excess supply (surplus)", "Rationing function"]}, {"term": "Change in equilibrium", "level": "SL/HL", "definition": "A new equilibrium price and quantity caused by a shift of the demand curve, the supply curve, or both.", "explanation": "An increase in demand raises both price and quantity; a decrease lowers both. An increase in supply lowers price and raises quantity; a decrease raises price and lowers quantity. When both curves shift at once, one variable is certain and the other depends on which shift is larger (it is indeterminate).", "example": "In 2017 avocado supply fell (poor harvests) while demand rose (health trends, growth in China). Both shifts pushed the price to a record high; quantity changed only a little because the shifts partly cancelled out (Hoang p. 71).", "exam_tip": "For a double shift, say which variable is certain and explain why the other is indeterminate.", "related": ["Market equilibrium"]}]}, {"name": "The price mechanism", "terms": [{"term": "Price mechanism", "level": "SL/HL", "definition": "The system in which the interaction of demand and supply determines prices, and prices in turn allocate scarce resources and answer the basic economic questions.", "explanation": "In a free market no planner decides what to produce. Prices carry the information and the motivation: they tell firms what consumers want, reward firms that produce it, and decide who gets the goods. Adam Smith's 'invisible hand' describes this coordination. The price mechanism performs three functions: signalling, incentive and rationing.", "example": "Nobody instructs farmers to grow more onions before a festival. Rising onion prices do the job: they signal the higher demand and give farmers the incentive to supply more.", "exam_tip": "Link the price mechanism to the basic questions: what, how and for whom to produce.", "related": ["Signalling function", "Incentive function", "Rationing function", "Resource allocation"]}, {"term": "Resource allocation", "level": "SL/HL", "definition": "The way scarce factors of production (land, labour, capital, enterprise) are assigned to producing particular goods and services.", "explanation": "Because resources are scarce, using them for one product means not using them for another (opportunity cost). In a market economy, resources move towards products whose prices and profits are rising and away from those whose prices are falling.", "example": "As streaming grew, DVD prices and sales fell, and factories, workers and investment moved out of DVD production into digital services.", "exam_tip": "Use the phrase 'reallocation of resources' when explaining a price change.", "related": ["Price mechanism"]}, {"term": "Signalling function", "level": "SL/HL", "definition": "Price changes convey information to buyers and sellers about where resources are wanted (rising prices) and where they are not (falling prices).", "explanation": "A rising price tells producers that consumers want more of a good and tells consumers that it has become scarcer; a falling price sends the opposite message. The signal comes from a shift of demand or supply that changes the equilibrium price.", "example": "Rising petrol prices signal that crude oil is scarcer or in higher demand, telling drivers to economise and oil firms to explore more.", "exam_tip": "Hoang's tip: signalling is associated with shifts of the curves (p. 72).", "related": ["Incentive function"]}, {"term": "Incentive function", "level": "SL/HL", "definition": "Price changes motivate producers and consumers to change their behaviour; for example, a higher price encourages firms to expand quantity supplied.", "explanation": "Higher prices mean higher potential profits, so firms produce more and new firms enter; consumers are motivated to buy less or find substitutes. Lower prices do the reverse. The response appears as movements along the existing curves.", "example": "Uber surge pricing on New Year's Eve raises fares 3–4 times, giving drivers who would have stayed home an incentive to log on and supply more rides.", "exam_tip": "Incentive = movement along the curves (expansion of Qs, contraction of Qd).", "related": ["Signalling function", "Rationing function"]}, {"term": "Rationing function", "level": "SL/HL", "definition": "Rising prices reduce quantity demanded so that scarce goods go to those who are willing and able to pay the most.", "explanation": "When supply is limited, price rises until the quantity demanded falls to the quantity available. Buyers who value the good less (or cannot afford it) drop out. Rationing by price is efficient in one sense, but it can be seen as unfair because willingness to pay depends on income.", "example": "A World Cup final stadium has a fixed number of seats (vertical supply). On resale sites prices rise until only as many fans as there are seats are still willing to pay (Hoang Fig 5.13).", "exam_tip": "Rationing is shown as a movement (contraction) along the demand curve.", "related": ["Excess demand (shortage)", "Incentive function"]}]}, {"name": "Welfare and efficiency", "terms": [{"term": "Consumer surplus", "level": "SL/HL", "definition": "The difference between the maximum price consumers are willing to pay and the price they actually pay; the area below the demand curve and above the market price.", "explanation": "Most buyers would have paid more than the market price for at least some units. The extra value they receive is a gain in welfare, not money saved in a bank. When price falls, consumer surplus grows; when price rises, it shrinks.", "example": "A student is willing to pay $800 for a laptop that costs $750, so her consumer surplus is $50 (Hoang p. 74).", "exam_tip": "Shade the triangle between the demand curve, the price line and the vertical axis.", "related": ["Producer surplus", "Social (community) surplus"]}, {"term": "Producer surplus", "level": "SL/HL", "definition": "The difference between the price producers receive and the minimum price they would be willing to accept; the area above the supply curve and below the market price.", "explanation": "Low-cost producers would have sold for less than the market price, so they gain extra revenue above their minimum acceptable price. Producer surplus rises when price rises.", "example": "A farmer is willing to sell potatoes at $3.00 per kg but the market price is $3.80, giving a producer surplus of $0.80 per kg (Hoang p. 74).", "exam_tip": "Shade the triangle between the supply curve, the price line and the vertical axis.", "related": ["Consumer surplus"]}, {"term": "Social (community) surplus", "level": "SL/HL", "definition": "The sum of consumer surplus and producer surplus; a measure of the total welfare that a market creates for society.", "explanation": "Social surplus measures the total gain from trade. In a competitive market with no externalities, it is largest at the equilibrium quantity. Any quantity above or below equilibrium reduces it.", "example": "In the $0–$40 schedule, CS = $400,000 and PS = $400,000 at equilibrium, so social surplus = $800,000. No other quantity gives a larger total.", "exam_tip": "Link maximum social surplus directly to allocative efficiency.", "related": ["Allocative efficiency", "Welfare loss (deadweight loss)"]}, {"term": "Calculating consumer and producer surplus", "level": "HL", "definition": "Consumer and producer surplus are calculated as the areas of triangles on the diagram: ½ × base (quantity) × height (price difference).", "explanation": "For consumer surplus the height is the gap between where the demand curve meets the price axis and the equilibrium price. For producer surplus it is the gap between the equilibrium price and where the supply curve meets the price axis. The base is the equilibrium quantity. If a price is forced away from equilibrium, use the quantity actually traded.", "example": "Demand meets the price axis at $40, supply at $0, and equilibrium is $20 and 40,000 units. CS = ½ × 40,000 × ($40 − $20) = $400,000. PS = ½ × 40,000 × ($20 − $0) = $400,000.", "exam_tip": "Show the formula, the numbers and the units ($). Paper 3 marks the working.", "related": ["Consumer surplus", "Producer surplus"]}, {"term": "Marginal benefit (MB) and marginal cost (MC)", "level": "SL/HL", "definition": "MB is the extra benefit consumers get from one more unit, shown by the demand curve; MC is the extra cost of producing one more unit, shown by the supply curve.", "explanation": "The height of the demand curve at any quantity shows what consumers would pay for that extra unit, which is its marginal benefit. The height of the supply curve shows the minimum price firms need to produce it, which is its marginal cost. Comparing the two tells us whether one more unit adds to or subtracts from society's welfare.", "example": "At 30,000 units, the demand curve shows MB = $25 and the supply curve shows MC = $15, so producing one more unit adds $10 of net benefit.", "exam_tip": "In diagrams you may label D = MB and S = MC.", "related": ["Allocative efficiency"]}, {"term": "Allocative efficiency", "level": "SL/HL", "definition": "The situation where resources are used to produce the combination of goods most wanted by society, where MB = MC (P = MC) and social surplus is maximised.", "explanation": "If MB > MC, society would gain from producing more; if MB < MC, the last units cost more than they are worth. Only where MB = MC is it impossible to gain by changing output. A competitive market reaches this point automatically at equilibrium, provided there are no market failures.", "example": "At 40,000 units, MB = MC = $20. Producing 30,000 units would leave gains unrealised; producing 50,000 would use resources worth more elsewhere.", "exam_tip": "Allocative efficiency concerns efficiency, not fairness (equity).", "related": ["Social (community) surplus", "Market failure"]}, {"term": "Welfare loss (deadweight loss)", "level": "SL/HL", "definition": "The loss of social surplus that occurs when output is above or below the allocatively efficient level.", "explanation": "When output is too low, units that consumers value more than they cost are not produced. When output is too high, units that cost more than they are worth are produced. The lost surplus is shown as a triangle between the demand and supply curves.", "example": "If only 20,000 units were traded in the $0–$40 market, social surplus would fall from $800,000 to $600,000: a welfare loss of $200,000.", "exam_tip": "Always point the triangle towards the equilibrium (efficient) quantity.", "related": ["Allocative efficiency", "Market failure"]}, {"term": "Market failure", "level": "SL/HL", "definition": "A situation in which the free market fails to allocate resources efficiently, so social surplus is not maximised.", "explanation": "The competitive model assumes no external costs or benefits, perfect information and many buyers and sellers. When these assumptions fail (externalities, public goods, asymmetric information, market power), the market equilibrium is not allocatively efficient. Chapters 11–14 study each case.", "example": "A factory that pollutes a river does not pay for the damage, so it produces more than the socially optimal amount, even though its market is in equilibrium.", "exam_tip": "Use market failure as the counter-argument when evaluating whether 'the market always gets it right'.", "related": ["Allocative efficiency"]}]}]};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const box=document.getElementById('cgbox'),q=document.getElementById('cgq'),cnt=document.getElementById('cgcount');
+const id=t=>'cg-'+t.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+box.innerHTML='<p style="max-width:72ch">'+esc(CG.intro)+'</p>'+CG.groups.map(g=>{const hl=g.terms.every(t=>t.level==='HL');return `<div class="cg-group ${hl?'hlonly cg-hl':''}"><h3>${esc(g.name)}</h3>`+g.terms.map(t=>`<details class="cg-item ${t.level==='HL'?'cg-hl':''}" id="${id(t.term)}" data-s="${esc((t.term+' '+t.definition+' '+t.explanation+' '+t.example).toLowerCase())}"><summary><b>${esc(t.term)}</b><span class="badge ${t.level==='HL'?'b-hl':'b-sl'}">${t.level}</span><span class="cg-def">${esc(t.definition)}</span></summary><div class="cg-body"><div><span class="lbl">Definition</span><p class="defn">${esc(t.definition)}</p></div><div><span class="lbl">Explanation</span><p>${esc(t.explanation)}</p></div><div class="cg-ex"><span class="lbl">Example</span><p>${esc(t.example)}</p></div><div class="cg-tip"><span class="lbl">Exam tip</span><p>${esc(t.exam_tip)}</p></div>${(t.related||[]).length?`<div><span class="lbl">Related terms</span><div class="cg-rel">${t.related.map(r=>`<button type="button" data-go="${id(r)}">${esc(r)}</button>`).join('')}</div></div>`:''}</div></details>`).join('')+'</div>'}).join('')+'<p class="cg-empty" id="cgnone" hidden>No terms match your search.</p>';
+function lvl(){let l='HL';try{l=JSON.parse(localStorage.getItem('eqlab.lvl'))||'HL'}catch(e){}return l}
+function apply(){const sl=document.querySelector('.lvl [data-lvl="SL"][aria-pressed="true"]')||lvl()==='SL';const s=(q.value||'').trim().toLowerCase();let n=0;
+ box.querySelectorAll('.cg-item').forEach(d=>{const show=!(sl&&d.classList.contains('cg-hl'))&&(!s||d.dataset.s.includes(s));d.hidden=!show;if(show)n++;if(s&&show)d.open=true});
+ box.querySelectorAll('.cg-group').forEach(g=>{g.hidden=![...g.querySelectorAll('.cg-item')].some(d=>!d.hidden)});
+ cnt.textContent=n+' term'+(n===1?'':'s');document.getElementById('cgnone').hidden=n>0}
+q.addEventListener('input',apply);
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(apply,0)));
+document.getElementById('cgopen').addEventListener('click',()=>box.querySelectorAll('.cg-item:not([hidden])').forEach(d=>d.open=true));
+document.getElementById('cgclose').addEventListener('click',()=>box.querySelectorAll('.cg-item').forEach(d=>d.open=false));
+box.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const t=document.getElementById(b.dataset.go);if(t){q.value='';apply();t.open=true;t.scrollIntoView({block:'center'})}});
+apply();
+})();
+</script>
