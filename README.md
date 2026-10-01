@@ -17,6 +17,7 @@ aligned to the IB Economics guide.
   - [Chapter 3: Demand](https://sevketgunduz.github.io/ib-economics/ch03-demand-lab.html)
   - [Chapter 4: Supply](https://sevketgunduz.github.io/ib-economics/ch04-supply-lab.html)
   - [Chapter 5: Competitive market equilibrium](https://sevketgunduz.github.io/ib-economics/ch05-equilibrium-lab.html)
+  - [Chapter 6: Critique of maximizing behaviour (HL)](https://sevketgunduz.github.io/ib-economics/ch06-behaviour-lab.html)
 
 The [site's front page](https://sevketgunduz.github.io/ib-economics/) shows the whole course
 map, so the labs already written and those still to come are both visible.
