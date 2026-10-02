@@ -19,6 +19,7 @@ aligned to the IB Economics guide.
   - [Chapter 5: Competitive market equilibrium](https://sevketgunduz.github.io/ib-economics/ch05-equilibrium-lab.html)
   - [Chapter 6: Critique of maximizing behaviour (HL)](https://sevketgunduz.github.io/ib-economics/ch06-behaviour-lab.html)
   - [Chapter 7: Elasticity of demand: price elasticity of demand (PED)](https://sevketgunduz.github.io/ib-economics/ch07-elasticity-lab.html)
+  - [Chapter 8: Elasticity of demand: income elasticity of demand (YED)](https://sevketgunduz.github.io/ib-economics/ch08-income-elasticity-lab.html)
 
 The [site's front page](https://sevketgunduz.github.io/ib-economics/) shows the whole course
 map, so the labs already written and those still to come are both visible.

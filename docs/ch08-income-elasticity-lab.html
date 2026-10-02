@@ -1,0 +1,450 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Income Elasticity Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#f4f5f1; --panel:#ffffff; --panel2:#f8f9f5; --ink:#1a2029; --muted:#5a636c; --rule:#d9ddd3; --grid:#e7eae2;
+  --supply:#c0441f; --supply2:#e8876a; --demand:#2451c4; --good:#12795f; --bad:#b3261e; --hl:#6f3aa8; --hlbg:#efe6f8; --slbg:#e2efe9; --sl:#0d6b5c;
+  --tint:#eaf0fc; --focus:#2451c4; --shade:rgba(192,68,31,.14); --shadeb:rgba(36,81,196,.14);
+  --serif:"Source Serif 4",Georgia,serif; --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:16px/1.6 var(--sans);margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:0 80px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--ground);border-bottom:1px solid var(--rule)}
+.topin{max-width:1120px;margin:0 auto;padding:10px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{font:650 18px var(--serif);margin-right:auto}
+.brand span{font:600 12px var(--sans);color:var(--muted);margin-left:8px}
+nav.jump{display:flex;gap:2px;flex-wrap:wrap}
+nav.jump a{font:600 12.5px var(--sans);color:var(--muted);text-decoration:none;padding:6px 9px;border-radius:6px}
+nav.jump a:hover{background:var(--panel);color:var(--ink)}
+.lvl{display:flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden}
+.lvl button{font:700 12px var(--sans);border:0;background:var(--panel);color:var(--muted);padding:6px 12px;cursor:pointer}
+.lvl button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+h1,h2,h3{font-family:var(--serif);font-weight:650;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h1{font-size:40px;line-height:1.1} h2{font-size:27px;line-height:1.2} h3{font-size:19px}
+p{margin:0} .muted{color:var(--muted)}
+.eyebrow{font:700 11.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--demand)}
+.badge{display:inline-block;font:700 10.5px var(--sans);letter-spacing:.06em;padding:2px 7px;border-radius:4px;vertical-align:3px}
+.b-hl{background:var(--hlbg);color:var(--hl)} .b-sl{background:var(--slbg);color:var(--sl)}
+button:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+section.step{padding-top:56px;scroll-margin-top:70px}
+.shead{display:grid;gap:8px;max-width:72ch;margin-bottom:20px}
+.shead .num{font:600 13px var(--mono);color:var(--muted)}
+.hero{padding-top:44px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:36px;align-items:center}
+.hero p.lead{font-size:18px;margin-top:14px;max-width:56ch}
+.goals{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px}
+.goals ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.goals li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:15px}
+.goals input{width:18px;height:18px;accent-color:var(--good);margin-top:3px}
+.lab{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:20px}
+.lab2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+svg.g{width:100%;height:auto;display:block;border-radius:8px;background:var(--panel2);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px}
+svg .axis{stroke:var(--ink);stroke-width:1.7;fill:none} svg .axl{fill:var(--ink);font:700 12.5px var(--sans)} svg .tick{fill:var(--muted);font:11.5px var(--mono)}
+svg .guide{stroke:var(--muted);stroke-dasharray:4 4;fill:none}
+svg .s{stroke:var(--supply);stroke-width:3;fill:none;stroke-linecap:round} svg .s2{stroke:var(--supply2);stroke-width:2.2;fill:none;stroke-dasharray:7 5}
+svg .sm{stroke:var(--ink);stroke-width:3;fill:none} svg .d{stroke:var(--demand);stroke-width:3;fill:none}
+svg .ghost{stroke:var(--muted);stroke-width:1.6;stroke-dasharray:3 4;fill:none}
+svg text.ls{fill:var(--supply);font:700 13px var(--sans)} svg text.ld{fill:var(--demand);font:700 13px var(--sans)} svg text.lm{fill:var(--ink);font:700 13px var(--sans)} svg text.lg{fill:var(--muted);font:700 12px var(--sans)}
+svg .dot{fill:var(--ink)} svg .dot2{fill:var(--panel);stroke:var(--ink);stroke-width:1.8}
+svg .arrow{stroke:var(--good);stroke-width:2.4;fill:none;marker-end:url(#ah)} svg .ahead{fill:var(--good)}
+svg .bar{fill:var(--demand);opacity:.7} svg .bar.dim{fill:var(--supply);opacity:.75}
+svg .note{fill:var(--muted);font:600 11.5px var(--sans)} svg .area{fill:var(--shade)}
+.ctl{display:grid;grid-template-columns:1fr 70px;gap:2px 10px;align-items:center;font-size:14px;margin-bottom:12px}
+.ctl span{grid-column:1/-1;font-weight:600;color:var(--muted)} .ctl input{width:100%;accent-color:var(--demand)} .ctl output{font:600 13px var(--mono);text-align:right}
+.read{display:grid;grid-template-columns:1fr auto;gap:6px 14px;font-size:14.5px;margin:6px 0 0}
+.read dt{color:var(--muted)} .read dd{margin:0;font:600 13.5px var(--mono);text-align:right}
+.explain{margin-top:14px;padding:12px 14px;border-left:3px solid var(--demand);background:var(--tint);border-radius:0 8px 8px 0;font-size:14.5px}
+.btn{font:600 14px var(--sans);border:1px solid var(--rule);background:var(--panel);color:var(--ink);padding:9px 13px;border-radius:8px;cursor:pointer;text-align:left}
+.btn:hover{border-color:var(--demand)} .btn.pri{background:var(--ink);color:var(--ground);border-color:var(--ink)} .btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.flip{perspective:900px;height:170px;border:0;background:none;padding:0;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:6px}
+.flip .f{background:var(--panel);justify-content:space-between} .flip .f b{font:650 19px var(--serif)}
+.flip .b{background:var(--tint);transform:rotateY(180deg);font-size:14.5px;overflow:auto}
+.flip .hint{font-size:12px;color:var(--muted)}
+.events{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;margin:14px 0}
+.ev{display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:start}
+.ev .l{font:700 14px var(--mono);color:var(--demand);background:var(--tint);border-radius:6px;text-align:center;padding:2px 0}
+.ev[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.predict{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.fb{font-weight:600} .fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+.sorter .card{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px;display:grid;gap:10px}
+.sorter .card p{font-size:16.5px;font-family:var(--serif)}
+.score{font:600 14px var(--mono)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--grid);text-align:right;font-variant-numeric:tabular-nums}
+th{font:700 11.5px var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule)}
+td:first-child,th:first-child{text-align:left} tr.cur td{background:var(--tint);font-weight:700} tr.dmr td:nth-child(3){color:var(--supply)}
+.tblwrap{overflow-x:auto}
+.case{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;display:grid;gap:10px}
+.case details{border-top:1px solid var(--grid);padding-top:10px}
+.case summary,.qa summary{cursor:pointer;font-weight:700;color:var(--demand)}
+.case ol{margin:8px 0 0;padding-left:20px}
+.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px}
+.mcq{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;display:grid;gap:8px}
+.mcq .opts{display:grid;gap:6px}
+.mcq .opt{font:500 14.5px var(--sans)} .mcq .opt.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--panel))} .mcq .opt.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--panel))}
+.mcq .why{font-size:14px;color:var(--muted)}
+.quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.qa{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 16px}
+.qa details p{margin-top:6px;padding:8px 10px;background:var(--panel2);border-radius:6px}
+.mist{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.mist div{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;font-size:14.5px}
+.mist b{display:block;color:var(--bad);font-size:13px;letter-spacing:.03em;margin-bottom:4px} .mist i{display:block;color:var(--good);font-style:normal;font-weight:600;margin-top:6px}
+.stepper{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.dots{display:flex;gap:5px} .dots i{width:9px;height:9px;border-radius:50%;background:var(--rule)} .dots i.on{background:var(--demand)}
+.pill{font:600 12.5px var(--mono);padding:3px 9px;border-radius:99px;background:var(--panel2);border:1px solid var(--rule)}
+footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+.hlonly[hidden]{display:none!important}
+@media (max-width:860px){.hero,.lab2{grid-template-columns:1fr} h1{font-size:32px} nav.jump{display:none}}
+@media (max-width:520px){.wrap,.topin{padding-inline:16px} .lab{padding:14px} h1{font-size:28px} h2{font-size:23px}}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}}
+svg .d2{stroke:var(--demand);stroke-width:2.2;fill:none;stroke-dasharray:7 5} svg text.ld2{fill:var(--demand);font:700 12px var(--sans)} svg .spend{fill:var(--shadeb)}
+svg .dwl{fill:rgba(214,151,0,.38)} svg .gap{stroke:var(--supply);stroke-width:5;opacity:.45}
+.sorter .btn[aria-pressed="true"],.lab .btn[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.flip .f span:not(.hint){font-size:14.5px;color:var(--muted)}
+.ctl input[type=number]{font:15px var(--mono);padding:7px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink);width:100%}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px} @media (max-width:860px){.two{grid-template-columns:1fr}}
+</style>
+<style id="sb-css">
+aside.sb{position:fixed;top:0;left:0;bottom:0;width:250px;overflow:auto;background:var(--panel);border-right:1px solid var(--rule);padding:16px 12px 40px;z-index:15;font-size:13.5px}
+aside.sb .home{display:block;font:700 15px var(--serif);color:var(--ink);text-decoration:none}
+aside.sb .sub{color:var(--muted);font-size:12px;margin:2px 0 14px}
+aside.sb .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:12px 4px 6px}
+aside.sb a.it{display:grid;grid-template-columns:30px 1fr;gap:2px;padding:6px 8px;border-radius:6px;color:var(--ink);text-decoration:none;line-height:1.3}
+aside.sb a.it span:first-child{font:600 11.5px var(--mono);color:var(--muted);padding-top:1px}
+aside.sb a.it:hover{background:var(--panel2)} aside.sb a.it.act{background:var(--tint);font-weight:700}
+aside.sb .links a{display:block;padding:4px 8px;color:var(--demand);font-weight:600;text-decoration:none}
+.sbbtn{display:none}
+@media (min-width:1100px){header.top,.wrap{margin-left:250px} nav.jump{display:none!important}}
+@media (max-width:1099px){aside.sb{transform:translateX(-105%);transition:transform .2s;box-shadow:0 0 30px rgba(0,0,0,.25);width:84%;max-width:300px}
+ aside.sb.open{transform:none} nav.jump{display:none!important}
+ .sbbtn{display:inline-block;font:700 13px var(--sans);padding:6px 10px;border-radius:8px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);cursor:pointer;order:-1}}
+@media (prefers-reduced-motion:reduce){aside.sb{transition:none}}
+</style>
+
+<style id="cg-css">
+.cg-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.cg-tools input{flex:1;min-width:220px;max-width:420px;font:15px var(--sans);padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink)}
+.cg-group{margin-top:22px} .cg-group h3{margin-bottom:10px}
+.cg-item{background:var(--panel);border:1px solid var(--rule);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.cg-item summary{cursor:pointer;list-style:none;padding:14px 18px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:baseline}
+.cg-item summary::-webkit-details-marker{display:none}
+.cg-item summary b{font:650 18px var(--serif)} .cg-item summary .cg-def{grid-column:1/-1;color:var(--muted);font-size:14.5px}
+.cg-item[open] summary .cg-def{display:none}
+.cg-body{padding:0 18px 16px;display:grid;gap:10px}
+.cg-body .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+.cg-body .defn{font-weight:600}
+.cg-ex{background:var(--tint);border-radius:8px;padding:10px 12px}
+.cg-tip{border-left:3px solid var(--good);padding:6px 12px;background:var(--panel2);border-radius:0 8px 8px 0}
+.cg-rel{display:flex;gap:6px;flex-wrap:wrap} .cg-rel button{font:600 12.5px var(--sans);border:1px solid var(--rule);background:var(--panel2);color:var(--ink);border-radius:99px;padding:3px 10px;cursor:pointer}
+.cg-empty{color:var(--muted)}
+</style>
+
+
+
+
+
+
+
+
+<header class="top"><div class="topin">
+  <div class="brand">Income Elasticity Lab <span>IB Economics 2.5 · Hoang Ch 8</span></div>
+  <nav class="jump" aria-label="Sections"><a href="#terms">Terms</a><a href="#guide">Guide</a><a href="#yed">Calculate</a><a href="#engel">Engel</a><a href="#map">Classify</a><a href="#predict">Predict</a><a href="#cases">Cases</a><a href="#quiz">Quiz</a><a href="#exam">Exam</a></nav>
+  <div class="lvl" role="group" aria-label="Level"><button data-lvl="HL">HL</button><button data-lvl="SL">SL</button></div>
+</div></header>
+
+<div class="wrap">
+<section class="hero">
+  <div><p class="eyebrow">Unit 2 · Microeconomics · Chapter 8</p><h1>When people get richer, what do they buy more of, and what less?</h1>
+  <p class="lead">Calculate income elasticity of demand from real data, draw Engel curves, and sort goods into luxuries, necessities and inferior goods. Then see why YED matters to firms in a recession and why rich economies are dominated by services.</p>
+  <p class="muted" style="margin-top:12px;font-size:14px">Textbook: Hoang, Wray &amp; Chakraborty, pp. 104–110. HL material is marked <span class="badge b-hl">HL</span>; switch to SL at the top to hide it.</p></div>
+  <div class="goals"><p class="eyebrow" style="color:var(--muted)">By the end I can…</p><ul id="goals"></ul></div>
+</section>
+
+<section class="step" id="terms"><div class="shead"><span class="num">01</span><h2>Key terms: flip the cards</h2><p class="muted">Say the definition out loud first, then click to check.</p></div><div class="cards" id="cards"></div></section>
+<section class="step" id="guide"><div class="shead"><span class="num">01b</span><h2>Concept guide: every term explained</h2><p>A fuller explanation of each term in this chapter, with a worked real-world example and an exam tip. Open a term, read it, then close the page and explain it to a partner in your own words.</p></div>
+  <div class="cg-tools"><input id="cgq" type="search" placeholder="Search terms, examples…" aria-label="Search the concept guide"><button class="btn" id="cgopen">Open all</button><button class="btn" id="cgclose">Close all</button><span class="pill" id="cgcount"></span></div>
+  <div id="cgbox"></div></section>
+
+<!-- LAB SECTIONS: numbered 02, 03 … one <section class="step" id="…"> per interactive topic -->
+
+<section class="step" id="yed"><div class="shead"><span class="num">02</span><h2>Calculate YED</h2><p><b>Income elasticity of demand (YED) = %ΔQd ÷ %ΔY</b>, where Y is <b>real</b> income. Unlike PED, the <b>sign matters</b>: positive means a normal good, negative means an inferior good.</p></div>
+  <div class="lab lab2"><div><div class="row" id="ypre" style="margin-bottom:12px"></div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <label class="ctl" for="y1" style="grid-template-columns:1fr"><span>Original income ($)</span><input id="y1" type="number" step="100"></label>
+    <label class="ctl" for="y2" style="grid-template-columns:1fr"><span>New income ($)</span><input id="y2" type="number" step="100"></label>
+    <label class="ctl" for="q1" style="grid-template-columns:1fr"><span>Original quantity</span><input id="q1" type="number" step="1"></label>
+    <label class="ctl" for="q2" style="grid-template-columns:1fr"><span>New quantity</span><input id="q2" type="number" step="1"></label></div></div>
+   <div><dl class="read" id="yread"></dl><p class="explain" id="yx"></p></div></div>
+</section>
+
+<section class="step" id="engel"><div class="shead"><span class="num">03</span><h2>Engel curves</h2><p>An <b>Engel curve</b> shows how quantity demanded changes with <b>real income</b>. Income goes on the <b>vertical</b> axis and quantity on the horizontal axis; price is not on the diagram at all. Choose a type of good and raise or lower income.</p></div>
+  <div class="lab lab2"><div id="enfig"></div><div><div class="row" style="margin-bottom:12px"><button class="btn" data-en="lux">Luxury (YED 2.5)</button><button class="btn" data-en="nec">Necessity (YED 0.25)</button><button class="btn" data-en="inf">Inferior good</button></div>
+   <label class="ctl" for="eny"><span>Real income (index, start = 100)</span><input type="range" id="eny" min="50" max="150" step="2" value="108"><output id="enyo"></output></label><dl class="read" id="enread"></dl><p class="explain" id="enx"></p></div></div>
+</section>
+
+<section class="step" id="map"><div class="shead"><span class="num">04</span><h2>Where does each good sit on the YED scale?</h2><p>Below 0: <b>inferior</b>. Between 0 and 1: <b>normal, necessity</b> (income inelastic). Above 1: <b>normal, luxury</b> (income elastic). Click a product to place it.</p></div>
+  <div class="lab"><div class="row" id="mapbtns" style="margin-bottom:12px"></div><div id="mapfig"></div><p class="explain" id="mapx"></p><p class="muted" style="font-size:12.5px;margin-top:8px">YED values are illustrative, in line with typical published estimates. Real values differ between countries and income groups.</p></div>
+  <div class="lab sorter" style="margin-top:16px"><div class="card"><div class="row" style="justify-content:space-between"><span class="pill" id="ysn"></span><span class="score" id="yssc"></span></div><p id="ysq"></p>
+   <div class="row"><button class="btn" data-y="lux">Normal: luxury (YED &gt; 1)</button><button class="btn" data-y="nec">Normal: necessity (0 &lt; YED &lt; 1)</button><button class="btn" data-y="inf">Inferior (YED &lt; 0)</button></div><p class="fb" id="ysfb"></p><div class="row"><button class="btn pri" id="ysnext" hidden>Next card</button></div></div></div>
+</section>
+
+<section class="step" id="predict"><div class="shead"><span class="num">05</span><h2>Predict the effect of an income change</h2><p>A change in income <b>shifts the demand curve</b> (it is the “I” in RIPEN). YED tells us <b>which way</b> and <b>how far</b>: %ΔQd = YED × %ΔY at every price.</p></div>
+  <div class="lab"><label class="ctl" for="pry" style="max-width:420px"><span>Change in real income</span><input type="range" id="pry" min="-10" max="10" step="1" value="5"><output id="pryo"></output></label>
+  <div id="prfigs" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px"></div><p class="explain" id="prx"></p></div>
+</section>
+
+<section class="step hlonly" id="cycle"><div class="shead"><span class="num">06</span><h2>YED and firms: the business cycle <span class="badge b-hl">HL</span></h2><p>Incomes rise in booms and fall in recessions. A firm selling a <b>luxury</b> faces much bigger swings in demand than one selling a necessity, and sellers of <b>inferior</b> goods can do well in a recession.</p></div>
+  <div class="lab lab2"><div id="cyfig"></div><div><label class="ctl" style="display:flex;gap:8px;align-items:center" for="cydeep"><input type="checkbox" id="cydeep" style="width:18px;height:18px"><span style="color:var(--ink);font-weight:500">Make year 4 a deep recession (−6% income)</span></label><dl class="read" id="cyread"></dl><p class="explain" id="cyx"></p><p class="muted" style="font-size:12.5px">Illustrative income path; YED: luxury car 2.4, toothpaste 0.3, discount supermarket −0.5.</p></div></div>
+  <div class="lab" style="margin-top:16px"><h3>Planning calculator: Hoang’s luxury carmaker</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:10px">
+   <label class="ctl" for="pcy" style="grid-template-columns:1fr"><span>YED</span><input id="pcy" type="number" step="0.1" value="2.4"></label>
+   <label class="ctl" for="pcq" style="grid-template-columns:1fr"><span>Planned output (units)</span><input id="pcq" type="number" step="1000" value="400000"></label>
+   <label class="ctl" for="pci" style="grid-template-columns:1fr"><span>Forecast change in income (%)</span><input id="pci" type="number" step="0.5" value="-2"></label></div><p class="explain" id="pcx"></p></div>
+</section>
+
+<section class="step hlonly" id="sectors"><div class="shead"><span class="num">07</span><h2>YED and the changing structure of the economy <span class="badge b-hl">HL</span></h2><p>Food and raw materials (the <b>primary</b> sector) have low YED; manufactured goods (<b>secondary</b>) higher; services (<b>tertiary</b>) highest. So as income per person grows, spending, and with it output and jobs, shifts towards services.</p></div>
+  <div class="lab lab2"><div id="sefig"></div><div><label class="ctl" for="sey"><span>Income per person (US$)</span><input type="range" id="sey" min="0" max="100" step="1" value="30"><output id="seyo"></output></label><dl class="read" id="seread"></dl><p class="explain" id="sex"></p><p class="muted" style="font-size:12.5px">Illustrative model: each sector’s spending grows with income at its own YED (primary 0.3, secondary 0.9, tertiary 1.3), starting from shares of 55 / 25 / 20% at $1,000.</p></div></div>
+</section>
+
+<section class="step" id="draw"><div class="shead"><span class="num">08</span><h2>Draw it like an examiner wants</h2><p>Build Hoang’s Engel curves for an <b>income elastic</b> and an <b>income inelastic</b> good (Figs 8.5 and 8.6), then draw them on paper.</p></div>
+  <div class="lab lab2"><div id="drawfig"></div><div><h3 id="drawt"></h3><p id="drawx" style="margin-top:8px"></p><div class="stepper"><button class="btn" id="drawprev">← Back</button><button class="btn pri" id="drawnext">Next step →</button><div class="dots" id="drawdots"></div></div>
+  <div class="explain" style="margin-top:16px"><b>Label checklist:</b> vertical axis “Real income (Y)”, horizontal axis “Quantity demanded (Q)” · Y₁, Y₂, Q₁, Q₂ with dotted lines · the % changes · the curve labelled with its YED.</div></div></div>
+</section>
+<!-- /LAB SECTIONS -->
+
+<section class="step" id="cases"><div class="shead"><span class="num"></span><h2>Real-world cases</h2><p>Answer in your notebook, sketch the diagram, then open the model answer.</p></div><div class="cases" id="casebox"></div></section>
+
+<section class="step" id="quiz"><div class="shead"><span class="num"></span><h2>Check yourself</h2><p>Auto-marked multiple choice first, then quick-fire questions with model answers.</p><p class="score" id="mcqscore"></p></div><div class="quiz" id="mcqs"></div>
+  <h3 style="margin:30px 0 12px">Quick-fire checklist</h3><div class="quiz" id="qf"></div></section>
+
+<section class="step" id="mistakes"><div class="shead"><span class="num"></span><h2>Common mistakes to avoid</h2></div><div class="mist" id="mist"></div></section>
+
+<section class="step" id="exam"><div class="shead"><span class="num"></span><h2>Exam practice</h2><p>Plan each answer before opening the guide.</p></div><div class="cases" id="exambox"></div></section>
+
+<footer>Income Elasticity Lab · based on the IB Economics guide (2.5 Elasticities of demand – income elasticity of demand (YED)) and Hoang, Wray &amp; Chakraborty, <i>Economics for the IB Diploma</i> (Hodder 2020), Chapter 8. Figures used: 8.4–8.8, 8.10. YED values, the business-cycle path and the sector model are illustrative; case figures are approximate.</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+/* ============================ CONFIG ============================
+   NS     localStorage namespace, unique per lab (e.g. 'pedlab')
+   GOALS  [text, isHL]          TERMS [term, definition, isHL]
+   CASES  [title, context, [questions], [model answers]]
+   MCQ    [question, [4 options], correctIndex, explanation, isHL]
+   QF     [question, answer, isHL]          MI [mistake, correction]
+   EX     [paper label, question, [what a strong answer includes]]  (label containing 'HL' or 'Paper 3' = HL)
+================================================================== */
+const NS='incomeelasticitylab';
+const GOALS=[['Define YED and calculate it from data',0],['Explain why the sign of YED matters',0],['Distinguish luxuries, necessities and inferior goods',0],['Draw Engel curves for normal and inferior goods',0],['Explain the importance of YED for firms over the business cycle',1],['Explain how YED helps explain changes in the sectoral structure of an economy',1]];
+const TERMS=[['Income elasticity of demand (YED)','The responsiveness of demand to a change in real income: YED = %ΔQd ÷ %ΔY.',0],['Real income','Income adjusted for inflation: what income can actually buy.',0],['Income elastic demand','YED > 1: demand rises by a larger percentage than income (luxuries, many services).',0],['Income inelastic demand','0 < YED < 1: demand rises by a smaller percentage than income (necessities).',0],['Normal good','Positive YED: demand rises as income rises.',0],['Luxury','A normal good with YED > 1.',0],['Necessity','A normal good with YED between 0 and 1.',0],['Inferior good','Negative YED: demand falls as income rises. It is about affordability, not quality.',0],['Sign of YED','Always show it: + means normal, − means inferior.',0],['Engel curve','Real income (vertical axis) against quantity demanded (horizontal axis).',0],['Business cycle','Booms and recessions: periods of rising and falling income.',1],['Sectoral change','The shift of output and jobs from primary to secondary to tertiary sectors as incomes rise.',1]];
+const CASES=[['Tourism in Thailand','International tourist arrivals to Thailand rose from about 10 million in 2000 to nearly 40 million in 2019, as incomes rose in China and elsewhere in Asia. Arrivals fell by over 80% in 2020 when incomes and travel collapsed.',['Is demand for Thai holidays income elastic or inelastic?','Why is tourism so vulnerable in recessions?','(HL) What does this mean for Thailand’s economic structure?'],['Arrivals grew much faster than incomes in percentage terms, so YED > 1: foreign holidays are an income-elastic service (Hoang Fig 8.10).','When incomes fall, demand for income-elastic goods falls proportionately more, so tourism revenue is very volatile.','Rising foreign incomes expand Thailand’s tertiary sector, but heavy dependence on income-elastic foreign demand amplifies downturns. Diversification reduces the risk.']],
+['Fast food and discount supermarkets in a recession','During the 2008–09 recession McDonald’s reported rising global sales while many full-service restaurants closed. In the UK, the discount supermarkets Aldi and Lidl grew their market share from about 5% to over 10% between 2008 and 2015.',['What type of goods are these for many consumers?','Show the effect of falling income.','Could these be normal goods for some people?'],['For many households they are inferior goods (negative YED).','As real income falls, demand for them shifts right, while demand for restaurant dining (a luxury) shifts left.','Yes. For low-income households fast food may be a normal good (Hoang p. 108), so firms must know their customer groups.']],
+['Rice in India','Indian real income per person roughly doubled between 2005 and 2019, but rice consumption per person stayed roughly flat, while spending on dairy, eggs, meat and processed food grew fast.',['Estimate the YED for rice.','Classify rice and dairy.','What happens to farmers who grow only staples?'],['Income rose about 100% while rice quantity changed by about 0%, so YED ≈ 0: a necessity, possibly inferior for richer households.','Dairy and processed food have higher positive YED, so demand grows with income.','Demand for staples hardly grows, so these farmers’ share of national income falls, and resources move to higher-YED products: sectoral change.']],
+['A luxury carmaker plans for a downturn (HL)','A German luxury carmaker estimates its YED at +2.4. Forecasters expect real incomes in its main markets to fall by 2% next year. It plans to build 400,000 cars.',['Estimate the change in demand.','How should the firm respond?','What limits the estimate?'],['%ΔQd = 2.4 × (−2%) = −4.8%, about 19,200 fewer cars.','Cut planned production and stock, delay hiring, and consider cheaper models with lower YED to stabilise sales.','It is based on past data and assumes ceteris paribus; tastes, exchange rates or electric-car policy may matter more than income.']]];
+const MCQ=[['Income rises by 10% and demand for rice rises by 5%. YED is…',['−0.5','+0.5','+2','+5'],1,'5% ÷ 10% = +0.5: a necessity.',0],
+['A good with YED = +1.8 is…',['An inferior good','A necessity','A luxury','Income inelastic'],2,'Positive and greater than 1.',0],
+['A good with YED = −0.6 is…',['A luxury','A necessity','An inferior good','A complement'],2,'Negative YED: demand falls as income rises.',0],
+['Why must the sign of YED always be shown?',['It is always negative','It shows whether the good is normal or inferior','It shows the price elasticity','Examiners ignore it'],1,'+ = normal, − = inferior.',0],
+['What is on the vertical axis of an Engel curve?',['Price','Real income','Total revenue','Quantity supplied'],1,'Income on the vertical axis, quantity on the horizontal.',0],
+['Fresh flowers have YED +2.1. Incomes fall by 10%. Demand…',['Falls by 21%','Falls by 2.1%','Rises by 21%','Falls by 4.8%'],0,'%ΔQd = 2.1 × (−10%) = −21% (Hoang p. 106).',0],
+['“Inferior good” means…',['Poor quality','Demand falls as income rises','Demand falls as price rises','It has no substitutes'],1,'It describes the response to income, not quality.',0],
+['A rise in income causes, for a normal good…',['A movement along the demand curve','A shift of the demand curve to the right','A shift of the supply curve','No change'],1,'Income is a non-price determinant of demand.',0],
+['(HL) Which firm’s sales are likely to fall most in a recession?',['A discount supermarket','A toothpaste maker','A cruise-holiday company','A bus company'],2,'Cruises are a luxury with high YED.',1],
+['(HL) As economies grow, the tertiary sector’s share usually rises because…',['Services have higher YED','Services are inferior goods','Manufacturing becomes illegal','Primary goods have YED > 1'],0,'Demand for services grows faster than income.',1]];
+const QF=[['Write the YED formula.','YED = %ΔQd ÷ %ΔY.',0],['Why must you always show the sign of YED?','It shows whether the good is normal (positive) or inferior (negative).',0],['YED = +0.4. Classify the good.','A normal good and a necessity (income inelastic).',0],['YED = +1.8. Classify the good.','A normal good and a luxury (income elastic).',0],['YED = −0.6. Classify the good.','An inferior good.',0],['Income rises 5%, demand rises 15%. YED?','+3: income elastic.',0],['What is on the axes of an Engel curve?','Real income (vertical) and quantity demanded (horizontal).',0],['How does an Engel curve for an inferior good look?','It bends back, so quantity falls as income rises beyond a point.',0],['Does “inferior” mean poor quality?','No: it means demand falls when income rises.',0],['YED −0.25, income +3%. Change in demand?','Falls by 0.75%.',0],['(HL) Why do firms selling luxuries face volatile demand?','With YED > 1, demand changes proportionately more than income over the business cycle.',1],['(HL) Why does the tertiary sector grow as economies develop?','Services have higher YED than primary and manufactured goods, so demand for them grows faster as incomes rise.',1]];
+const MI=[['“Inferior goods are poor-quality goods”','Inferior describes how demand responds to income, not quality (p. 108). A Honda is not a bad car.'],['Ignoring the sign of YED','The sign is essential: + means normal, − means inferior (p. 108).'],['“All normal goods are luxuries”','Luxuries have YED > 1; necessities are normal goods with YED between 0 and 1 (p. 106).'],['Confusing YED with the income effect','YED measures the response to a change in income itself, not to a change in the good’s price (p. 109).'],['“A good is always normal or always inferior”','It depends on income level and country: bicycles, bus travel (p. 108).'],['Writing “price elastic” for YED','Use “income elastic” and “income inelastic”. Hoang’s pp. 104–106 and Fig 8.8 print PED where YED is meant.']];
+const EX=[['Paper 1 (a) · 10 marks','Using examples and a diagram, explain the difference between normal goods and inferior goods.',['Define YED, normal goods (YED > 0) and inferior goods (YED < 0).','Diagram: Engel curves, upward sloping for a normal good and bending back for an inferior good, or demand shifts in opposite directions when income rises.','Distinguish necessities and luxuries within normal goods.','Real examples, with the point that classification depends on context.']],
+['Paper 1 (b) · 15 marks (HL)','Using real-world examples, evaluate the importance of income elasticity of demand for firms.',['Forecasting and planning over the business cycle (luxury carmaker −4.8%).','Product portfolio and diversification: mixing high- and low-YED products; targeting fast-growing markets.','Limitations: estimates use past data, assume ceteris paribus, and differ across groups and countries; other factors (prices, tastes, exchange rates) may dominate.','A supported judgement.']],
+['Paper 2 · 2 marks','Sausages have a YED of −0.25. Calculate the change in quantity demanded if incomes rise by 3%.',['%ΔQd = −0.25 × 3% = −0.75%.','Demand falls by 0.75% (an inferior good).']],
+['Paper 2 · 4 marks','Using an Engel curve, explain why demand for foreign holidays is income elastic.',['An Engel curve with income on the vertical axis, relatively flat: a small rise in Y gives a large rise in Q [2].','Holidays are a luxury and a large share of income, so demand rises more than proportionately with income, YED > 1 [2].']],
+['Paper 1 (b) · 15 marks (HL)','Evaluate the view that differences in income elasticity of demand explain the changing sectoral structure of economies.',['Explain primary < secondary < tertiary YED and the resulting shift of spending, output and jobs.','Evidence: services are over 70% of GDP in most high-income countries; India’s and China’s rising service shares.','Other causes: productivity growth in agriculture and manufacturing, trade and outsourcing, technology, government policy.','Judgement: YED is an important demand-side explanation but not the only one.']]];
+
+/* ============================ CORE (do not edit per chapter) ============================ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const st={get(k,d){try{const v=localStorage.getItem(NS+'.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(NS+'.'+k,JSON.stringify(v))}catch(e){}}};
+const f0=v=>Math.round(v).toLocaleString(), f1=v=>(Math.round(v*10)/10).toLocaleString(), f2=v=>(Math.round(v*100)/100).toLocaleString(), money=v=>(v<0?'−$':'$')+Math.round(Math.abs(v)).toLocaleString();
+const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tween(from,to,ms,cb){if(RM||document.hidden){cb(to);return}const t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;cb(from+(to-from)*e);if(k<1)requestAnimationFrame(f)})(t0)}
+const LC={s:'ls',s2:'ls',d:'ld',d2:'ld2',sm:'lm'};
+/* Plot({xmax,ymax,xl,yl,w?,h?,L?}) : fn(f,cls,label,lx) pts(points,cls) poly(points,cls) seg(x0,y0,x1,y1,cls) rect(x,y,cls)
+   bar(xCentre,width,height,cls,label) dot(x,y,cls) guide(x,y,xLabel,yLabel) xt(x,t) yt(y,t) text(x,y,t,cls,anchor) arrow(...) gap(x0,x1,y) svg(aria)
+   classes: d d2 s s2 sm ghost guide arrow | areas: spend (blue) area (orange) dwl (gold) | bars: bar, bar dim */
+function Plot(o){const W=o.w||540,H=o.h||380,L=o.L||54,R=26,T=24,B=44;const sx=x=>L+x/o.xmax*(W-L-R),sy=y=>H-B-y/o.ymax*(H-T-B);const out=[];
+ return{sx,sy,
+  fn(f,cls,label,lx){let d='',pen=false;for(let i=0;i<=160;i++){const x=o.xmax*i/160,y=f(x);if(!isFinite(y)||y<0||y>o.ymax){pen=false;continue}d+=(pen?'L':'M')+sx(x).toFixed(1)+' '+sy(y).toFixed(1)+' ';pen=true}if(d)out.push(`<path class="${cls}" d="${d}"/>`);if(label){const x=lx!=null?lx:o.xmax*.86,y=f(x);if(isFinite(y)&&y>=0&&y<=o.ymax)out.push(`<text class="${LC[cls]||'lg'}" x="${sx(x)+6}" y="${sy(y)-6}">${label}</text>`)}},
+  pts(p,cls){out.push(`<path class="${cls}" d="${p.map((q,i)=>(i?'L':'M')+sx(q[0]).toFixed(1)+' '+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  poly(p,cls){out.push(`<polygon class="${cls}" points="${p.map(q=>sx(q[0]).toFixed(1)+','+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  rect(x,y,cls){out.push(`<rect class="${cls}" x="${sx(0)}" y="${sy(y)}" width="${sx(x)-sx(0)}" height="${sy(0)-sy(y)}"/>`)},
+  bar(x,w,h,cls,lab){out.push(`<rect class="bar ${cls||''}" x="${sx(x-w/2)}" y="${sy(h)}" width="${sx(w)-sx(0)}" height="${sy(0)-sy(h)}"/>`);if(lab!=null)out.push(`<text class="note" x="${sx(x)}" y="${sy(h)-6}" text-anchor="middle">${lab}</text>`)},
+  seg(x0,y0,x1,y1,cls){out.push(`<path class="${cls}" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  dot(x,y,c){out.push(`<circle class="${c||'dot'}" cx="${sx(x)}" cy="${sy(y)}" r="5"/>`)},
+  guide(x,y,xl,yl){out.push(`<path class="guide" d="M${sx(0)} ${sy(y)} L${sx(x)} ${sy(y)} L${sx(x)} ${sy(0)}"/>`);if(yl)out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${yl}</text>`);if(xl)out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${xl}</text>`)},
+  xt(x,t){out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${t}</text>`)},
+  yt(y,t){out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${t}</text>`)},
+  text(x,y,t,c,a){out.push(`<text class="${c||'note'}" x="${sx(x)}" y="${sy(y)}" text-anchor="${a||'start'}">${t}</text>`)},
+  arrow(x0,y0,x1,y1){out.push(`<path class="arrow" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  gap(x0,x1,y){out.push(`<path class="gap" d="M${sx(x0)} ${sy(y)} L${sx(x1)} ${sy(y)}"/>`)},
+  svg(aria){return `<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria||''}"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0 0 L10 5 L0 10z"/></marker></defs>${out.join('')}<path class="axis" d="M${sx(0)} ${sy(o.ymax)} L${sx(0)} ${sy(0)} L${sx(o.xmax)} ${sy(0)}"/><text class="axl" x="${sx(0)-8}" y="${T-8}">${o.yl}</text><text class="axl" x="${sx(o.xmax)}" y="${H-8}" text-anchor="end">${o.xl}</text><text class="tick" x="${sx(0)-6}" y="${sy(0)+17}" text-anchor="end">0</text></svg>`}}}
+/* sorter('pre', [[card text, answerKey, explanation]], {key: label}, 'data-attr')  — needs ids pre+n/q/fb/next/sc */
+function sorter(pre,cards,labels,attr){let i=st.get(pre+'i',0),sc=st.get(pre+'s',[0,0]);
+ const draw=()=>{i%=cards.length;$('#'+pre+'n').textContent=`Card ${i+1} of ${cards.length}`;$('#'+pre+'q').textContent=cards[i][0];$('#'+pre+'fb').textContent='';$('#'+pre+'next').hidden=true;$$(`[${attr}]`).forEach(b=>b.disabled=false);$('#'+pre+'sc').textContent=`Score ${sc[0]} / ${sc[1]}`};
+ $$(`[${attr}]`).forEach(b=>b.addEventListener('click',()=>{const c=cards[i],ok=b.getAttribute(attr)===c[1];sc[1]++;if(ok)sc[0]++;st.set(pre+'s',sc);const fb=$('#'+pre+'fb');fb.className='fb '+(ok?'ok':'no');fb.textContent=(ok?'✓ Correct. ':'✗ Answer: '+labels[c[1]]+'. ')+c[2];$$(`[${attr}]`).forEach(x=>x.disabled=true);$('#'+pre+'next').hidden=false;$('#'+pre+'sc').textContent=`Score ${sc[0]} / ${sc[1]}`}));
+ $('#'+pre+'next').addEventListener('click',()=>{i++;st.set(pre+'i',i);draw()});draw()}
+/* stepper('pre', steps[[title, html]], draw(stepIndex)) — needs ids pre+t/x/prev/next/dots */
+function stepper(pre,steps,draw){let k=0;const go=()=>{k=Math.max(0,Math.min(steps.length-1,k));draw(k);$('#'+pre+'t').textContent=`Step ${k+1}: ${steps[k][0]}`;$('#'+pre+'x').innerHTML=steps[k][1];$('#'+pre+'dots').innerHTML=steps.map((_,i)=>`<i class="${i<=k?'on':''}"></i>`).join('');$('#'+pre+'prev').disabled=k===0;$('#'+pre+'next').disabled=k===steps.length-1};
+ $('#'+pre+'next').addEventListener('click',()=>{k++;go()});$('#'+pre+'prev').addEventListener('click',()=>{k--;go()});go();return{reset(){k=0;go()}}}
+let LVL=st.get('lvl','HL');const HASLVL=!!$('.lvl');
+function renderGoals(){const d=st.get('goals',[]);$('#goals').innerHTML=GOALS.map((g,i)=>g[1]&&LVL==='SL'?'':`<li><input type="checkbox" id="g${i}" ${d.includes(i)?'checked':''}><label for="g${i}">${g[0]} ${g[1]&&HASLVL?'<span class="badge b-hl">HL</span>':''}</label></li>`).join('');$$('#goals input').forEach(c=>c.addEventListener('change',()=>{const i=+c.id.slice(1);let v=st.get('goals',[]);v=c.checked?[...new Set([...v,i])]:v.filter(x=>x!==i);st.set('goals',v)}))}
+function renderCards(){$('#cards').innerHTML=TERMS.filter(t=>!(t[2]&&LVL==='SL')).map(t=>`<button class="flip" aria-label="${t[0]}: show definition"><div class="in"><div class="f"><b>${t[0]}</b><span class="hint">${t[2]&&HASLVL?'<span class="badge b-hl">HL</span> ':''}Click to flip</span></div><div class="b">${t[1]}</div></div></button>`).join('');$$('#cards .flip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on')))}
+function renderMCQ(){const list=MCQ.map((q,i)=>[q,i]).filter(x=>!(x[0][4]&&LVL==='SL'));
+ $('#mcqs').innerHTML=list.map(([q,i],k)=>`<div class="mcq" data-i="${i}"><p><b>${k+1}.</b> ${q[0]}</p><div class="opts">${q[1].map((o,j)=>`<button class="btn opt" data-j="${j}">${String.fromCharCode(65+j)}. ${o}</button>`).join('')}</div><p class="why" hidden></p></div>`).join('');
+ const sc=()=>{const a=st.get('mcq',{});const done=list.filter(x=>a[x[1]]!=null);const ok=done.filter(x=>a[x[1]]===x[0][2]).length;$('#mcqscore').innerHTML=done.length?`Score: ${ok} / ${list.length} <button class="btn" id="mcqreset" style="margin-left:10px;padding:4px 10px">Try again</button>`:'';const r=$('#mcqreset');if(r)r.addEventListener('click',()=>{st.set('mcq',{});renderMCQ()})};
+ $$('.mcq').forEach(el=>{const i=+el.dataset.i,q=MCQ[i];const mark=j=>{el.querySelectorAll('.opt').forEach(b=>{const k=+b.dataset.j;b.disabled=true;if(k===q[2])b.classList.add('ok');else if(k===j)b.classList.add('no')});const w=el.querySelector('.why');w.hidden=false;w.textContent=(j===q[2]?'✓ ':'✗ ')+q[3]};
+  const a=st.get('mcq',{});if(a[i]!=null)mark(a[i]);el.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{const a=st.get('mcq',{});a[i]=+b.dataset.j;st.set('mcq',a);mark(+b.dataset.j);sc()}))});sc()}
+function renderQF(){$('#qf').innerHTML=QF.filter(q=>!(q[2]&&LVL==='SL')).map(q=>`<div class="qa"><p><b>${q[0]}</b></p><details><summary>Show answer</summary><p>${q[1]}</p></details></div>`).join('')}
+function renderStatic(){
+ $('#casebox').innerHTML=CASES.map(c=>`<article class="case"><h3>${c[0]}</h3><p>${c[1]}</p><ol>${c[2].map(q=>`<li>${q}</li>`).join('')}</ol><details><summary>Model answer</summary><ol>${c[3].map(a=>`<li>${a}</li>`).join('')}</ol></details></article>`).join('');
+ $('#mist').innerHTML=MI.map(m=>`<div><b>✗ ${m[0]}</b>${m[1]}</div>`).join('');
+ $('#exambox').innerHTML=EX.map(e=>{const hl=/HL|Paper 3/.test(e[0]);return `<article class="case ${hl&&HASLVL?'hlonly':''}"><span class="badge ${hl?'b-hl':'b-sl'}">${e[0]}</span><p style="font-family:var(--serif);font-size:17px">${e[1]}</p><details><summary>What a strong answer includes</summary><ol>${e[2].map(x=>`<li>${x}</li>`).join('')}</ol></details></article>`}).join('')}
+function setLvl(l){LVL=HASLVL?l:'HL';st.set('lvl',LVL);$$('.lvl button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lvl===LVL));$$('.hlonly').forEach(e=>e.hidden=LVL==='SL');renderCards();renderGoals();renderMCQ();renderQF()}
+$$('.lvl button').forEach(b=>b.addEventListener('click',()=>setLvl(b.dataset.lvl)));
+
+/* LAB CODE: chapter-specific interactive sections. Each section = a draw() function + event listeners. */
+
+const sgn=v=>(v>0?'+':v<0?'−':'')+f2(Math.abs(v));
+const classify=y=>!isFinite(y)?'—':y<0?'an inferior good':y<1?'a normal good, a necessity (income inelastic)':y===1?'a normal good with unit income elasticity':'a normal good, a luxury (income elastic)';
+/* 02 calculator */
+const YP=[['Rice (p. 105)',40000,44000,100,105],['Diamond rings (p. 106)',50000,53000,60,66],['Bus journeys',40000,42000,500,480],['Fine wine (Fig 8.5)',30000,32400,50,60]];
+$('#ypre').innerHTML=YP.map((p,i)=>`<button class="btn" data-yp="${i}">${p[0]}</button>`).join('');
+$$('[data-yp]').forEach(b=>b.addEventListener('click',()=>{const p=YP[+b.dataset.yp];['y1','y2','q1','q2'].forEach((id,k)=>$('#'+id).value=p[k+1]);drawY()}));
+function drawY(){const y1=+$('#y1').value,y2=+$('#y2').value,q1=+$('#q1').value,q2=+$('#q2').value;if(!y1||!q1)return;const dy=(y2-y1)/y1*100,dq=(q2-q1)/q1*100,yed=dy?dq/dy:NaN;
+ $('#yread').innerHTML=`<dt>%ΔY = (${f0(y2)} − ${f0(y1)}) ÷ ${f0(y1)} × 100</dt><dd>${sgn(dy)}%</dd><dt>%ΔQd = (${f0(q2)} − ${f0(q1)}) ÷ ${f0(q1)} × 100</dt><dd>${sgn(dq)}%</dd><dt>YED = %ΔQd ÷ %ΔY</dt><dd>${isFinite(yed)?sgn(yed):'—'}</dd>`;
+ $('#yx').innerHTML=isFinite(yed)?`YED = <b>${sgn(yed)}</b>, so this is <b>${classify(yed)}</b>. `+(yed<0?'Keep the minus sign: it is what tells us the good is inferior.':yed>1?'Demand grows faster than income: a luxury.':'Demand grows more slowly than income: a necessity.'):'Enter two different incomes.'}
+['y1','y2','q1','q2'].forEach(id=>$('#'+id).addEventListener('input',drawY));['y1','y2','q1','q2'].forEach((id,k)=>$('#'+id).value=YP[0][k+1]);
+
+/* 03 Engel curves: luxury Q=50(Y/100)^2.5, necessity Q=50(Y/100)^0.25, inferior Q=K·Y·e^(−Y/66.7) */
+let en='lux';const EF={lux:Y=>50*Math.pow(Y/100,2.5),nec:Y=>50*Math.pow(Y/100,.25),inf:Y=>2.2408*Y*Math.exp(-Y/66.67)};
+const ENAME={lux:'Luxury (e.g. fine wine)',nec:'Necessity (e.g. rice)',inf:'Inferior good (e.g. instant coffee)'};
+function drawEn(){const Y=+$('#eny').value;$('#enyo').textContent=Y;$$('[data-en]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.en===en));const f=EF[en],Q=f(Y),Q0=f(100);
+ const g=Plot({xmax:150,ymax:160,xl:'Quantity demanded (Q)',yl:'Real income (Y)'});const pts=[];for(let y=20;y<=155;y+=1)pts.push([f(y),y]);g.pts(pts.filter(p=>p[0]<=150),en==='inf'?'d':'d');
+ g.text(Math.min(f(150),140)+4,150,'Engel curve','ld');g.dot(Q0,100,'dot2');g.guide(Q0,100,'Q₁','Y₁');if(Y!==100){g.dot(Q,Y);g.guide(Q,Y,'Q₂','Y₂');g.arrow(Q0,100,Q+(Q>Q0?-2:2),Y+(Y>100?-2:2))}
+ if(en==='inf')g.text(f(66.67)+3,66.67,'turning point','note');
+ $('#enfig').innerHTML=g.svg('Engel curve');const dy=Y-100,dq=(Q-Q0)/Q0*100,pointY=en==='lux'?2.5:en==='nec'?.25:1-Y/66.67;
+ $('#enread').innerHTML=`<dt>Good</dt><dd style="font-family:var(--sans);font-weight:500">${ENAME[en]}</dd><dt>Change in income</dt><dd>${sgn(dy)}%</dd><dt>Change in quantity demanded</dt><dd>${sgn(dq)}%</dd><dt>YED over this change</dt><dd>${dy?sgn(dq/dy):'—'}</dd><dt>YED at this income</dt><dd>${sgn(pointY)}</dd>`;
+ $('#enx').innerHTML=en==='lux'?'A <b>relatively flat</b> Engel curve: a small rise in income brings a large rise in quantity (Hoang Fig 8.5: income +8%, fine wine +20%).':en==='nec'?'A <b>steep</b> Engel curve: income can rise a lot with little extra quantity (Hoang Fig 8.6: income +8%, rice +2%).':'At low incomes the good is normal (the curve rises). Beyond the <b>turning point</b> people switch to better alternatives, so quantity <b>falls</b> as income rises: the curve <b>bends back</b> and YED becomes negative (Hoang Fig 8.7 shows this inferior section as downward-sloping).'}
+$$('[data-en]').forEach(b=>b.addEventListener('click',()=>{en=b.dataset.en;drawEn()}));$('#eny').addEventListener('input',drawEn);
+
+/* 04 YED scale */
+const PROD=[['Own-label bread',-0.3,'Richer shoppers switch to bakery or branded bread.'],['Bus travel',-0.5,'As incomes rise many people switch to cars or taxis (in some cities it is a normal good).'],['Instant coffee',-0.2,'Replaced by café coffee and coffee machines as incomes rise.'],['Toothpaste',0.1,'People buy about the same amount whatever their income.'],['Rice (staple)',0.2,'A staple food: extra income goes on other foods.'],['Electricity',0.4,'Use grows a little with more appliances.'],['Fresh fruit',0.7,'Spending rises with income, but less than proportionately.'],['Restaurant meals',1.5,'Eating out grows fast as incomes rise.'],['Overseas holidays',2,'A classic luxury service (Hoang Fig 8.10).'],['Fine wine',2.5,'Hoang Fig 8.5: income +8%, demand +20%.']];
+let pick=8;$('#mapbtns').innerHTML=PROD.map((p,i)=>`<button class="btn" data-pr="${i}">${p[0]}</button>`).join('');
+function drawMap(){$$('[data-pr]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.pr===pick));const W=900,H=230,L=40,R=30,x=v=>L+(v+1)/4*(W-L-R),y0=150;
+ let svg=`<rect x="${x(-1)}" y="${y0-90}" width="${x(0)-x(-1)}" height="90" fill="var(--shade)"/><rect x="${x(1)}" y="${y0-90}" width="${x(3)-x(1)}" height="90" fill="var(--shadeb)"/>`;
+ svg+=`<text class="note" x="${(x(-1)+x(0))/2}" y="${y0-72}" text-anchor="middle">INFERIOR (YED &lt; 0)</text><text class="note" x="${(x(0)+x(1))/2}" y="${y0-72}" text-anchor="middle">NECESSITY (0–1)</text><text class="note" x="${(x(1)+x(3))/2}" y="${y0-72}" text-anchor="middle">LUXURY (YED &gt; 1)</text>`;
+ svg+=`<path class="axis" d="M${x(-1)} ${y0} L${x(3)} ${y0}"/>`;[-1,0,1,2,3].forEach(v=>svg+=`<path class="guide" d="M${x(v)} ${y0-90} L${x(v)} ${y0+6}"/><text class="tick" x="${x(v)}" y="${y0+22}" text-anchor="middle">${v}</text>`);
+ PROD.forEach((p,i)=>{const on=i===pick;svg+=`<circle cx="${x(p[1])}" cy="${y0}" r="${on?8:5}" class="${on?'dot':'dot2'}"/>`+(on?`<text class="lm" x="${x(p[1])}" y="${y0-24}" text-anchor="middle">${p[0]}</text>`:'')});
+ svg+=`<text class="axl" x="${x(3)}" y="${H-8}" text-anchor="end">YED</text>`;
+ $('#mapfig').innerHTML=`<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="YED scale">${svg}</svg>`;const p=PROD[pick];$('#mapx').innerHTML=`<b>${p[0]}</b>: YED ≈ ${sgn(p[1])}, so it is <b>${classify(p[1])}</b>. ${p[2]}`}
+$$('[data-pr]').forEach(b=>b.addEventListener('click',()=>{pick=+b.dataset.pr;drawMap()}));
+sorter('ys',[['Business-class flights','lux','Demand rises much faster than income.'],['Toilet paper','nec','Bought in similar amounts at any income.'],['Own-label tinned meat','inf','Replaced by fresh meat as incomes rise (Hoang p. 107).'],['Designer clothes','lux','A large, optional purchase that grows strongly with income.'],['Salt','nec','A tiny, essential purchase.'],['Second-hand budget cars','inf','Richer households buy new or better cars.'],['Private tutoring','lux','Spending on education services grows strongly with income.'],['Glasses (spectacles)','nec','Needed regardless of income (Hoang p. 107).'],['Frozen ready meals','inf','For many households, replaced by fresh food or eating out as incomes rise.'],['Sports cars','lux','A classic luxury (Hoang p. 106).']],{lux:'Luxury',nec:'Necessity',inf:'Inferior'},'data-y');
+
+/* 05 predictor */
+const PG=[['Overseas holidays',2],['Toothpaste',0.3],['Instant coffee',-0.5]];
+function drawPr(){const dy=+$('#pry').value;$('#pryo').textContent=(dy>0?'+':'')+dy+'%';
+ $('#prfigs').innerHTML=PG.map(([nm,y])=>{const m=1+y*dy/100;const g=Plot({xmax:110,ymax:10,xl:'Quantity',yl:'Price',w:360,h:280});const D0=q=>10-q/10,D=q=>10-q/(10*m);if(dy)g.fn(D0,'ghost','D₁',60);g.fn(D,'d',dy?'D₂':'D',dy?Math.min(95,70*m):60);g.seg(0,5,110,5,'guide');g.dot(50,5,'dot2');if(dy){g.dot(50*m,5);g.arrow(50+(m>1?2:-2),4.4,50*m+(m>1?-2:2),4.4)}
+  return `<div><p class="eyebrow" style="margin-bottom:6px">${nm} · YED ${sgn(y)}</p>${g.svg(nm)}<p style="font:600 13px var(--mono);margin-top:4px">Demand ${sgn(y*dy)}% at every price</p></div>`}).join('');
+ $('#prx').innerHTML=dy===0?'Move the slider to change income.':`Income ${dy>0?'rises':'falls'} by ${Math.abs(dy)}%. Holidays (luxury) shift ${dy>0?'right':'left'} by ${f0(Math.abs(2*dy))}%, toothpaste (necessity) only ${f1(Math.abs(.3*dy))}%, and instant coffee (inferior) shifts the <b>opposite</b> way by ${f1(Math.abs(.5*dy))}%. A change in income shifts demand; it does not move along the curve.`}
+$('#pry').addEventListener('input',drawPr);
+
+/* 06 business cycle (HL) */
+function drawCy(){const deep=$('#cydeep').checked;const g0=[3,4,2,deep?-6:-3,-2,1,3,4];const GD=[['Luxury cars',2.4,'d'],['Toothpaste',.3,'sm'],['Discount supermarket',-.5,'s']];
+ const series=GD.map(([n,y])=>{let v=100;const out=[[0,100]];g0.forEach((gr,i)=>{v*=1+y*gr/100;out.push([i+1,v])});return out});let inc=100;const ip=[[0,100]];g0.forEach((gr,i)=>{inc*=1+gr/100;ip.push([i+1,inc])});
+ const ymin=70,ymax=130;const g=Plot({xmax:8.5,ymax:ymax-ymin,xl:'Year',yl:'Demand index (year 0 = 100)'});const sh=p=>p.map(q=>[q[0],q[1]-ymin]);
+ [80,90,100,110,120,130].forEach(v=>g.yt(v-ymin,v));for(let i=1;i<=8;i++)g.xt(i,i);g.poly([[3.5,0],[3.5,ymax-ymin],[5.5,ymax-ymin],[5.5,0]],'area');g.text(4.5,ymax-ymin-3,'recession','note','middle');
+ g.pts(sh(ip),'ghost');series.forEach((s2,k)=>g.pts(sh(s2),GD[k][2]));GD.forEach((x,k)=>g.text(.3,18-k*5,'— '+x[0]+' (YED '+sgn(x[1])+')',k===0?'ld':k===2?'ls':'lm'));g.text(.3,3,'- - Income','lg');
+ $('#cyfig').innerHTML=g.svg('Demand over the business cycle');const drop=s2=>{const pk=s2[3][1],tr=Math.min(s2[4][1],s2[5][1]);return (tr-pk)/pk*100};
+ $('#cyread').innerHTML=GD.map(([n,y],k)=>`<dt>${n} (YED ${sgn(y)}): change in recession</dt><dd>${sgn(drop(series[k]))}%</dd>`).join('')+`<dt>Income: change in recession</dt><dd>${sgn(drop(ip))}%</dd>`;
+ $('#cyx').innerHTML=`In the recession, income falls by ${f1(Math.abs(drop(ip)))}% but luxury-car demand falls by about <b>${f1(Math.abs(drop(series[0])))}%</b>, while the discount supermarket’s sales <b>rise</b>. Firms with high-YED products must plan for big swings (stock, staff, cash); many diversify into low-YED or inferior goods to stabilise revenue.`}
+$('#cydeep').addEventListener('change',drawCy);
+function drawPc(){const y=+$('#pcy').value,q=+$('#pcq').value,i=+$('#pci').value;const pct=y*i,ch=q*pct/100;$('#pcx').innerHTML=`%ΔQd = YED × %ΔY = ${f2(y)} × (${sgn(i)}%) = <b>${sgn(pct)}%</b>. Change in demand = ${f2(Math.abs(pct))}% × ${f0(q)} = <b>${ch<0?'−':'+'}${f0(Math.abs(ch))} units</b>, so plan for about <b>${f0(q+ch)}</b>. With Hoang’s figures (2.4, 400,000, −2%): −4.8%, or −19,200 cars.`}
+['pcy','pcq','pci'].forEach(id=>$('#'+id).addEventListener('input',drawPc));
+
+/* 07 sectors (HL): share_i ∝ w_i · Y^e_i, slider maps 0..100 to $1,000..$60,000 (log scale) */
+const SE=[['Primary',.3,55,'s'],['Secondary',.9,25,'sm'],['Tertiary',1.3,20,'d']];const yOf=v=>1000*Math.pow(60,v/100);
+const shares=Y=>{const r=SE.map(([n,e,w])=>w*Math.pow(Y/1000,e));const t=r.reduce((a,b)=>a+b,0);return r.map(v=>v/t*100)};
+function drawSe(){const v=+$('#sey').value,Y=yOf(v);$('#seyo').textContent='$'+f0(Math.round(Y/100)*100);const g=Plot({xmax:100,ymax:100,xl:'Income per person (log scale)',yl:'Share of spending (%)'});
+ [0,25,50,75,100].forEach(t=>g.yt(t,t));[[1000,'$1k'],[3000,'$3k'],[10000,'$10k'],[30000,'$30k'],[60000,'$60k']].forEach(([y,l])=>g.xt(Math.log(y/1000)/Math.log(60)*100,l));
+ SE.forEach(([n],k)=>{const p=[];for(let x=0;x<=100;x+=2)p.push([x,shares(yOf(x))[k]]);g.pts(p,SE[k][3]);g.text(101,p[p.length-1][1],n,k===2?'ld':k===0?'ls':'lm','end')});g.seg(v,0,v,100,'guide');const sh=shares(Y);sh.forEach((s2,k)=>g.dot(v,s2));
+ $('#sefig').innerHTML=g.svg('Sector shares as income rises');$('#seread').innerHTML=SE.map(([n],k)=>`<dt>${n} sector share</dt><dd>${f0(sh[k])}%</dd>`).join('');
+ $('#sex').innerHTML=`At $${f0(Math.round(Y/100)*100)} per person, services take <b>${f0(sh[2])}%</b> of spending and the primary sector only <b>${f0(sh[0])}%</b>. Because demand for services has the highest YED, their share keeps rising with income. Resources (workers, capital) follow demand, so the economy’s structure moves from farming to industry to services. Real-world pattern: services make up well over 70% of GDP in most high-income countries (World Bank data). Other causes include productivity growth in farming and manufacturing, trade and technology.`}
+$('#sey').addEventListener('input',drawSe);
+
+/* 08 draw builder: Hoang Figs 8.5 and 8.6 (income +8%) */
+stepper('draw',[['Axes first','Vertical axis: <b>Real income (Y)</b>. Horizontal axis: <b>Quantity demanded (Q)</b>. There is no price on an Engel curve.'],['Mark the starting point','Income Y₁ and quantity Q₁, with dotted lines to both axes.'],['Raise income by 8%','Income rises from Y₁ to Y₂ (+8%).'],['An income-elastic good','Fine wine: quantity rises by 20% to Q₂. A relatively <b>flat</b> Engel curve: YED = 20 ÷ 8 = <b>+2.5</b>.'],['An income-inelastic good','Rice: quantity rises by only 2%. A relatively <b>steep</b> Engel curve: YED = 2 ÷ 8 = <b>+0.25</b>. Label both curves with their YED.']],k=>{
+ const g=Plot({xmax:80,ymax:130,xl:'Quantity demanded (Q)',yl:'Real income (Y)'});if(k>=1){g.dot(50,100);g.guide(50,100,'Q₁','Y₁')}if(k>=2)g.seg(0,108,80,108,'guide'),g.text(1,110,'Y₂ (+8%)','note');
+ if(k>=3){g.pts([[20,76],[70,116]],'d');g.dot(60,108);g.guide(60,108,'Q₂ (+20%)','');g.text(70,118,'YED = +2.5','ld','end')}
+ if(k>=4){g.pts([[47.5,80],[53.5,128]],'s');g.dot(51,108);g.text(53,126,'YED = +0.25','ls')}
+ $('#drawfig').innerHTML=g.svg('Engel curves')});
+/* /LAB CODE */
+
+$$('section.step').forEach(sec=>{const n=sec.querySelector('.num');const list=[...$$('section.step')].filter(x=>x.id!=='guide');if(n&&sec.id!=='guide'&&!n.dataset.fixed)n.textContent=String(list.indexOf(sec)+1).padStart(2,'0')});
+renderStatic();setLvl(LVL);
+/* LAB INIT: call each section's first draw here */
+drawY();drawEn();drawMap();drawPr();drawCy();drawPc();drawSe();
+/* /LAB INIT */
+})();
+</script>
+<script id="cg-js">
+(function(){
+const CG={"title": "Chapter 8 · Elasticity of demand: income elasticity of demand (YED)", "intro": "Income is one of the main non-price determinants of demand. Income elasticity of demand measures how strongly demand for a product responds when people's real incomes change. It separates luxuries from necessities and normal goods from inferior goods, and it explains why some firms boom or suffer over the business cycle and why rich economies are dominated by services.", "groups": [{"name": "Measuring YED", "terms": [{"term": "Income elasticity of demand (YED)", "level": "SL/HL", "definition": "The responsiveness of demand for a good to a change in consumers' real income: YED = %ΔQd ÷ %ΔY.", "explanation": "YED compares the percentage change in quantity demanded with the percentage change in income that caused it. A change in income shifts the demand curve (it is the 'I' in RIPEN), and YED tells us the direction and size of that shift. Unlike PED, the sign of YED carries meaning and must always be shown.", "example": "Income rises by 10% and demand for rice rises by 5%: YED = 5 ÷ 10 = +0.5 (Hoang p. 105).", "exam_tip": "Show the formula, both percentage changes and the sign of the answer.", "related": ["Real income", "Significance of the sign of YED"]}, {"term": "Real income", "level": "SL/HL", "definition": "Income adjusted for inflation, measuring actual purchasing power.", "explanation": "If wages rise by 3% while prices rise by 5%, people can buy less than before: their real income has fallen even though money income rose. YED should always be based on real income.", "example": "In 2022–23 UK pay rose about 6% while prices rose about 9–10%, so real incomes fell and demand for luxuries weakened.", "exam_tip": "Say 'real income', not just 'income'.", "related": ["Income elasticity of demand (YED)"]}, {"term": "Significance of the sign of YED", "level": "SL/HL", "definition": "The sign of YED shows the type of good: positive for a normal good, negative for an inferior good.", "explanation": "With PED the minus sign is ignored because it is almost always negative. With YED the sign is the key piece of information: a positive YED means demand rises with income, a negative YED means demand falls with income.", "example": "Sausages with YED −0.25: a 3% rise in income reduces demand by 0.75% (Hoang p. 108).", "exam_tip": "Never drop the sign. '−0.25' and '0.25' describe completely different goods.", "related": ["Normal good", "Inferior good"]}]}, {"name": "Types of goods", "terms": [{"term": "Normal good", "level": "SL/HL", "definition": "A good with positive YED, whose demand rises as real income rises.", "explanation": "Most goods are normal. Normal goods are divided into necessities (YED between 0 and 1) and luxuries (YED greater than 1). All luxuries are normal goods, but not all normal goods are luxuries.", "example": "As incomes rose in China, demand for cars, smartphones and overseas travel all increased.", "exam_tip": "When classifying, state both: 'a normal good and a necessity'.", "related": ["Necessity", "Luxury good"]}, {"term": "Necessity", "level": "SL/HL", "definition": "A normal good with income inelastic demand: YED between 0 and 1.", "explanation": "Demand rises with income but by a smaller percentage, because people already buy most of what they need. As incomes grow, necessities take a smaller share of spending.", "example": "Indian real income per person roughly doubled between 2005 and 2019, but rice consumption per person stayed about the same. Toothpaste, electricity and glasses are other examples (Hoang pp. 105–107).", "exam_tip": "A necessity in YED terms is 'income inelastic', not 'price inelastic'.", "related": ["Normal good", "Income inelastic demand"]}, {"term": "Luxury good", "level": "SL/HL", "definition": "A normal good with income elastic demand: YED greater than 1.", "explanation": "Demand rises by a larger percentage than income, so luxuries take a growing share of spending as people get richer, and a sharply falling share in recessions. Many services (holidays, dining out, entertainment) behave like luxuries.", "example": "Fine wine: income +8%, quantity demanded +20%, so YED = +2.5 (Hoang Fig 8.5). Fresh flowers (YED +2.1): a 10% fall in income cuts demand by 21%.", "exam_tip": "Link luxuries to volatility over the business cycle (HL).", "related": ["Normal good", "Income elastic demand"]}, {"term": "Inferior good", "level": "SL/HL", "definition": "A good with negative YED, whose demand falls as real income rises because consumers switch to preferred alternatives.", "explanation": "The word 'inferior' describes affordability and preference, not poor quality. Whether a good is inferior depends on the country and the income group: bus travel may be inferior in one city and normal in another.", "example": "UK discount supermarkets Aldi and Lidl grew their market share from about 5% to over 10% between 2008 and 2015 as real incomes were squeezed. Own-label food, instant coffee and tinned meat are typical examples (Hoang pp. 107–108).", "exam_tip": "Hoang's tip: a Honda is not a bad car, yet it can behave as an inferior good when buyers can afford a BMW.", "related": ["Significance of the sign of YED", "Recession-proof goods"]}, {"term": "Income elastic demand", "level": "SL/HL", "definition": "YED > 1: the percentage change in quantity demanded is greater than the percentage change in income.", "explanation": "Demand is very sensitive to income changes, typical of luxuries and services.", "example": "International tourist arrivals in Thailand rose about fourfold between 2000 and 2019, far faster than incomes in source countries.", "exam_tip": "Use 'income elastic', never 'price elastic', for YED.", "related": ["Luxury good"]}, {"term": "Income inelastic demand", "level": "SL/HL", "definition": "0 < YED < 1: the percentage change in quantity demanded is smaller than the percentage change in income.", "explanation": "Demand responds only a little to income, typical of necessities and staples.", "example": "Rice: income +8%, quantity demanded +2%, so YED = +0.25 (Hoang Fig 8.6).", "exam_tip": "Distinguish 'income inelastic' (0 < YED < 1) from 'inferior' (YED < 0).", "related": ["Necessity"]}]}, {"name": "Engel curves", "terms": [{"term": "Engel curve", "level": "SL/HL", "definition": "A curve showing the relationship between real income (vertical axis) and quantity demanded (horizontal axis).", "explanation": "For a normal good it slopes upward: relatively flat for an income elastic good (a small rise in income gives a large rise in quantity) and steep for an income inelastic good. For an inferior good, quantity falls as income rises beyond a point, so the curve bends back or slopes downward. Price does not appear on an Engel curve.", "example": "Hoang Figs 8.5 and 8.6: the same 8% rise in income increases fine-wine demand by 20% (flat curve) but rice demand by only 2% (steep curve).", "exam_tip": "Label the axes 'Real income' and 'Quantity demanded'. Do not confuse an Engel curve with a demand curve.", "related": ["Luxury good", "Necessity", "Inferior good"]}]}, {"name": "Why YED matters (HL)", "terms": [{"term": "Business cycle", "level": "HL", "definition": "The fluctuations in economic activity over time, alternating between periods of rising income (booms) and falling income (recessions).", "explanation": "Because real incomes rise and fall over the cycle, demand for each product changes by YED × the change in income. Firms selling luxuries see the biggest swings; firms selling inferior goods may do best in recessions.", "example": "During the 2008–09 recession McDonald's reported rising global sales while many full-service restaurants closed.", "exam_tip": "Link the cycle to income, then to YED, then to the firm's demand.", "related": ["YED and firms", "Recession-proof goods"]}, {"term": "YED and firms", "level": "HL", "definition": "Firms use YED to forecast demand as incomes change, to plan output, stock and staffing, and to choose which products and markets to develop.", "explanation": "A firm with high-YED products can plan for rapid growth in booms and steep falls in recessions; it may diversify into lower-YED products to stabilise revenue. Firms also target fast-growing economies where rising incomes will raise demand for luxuries. Estimates are based on past data and assume ceteris paribus, so they are only a guide.", "example": "A luxury carmaker with YED +2.4 expecting a 2% fall in income: demand falls by about 4.8%, so 400,000 planned cars becomes about 380,800.", "exam_tip": "Show the calculation %ΔQd = YED × %ΔY, then explain the business decision.", "related": ["Business cycle"]}, {"term": "Recession-proof goods", "level": "HL", "definition": "Goods whose demand holds up, or even rises, when incomes fall, such as inferior goods and some necessities.", "explanation": "Low or negative YED makes sales stable or counter-cyclical. Firms selling these goods are less risky, and governments see stable spending on them in downturns.", "example": "Discount supermarkets, budget airlines on some routes, repair services and basic foods.", "exam_tip": "Explain why with the sign and size of YED.", "related": ["Inferior good", "Necessity"]}, {"term": "Sectoral structure", "level": "HL", "definition": "The shares of output and employment in the primary (agriculture, mining), secondary (manufacturing, construction) and tertiary (services) sectors.", "explanation": "Low-income economies have large primary sectors; high-income economies are dominated by services. Measuring the structure helps explain development and what kind of jobs people do.", "example": "Services make up well over 70% of GDP in most high-income countries, while agriculture remains a large share of employment in many low-income countries (World Bank data).", "exam_tip": "Name the three sectors with an example of each.", "related": ["Sectoral change"]}, {"term": "Sectoral change", "level": "HL", "definition": "The shift of output and employment from the primary to the secondary and then the tertiary sector as incomes rise, partly because demand for their products has increasingly high YED.", "explanation": "Primary products (food, raw materials) have low YED, manufactured goods higher, and services the highest. As incomes grow, spending shifts towards services, and resources follow demand. Other causes include productivity growth in farming and manufacturing, trade, outsourcing and technology.", "example": "As Chinese and Indian incomes have risen, the shares of services in their economies have grown and the share of agriculture in employment has fallen.", "exam_tip": "For evaluation, give at least one cause other than YED.", "related": ["Sectoral structure", "Income elastic demand"]}]}]};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const box=document.getElementById('cgbox'),q=document.getElementById('cgq'),cnt=document.getElementById('cgcount');
+const id=t=>'cg-'+t.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+box.innerHTML='<p style="max-width:72ch">'+esc(CG.intro)+'</p>'+CG.groups.map(g=>{const hl=g.terms.every(t=>t.level==='HL');return `<div class="cg-group ${hl?'hlonly cg-hl':''}"><h3>${esc(g.name)}</h3>`+g.terms.map(t=>`<details class="cg-item ${t.level==='HL'?'cg-hl':''}" id="${id(t.term)}" data-s="${esc((t.term+' '+t.definition+' '+t.explanation+' '+t.example).toLowerCase())}"><summary><b>${esc(t.term)}</b><span class="badge ${t.level==='HL'?'b-hl':'b-sl'}">${t.level}</span><span class="cg-def">${esc(t.definition)}</span></summary><div class="cg-body"><div><span class="lbl">Definition</span><p class="defn">${esc(t.definition)}</p></div><div><span class="lbl">Explanation</span><p>${esc(t.explanation)}</p></div><div class="cg-ex"><span class="lbl">Example</span><p>${esc(t.example)}</p></div><div class="cg-tip"><span class="lbl">Exam tip</span><p>${esc(t.exam_tip)}</p></div>${(t.related||[]).length?`<div><span class="lbl">Related terms</span><div class="cg-rel">${t.related.map(r=>`<button type="button" data-go="${id(r)}">${esc(r)}</button>`).join('')}</div></div>`:''}</div></details>`).join('')+'</div>'}).join('')+'<p class="cg-empty" id="cgnone" hidden>No terms match your search.</p>';
+function lvl(){let l='HL';try{l=JSON.parse(localStorage.getItem('incomeelasticitylab.lvl'))||'HL'}catch(e){}return l}
+function apply(){const sl=document.querySelector('.lvl [data-lvl="SL"][aria-pressed="true"]')||lvl()==='SL';const s=(q.value||'').trim().toLowerCase();let n=0;
+ box.querySelectorAll('.cg-item').forEach(d=>{const show=!(sl&&d.classList.contains('cg-hl'))&&(!s||d.dataset.s.includes(s));d.hidden=!show;if(show)n++;if(s&&show)d.open=true});
+ box.querySelectorAll('.cg-group').forEach(g=>{g.hidden=![...g.querySelectorAll('.cg-item')].some(d=>!d.hidden)});
+ cnt.textContent=n+' term'+(n===1?'':'s');document.getElementById('cgnone').hidden=n>0}
+q.addEventListener('input',apply);
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(apply,0)));
+document.getElementById('cgopen').addEventListener('click',()=>box.querySelectorAll('.cg-item:not([hidden])').forEach(d=>d.open=true));
+document.getElementById('cgclose').addEventListener('click',()=>box.querySelectorAll('.cg-item').forEach(d=>d.open=false));
+box.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const t=document.getElementById(b.dataset.go);if(t){q.value='';apply();t.open=true;t.scrollIntoView({block:'center'})}});
+apply();
+})();
+</script>
+<script id="sb-js">
+(function(){
+const secs=[...document.querySelectorAll('section.step[id]')];
+const sb=document.createElement('aside');sb.className='sb';sb.setAttribute('aria-label','Lesson contents');
+const title=document.querySelector('.brand')?document.querySelector('.brand').childNodes[0].textContent.trim():document.title;
+const sub=document.querySelector('.brand span')?document.querySelector('.brand span').textContent:'';
+sb.innerHTML=`<a class="home" href="index.html">IB Economics</a><div class="sub">${title} · ${sub}</div><p class="lbl">In this lab</p>`+
+ secs.map(s=>{const n=s.querySelector('.num'),h=s.querySelector('h2');const t=h?h.childNodes[0].textContent.replace(/[:·].*$/,'').trim():s.id;return `<a class="it" href="#${s.id}" data-id="${s.id}"><span>${n?n.textContent:''}</span><span>${t}</span></a>`}).join('')+
+ `<p class="lbl">More</p><div class="links"><a href="plan/ch08.html">Teacher plan for this chapter</a><a href="index.html">All chapters</a></div>`;
+document.body.appendChild(sb);
+const btn=document.createElement('button');btn.className='sbbtn';btn.type='button';btn.textContent='☰ Contents';btn.setAttribute('aria-expanded','false');
+const bar=document.querySelector('.topin');if(bar)bar.insertBefore(btn,bar.firstChild);
+btn.addEventListener('click',()=>{sb.classList.toggle('open');btn.setAttribute('aria-expanded',sb.classList.contains('open'))});
+sb.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+function sync(){secs.forEach(s=>{const a=sb.querySelector(`[data-id="${s.id}"]`);if(a)a.hidden=s.hidden})}
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(sync,0)));sync();
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){sb.querySelectorAll('a.it').forEach(a=>a.classList.toggle('act',a.dataset.id===e.target.id))}}),{rootMargin:'-20% 0px -70% 0px'});secs.forEach(s=>io.observe(s))}
+})();
+</script>
