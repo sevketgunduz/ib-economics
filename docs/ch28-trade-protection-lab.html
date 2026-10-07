@@ -1,0 +1,462 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trade Protection Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#f4f5f1; --panel:#ffffff; --panel2:#f8f9f5; --ink:#1a2029; --muted:#5a636c; --rule:#d9ddd3; --grid:#e7eae2;
+  --supply:#c0441f; --supply2:#e8876a; --demand:#2451c4; --good:#12795f; --bad:#b3261e; --hl:#6f3aa8; --hlbg:#efe6f8; --slbg:#e2efe9; --sl:#0d6b5c;
+  --tint:#eaf0fc; --focus:#2451c4; --shade:rgba(192,68,31,.14); --shadeb:rgba(36,81,196,.14);
+  --serif:"Source Serif 4",Georgia,serif; --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:16px/1.6 var(--sans);margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:0 80px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--ground);border-bottom:1px solid var(--rule)}
+.topin{max-width:1120px;margin:0 auto;padding:10px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{font:650 18px var(--serif);margin-right:auto}
+.brand span{font:600 12px var(--sans);color:var(--muted);margin-left:8px}
+nav.jump{display:flex;gap:2px;flex-wrap:wrap}
+nav.jump a{font:600 12.5px var(--sans);color:var(--muted);text-decoration:none;padding:6px 9px;border-radius:6px}
+nav.jump a:hover{background:var(--panel);color:var(--ink)}
+.lvl{display:flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden}
+.lvl button{font:700 12px var(--sans);border:0;background:var(--panel);color:var(--muted);padding:6px 12px;cursor:pointer}
+.lvl button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+h1,h2,h3{font-family:var(--serif);font-weight:650;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h1{font-size:40px;line-height:1.1} h2{font-size:27px;line-height:1.2} h3{font-size:19px}
+p{margin:0} .muted{color:var(--muted)}
+.eyebrow{font:700 11.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--demand)}
+.badge{display:inline-block;font:700 10.5px var(--sans);letter-spacing:.06em;padding:2px 7px;border-radius:4px;vertical-align:3px}
+.b-hl{background:var(--hlbg);color:var(--hl)} .b-sl{background:var(--slbg);color:var(--sl)}
+button:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+section.step{padding-top:56px;scroll-margin-top:70px}
+.shead{display:grid;gap:8px;max-width:72ch;margin-bottom:20px}
+.shead .num{font:600 13px var(--mono);color:var(--muted)}
+.hero{padding-top:44px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:36px;align-items:center}
+.hero p.lead{font-size:18px;margin-top:14px;max-width:56ch}
+.goals{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px}
+.goals ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.goals li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:15px}
+.goals input{width:18px;height:18px;accent-color:var(--good);margin-top:3px}
+.lab{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:20px}
+.lab2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+svg.g{width:100%;height:auto;display:block;border-radius:8px;background:var(--panel2);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px}
+svg .axis{stroke:var(--ink);stroke-width:1.7;fill:none} svg .axl{fill:var(--ink);font:700 12.5px var(--sans)} svg .tick{fill:var(--muted);font:11.5px var(--mono)}
+svg .guide{stroke:var(--muted);stroke-dasharray:4 4;fill:none}
+svg .s{stroke:var(--supply);stroke-width:3;fill:none;stroke-linecap:round} svg .s2{stroke:var(--supply2);stroke-width:2.2;fill:none;stroke-dasharray:7 5}
+svg .sm{stroke:var(--ink);stroke-width:3;fill:none} svg .d{stroke:var(--demand);stroke-width:3;fill:none}
+svg .ghost{stroke:var(--muted);stroke-width:1.6;stroke-dasharray:3 4;fill:none}
+svg text.ls{fill:var(--supply);font:700 13px var(--sans)} svg text.ld{fill:var(--demand);font:700 13px var(--sans)} svg text.lm{fill:var(--ink);font:700 13px var(--sans)} svg text.lg{fill:var(--muted);font:700 12px var(--sans)}
+svg .dot{fill:var(--ink)} svg .dot2{fill:var(--panel);stroke:var(--ink);stroke-width:1.8}
+svg .arrow{stroke:var(--good);stroke-width:2.4;fill:none;marker-end:url(#ah)} svg .ahead{fill:var(--good)}
+svg .bar{fill:var(--demand);opacity:.7} svg .bar.dim{fill:var(--supply);opacity:.75}
+svg .note{fill:var(--muted);font:600 11.5px var(--sans)} svg .area{fill:var(--shade)}
+.ctl{display:grid;grid-template-columns:1fr 70px;gap:2px 10px;align-items:center;font-size:14px;margin-bottom:12px}
+.ctl span{grid-column:1/-1;font-weight:600;color:var(--muted)} .ctl input{width:100%;accent-color:var(--demand)} .ctl output{font:600 13px var(--mono);text-align:right}
+.read{display:grid;grid-template-columns:1fr auto;gap:6px 14px;font-size:14.5px;margin:6px 0 0}
+.read dt{color:var(--muted)} .read dd{margin:0;font:600 13.5px var(--mono);text-align:right}
+.explain{margin-top:14px;padding:12px 14px;border-left:3px solid var(--demand);background:var(--tint);border-radius:0 8px 8px 0;font-size:14.5px}
+.btn{font:600 14px var(--sans);border:1px solid var(--rule);background:var(--panel);color:var(--ink);padding:9px 13px;border-radius:8px;cursor:pointer;text-align:left}
+.btn:hover{border-color:var(--demand)} .btn.pri{background:var(--ink);color:var(--ground);border-color:var(--ink)} .btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.flip{perspective:900px;height:170px;border:0;background:none;padding:0;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:6px}
+.flip .f{background:var(--panel);justify-content:space-between} .flip .f b{font:650 19px var(--serif)}
+.flip .b{background:var(--tint);transform:rotateY(180deg);font-size:14.5px;overflow:auto}
+.flip .hint{font-size:12px;color:var(--muted)}
+.events{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;margin:14px 0}
+.ev{display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:start}
+.ev .l{font:700 14px var(--mono);color:var(--demand);background:var(--tint);border-radius:6px;text-align:center;padding:2px 0}
+.ev[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.predict{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.fb{font-weight:600} .fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+.sorter .card{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px;display:grid;gap:10px}
+.sorter .card p{font-size:16.5px;font-family:var(--serif)}
+.score{font:600 14px var(--mono)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--grid);text-align:right;font-variant-numeric:tabular-nums}
+th{font:700 11.5px var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule)}
+td:first-child,th:first-child{text-align:left} tr.cur td{background:var(--tint);font-weight:700} tr.dmr td:nth-child(3){color:var(--supply)}
+.tblwrap{overflow-x:auto}
+.case{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;display:grid;gap:10px}
+.case details{border-top:1px solid var(--grid);padding-top:10px}
+.case summary,.qa summary{cursor:pointer;font-weight:700;color:var(--demand)}
+.case ol{margin:8px 0 0;padding-left:20px}
+.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px}
+.mcq{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;display:grid;gap:8px}
+.mcq .opts{display:grid;gap:6px}
+.mcq .opt{font:500 14.5px var(--sans)} .mcq .opt.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--panel))} .mcq .opt.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--panel))}
+.mcq .why{font-size:14px;color:var(--muted)}
+.quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.qa{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 16px}
+.qa details p{margin-top:6px;padding:8px 10px;background:var(--panel2);border-radius:6px}
+.mist{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.mist div{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;font-size:14.5px}
+.mist b{display:block;color:var(--bad);font-size:13px;letter-spacing:.03em;margin-bottom:4px} .mist i{display:block;color:var(--good);font-style:normal;font-weight:600;margin-top:6px}
+.stepper{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.dots{display:flex;gap:5px} .dots i{width:9px;height:9px;border-radius:50%;background:var(--rule)} .dots i.on{background:var(--demand)}
+.pill{font:600 12.5px var(--mono);padding:3px 9px;border-radius:99px;background:var(--panel2);border:1px solid var(--rule)}
+footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+.hlonly[hidden]{display:none!important}
+@media (max-width:860px){.hero,.lab2{grid-template-columns:1fr} h1{font-size:32px} nav.jump{display:none}}
+@media (max-width:520px){.wrap,.topin{padding-inline:16px} .lab{padding:14px} h1{font-size:28px} h2{font-size:23px}}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}}
+svg .d2{stroke:var(--demand);stroke-width:2.2;fill:none;stroke-dasharray:7 5} svg text.ld2{fill:var(--demand);font:700 12px var(--sans)} svg .spend{fill:var(--shadeb)}
+svg .dwl{fill:rgba(214,151,0,.38)} svg .gap{stroke:var(--supply);stroke-width:5;opacity:.45}
+.sorter .btn[aria-pressed="true"],.lab .btn[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.flip .f span:not(.hint){font-size:14.5px;color:var(--muted)}
+.ctl input[type=number]{font:15px var(--mono);padding:7px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink);width:100%}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px} @media (max-width:860px){.two{grid-template-columns:1fr}}
+</style>
+<style id="sb-css">
+aside.sb{position:fixed;top:0;left:0;bottom:0;width:250px;overflow:auto;background:var(--panel);border-right:1px solid var(--rule);padding:16px 12px 40px;z-index:15;font-size:13.5px}
+aside.sb .home{display:block;font:700 15px var(--serif);color:var(--ink);text-decoration:none}
+aside.sb .sub{color:var(--muted);font-size:12px;margin:2px 0 14px}
+aside.sb .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:12px 4px 6px}
+aside.sb a.it{display:grid;grid-template-columns:30px 1fr;gap:2px;padding:6px 8px;border-radius:6px;color:var(--ink);text-decoration:none;line-height:1.3}
+aside.sb a.it span:first-child{font:600 11.5px var(--mono);color:var(--muted);padding-top:1px}
+aside.sb a.it:hover{background:var(--panel2)} aside.sb a.it.act{background:var(--tint);font-weight:700}
+aside.sb .links a{display:block;padding:4px 8px;color:var(--demand);font-weight:600;text-decoration:none}
+.sbbtn{display:none}
+@media (min-width:1100px){header.top,.wrap{margin-left:250px} nav.jump{display:none!important}}
+@media (max-width:1099px){aside.sb{transform:translateX(-105%);transition:transform .2s;box-shadow:0 0 30px rgba(0,0,0,.25);width:84%;max-width:300px}
+ aside.sb.open{transform:none} nav.jump{display:none!important}
+ .sbbtn{display:inline-block;font:700 13px var(--sans);padding:6px 10px;border-radius:8px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);cursor:pointer;order:-1}}
+@media (prefers-reduced-motion:reduce){aside.sb{transition:none}}
+</style>
+
+<style id="cg-css">
+.cg-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.cg-tools input{flex:1;min-width:220px;max-width:420px;font:15px var(--sans);padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink)}
+.cg-group{margin-top:22px} .cg-group h3{margin-bottom:10px}
+.cg-item{background:var(--panel);border:1px solid var(--rule);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.cg-item summary{cursor:pointer;list-style:none;padding:14px 18px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:baseline}
+.cg-item summary::-webkit-details-marker{display:none}
+.cg-item summary b{font:650 18px var(--serif)} .cg-item summary .cg-def{grid-column:1/-1;color:var(--muted);font-size:14.5px}
+.cg-item[open] summary .cg-def{display:none}
+.cg-body{padding:0 18px 16px;display:grid;gap:10px}
+.cg-body .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+.cg-body .defn{font-weight:600}
+.cg-ex{background:var(--tint);border-radius:8px;padding:10px 12px}
+.cg-tip{border-left:3px solid var(--good);padding:6px 12px;background:var(--panel2);border-radius:0 8px 8px 0}
+.cg-rel{display:flex;gap:6px;flex-wrap:wrap} .cg-rel button{font:600 12.5px var(--sans);border:1px solid var(--rule);background:var(--panel2);color:var(--ink);border-radius:99px;padding:3px 10px;cursor:pointer}
+.cg-empty{color:var(--muted)}
+</style>
+
+
+
+
+
+
+
+
+
+
+<header class="top"><div class="topin">
+  <div class="brand">Trade Protection Lab <span>IB Economics 4.2 · Hoang Ch 28</span></div>
+  <nav class="jump" aria-label="Sections"><a href="#terms">Terms</a><a href="#guide">Guide</a><a href="#free">Free trade</a><a href="#tariff">Tariff</a><a href="#quota">Quota</a><a href="#subsidy">Subsidy</a><a href="#compare">Compare</a><a href="#cases">Cases</a><a href="#quiz">Quiz</a><a href="#exam">Exam</a></nav>
+  <div class="lvl" role="group" aria-label="Level"><button data-lvl="HL">HL</button><button data-lvl="SL">SL</button></div>
+</div></header>
+
+<div class="wrap">
+<section class="hero">
+  <div><p class="eyebrow">Unit 4 · The global economy · Chapter 28</p><h1>When a country blocks imports, who pays and who gains?</h1>
+  <p class="lead">Impose a tariff, set a quota and subsidise domestic producers in the same market, and read off the effect on consumers, domestic producers, foreign producers and the government. Then calculate it all from Hoang’s own examples.</p>
+  <p class="muted" style="margin-top:12px;font-size:14px">Textbook: Hoang, Wray &amp; Chakraborty, pp. 436–454. HL material is marked <span class="badge b-hl">HL</span>; switch to SL at the top to hide it.</p></div>
+  <div class="goals"><p class="eyebrow" style="color:var(--muted)">By the end I can…</p><ul id="goals"></ul></div>
+</section>
+
+<section class="step" id="terms"><div class="shead"><span class="num">01</span><h2>Key terms: flip the cards</h2><p class="muted">Say the definition out loud first, then click to check.</p></div><div class="cards" id="cards"></div></section>
+<section class="step" id="guide"><div class="shead"><span class="num">01b</span><h2>Concept guide: every term explained</h2><p>A fuller explanation of each term in this chapter, with a worked real-world example and an exam tip. Open a term, read it, then close the page and explain it to a partner in your own words.</p></div>
+  <div class="cg-tools"><input id="cgq" type="search" placeholder="Search terms, examples…" aria-label="Search the concept guide"><button class="btn" id="cgopen">Open all</button><button class="btn" id="cgclose">Close all</button><span class="pill" id="cgcount"></span></div>
+  <div id="cgbox"></div></section>
+
+<!-- LAB SECTIONS: numbered 02, 03 … one <section class="step" id="…"> per interactive topic -->
+
+<section class="step" id="free"><div class="shead"><span class="num">02</span><h2>Start with free trade</h2><p>A small country is a <b>price taker</b>: it can buy or sell any amount at the world price (Pw), so world supply is a horizontal line. Without trade the domestic price would be $14. Move the world price.</p></div>
+  <div class="lab lab2"><div id="frfig"></div><div><label class="ctl" for="frp"><span>World price Pw ($)</span><input type="range" id="frp" min="4" max="20" step="1" value="8"><output id="frpo"></output></label><dl class="read" id="frread"></dl><p class="explain" id="frx"></p><p class="muted" style="font-size:12.5px">Teaching model for the whole lab: domestic Qd = 120 − 5P and Qs = 5P − 20 (million units). From section 03 the world price is fixed at $8.</p></div></div>
+</section>
+
+<section class="step" id="tariff"><div class="shead"><span class="num">03</span><h2>Tariff</h2><p>A <b>tariff</b> is a tax on imports. The world supply line rises to <b>Pw + tariff</b>; domestic output rises, consumption falls and imports shrink (Hoang Fig 28.2). The areas: <b>a</b> = transfer from consumers to domestic producers, <b>b</b> and <b>d</b> = welfare loss, <b>c</b> = tariff revenue.</p></div>
+  <div class="lab lab2"><div id="tafig"></div><div><label class="ctl" for="tat"><span>Tariff per unit ($)</span><input type="range" id="tat" min="0" max="6" step="0.5" value="2"><output id="tato"></output></label><dl class="read" id="taread"></dl><dl class="read hlonly" id="tahl" style="margin-top:10px"></dl><p class="explain" id="tax"></p></div></div>
+</section>
+
+<section class="step" id="quota"><div class="shead"><span class="num">04</span><h2>Quota</h2><p>A <b>quota</b> limits the quantity of imports. Supply becomes domestic supply plus the quota (<b>Sdomestic + quota</b>), and the price rises until demand equals that supply (Figs 28.7–28.9). Who gets the gap between the domestic and world price, the <b>quota rent</b>, depends on the import licences.</p></div>
+  <div class="lab lab2"><div id="qufig"></div><div><label class="ctl" for="quq"><span>Import quota (million units)</span><input type="range" id="quq" min="0" max="60" step="5" value="40"><output id="quqo"></output></label>
+   <div class="row" style="margin-bottom:10px"><button class="btn" data-lic="gov">Licences auctioned by government</button><button class="btn" data-lic="imp">Free to domestic importers</button><button class="btn" data-lic="for">Foreign exporters keep the rent</button></div><dl class="read" id="quread"></dl><p class="explain" id="qux"></p></div></div>
+</section>
+
+<section class="step" id="subsidy"><div class="shead"><span class="num">05</span><h2>Production subsidy</h2><p>The government pays domestic producers a <b>subsidy</b> per unit. Domestic supply shifts <b>down</b>, so domestic firms supply more <b>at the world price</b>. Consumers still pay Pw, but imports fall (Figs 28.10 and 28.12).</p></div>
+  <div class="lab lab2"><div id="sbfig"></div><div><label class="ctl" for="sbs"><span>Subsidy per unit ($)</span><input type="range" id="sbs" min="0" max="6" step="0.5" value="2"><output id="sbso"></output></label><dl class="read" id="sbread"></dl><dl class="read hlonly" id="sbhl" style="margin-top:10px"></dl><p class="explain" id="sbx"></p></div></div>
+</section>
+
+<section class="step" id="compare"><div class="shead"><span class="num">06</span><h2>Tariff vs quota vs subsidy: same goal, different winners</h2><p>Using your settings above, compare the stakeholders. A $2 tariff, a 40m quota and a $2 subsidy all protect the same industry, but each spreads the gains and losses differently.</p></div>
+  <div class="lab"><div class="tblwrap"><table><thead><tr><th>Stakeholder</th><th>Tariff</th><th>Quota</th><th>Subsidy</th></tr></thead><tbody id="cmtb"></tbody></table></div><p class="explain">Consumers pay for a tariff or quota through <b>higher prices</b>; with a subsidy, <b>taxpayers</b> pay instead and the consumer price does not change. Every tool creates a <b>welfare loss</b>, and all of them hurt foreign producers, who may <b>retaliate</b>.</p></div>
+  <div class="lab sorter" style="margin-top:16px"><div class="card"><div class="row" style="justify-content:space-between"><span class="pill" id="tpn"></span><span class="score" id="tpsc"></span></div><p id="tpq"></p>
+   <div class="row"><button class="btn" data-tp="tar">Tariff</button><button class="btn" data-tp="quo">Quota</button><button class="btn" data-tp="sub">Subsidy</button><button class="btn" data-tp="adm">Administrative barrier</button></div><p class="fb" id="tpfb"></p><div class="row"><button class="btn pri" id="tpnext" hidden>Next card</button></div></div></div>
+</section>
+
+<section class="step hlonly" id="hlcalc"><div class="shead"><span class="num">07</span><h2>Calculate the effects on stakeholders <span class="badge b-hl">HL</span></h2><p>Paper 3 asks you to read quantities and prices from a diagram and calculate spending, revenues and government income. Load one of Hoang’s worked examples, or enter your own numbers.</p></div>
+  <div class="lab lab2"><div><div class="row" id="hcpre" style="margin-bottom:12px"></div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <label class="ctl" for="hpw" style="grid-template-columns:1fr"><span>World price Pw</span><input id="hpw" type="number" step="0.5"></label>
+    <label class="ctl" for="hp2" style="grid-template-columns:1fr"><span id="hp2l">Price after protection</span><input id="hp2" type="number" step="0.5"></label>
+    <label class="ctl" for="hd1" style="grid-template-columns:1fr"><span>Qd before</span><input id="hd1" type="number" step="1"></label>
+    <label class="ctl" for="hd2" style="grid-template-columns:1fr"><span>Qd after</span><input id="hd2" type="number" step="1"></label>
+    <label class="ctl" for="hs1" style="grid-template-columns:1fr"><span>Domestic Qs before</span><input id="hs1" type="number" step="1"></label>
+    <label class="ctl" for="hs2" style="grid-template-columns:1fr"><span>Domestic Qs after</span><input id="hs2" type="number" step="1"></label></div>
+   <div class="row" style="margin-top:10px"><button class="btn" data-hm="tar">Tariff</button><button class="btn" data-hm="quo">Quota</button><button class="btn" data-hm="sub">Subsidy</button></div></div>
+   <div><dl class="read" id="hcread"></dl><p class="explain" id="hcx"></p></div></div>
+</section>
+
+<section class="step" id="draw"><div class="shead"><span class="num">08</span><h2>Draw it like an examiner wants</h2><p>Build the <b>tariff diagram</b> (Hoang Fig 28.2) step by step, then draw it on paper with every label.</p></div>
+  <div class="lab lab2"><div id="drawfig"></div><div><h3 id="drawt"></h3><p id="drawx" style="margin-top:8px"></p><div class="stepper"><button class="btn" id="drawprev">← Back</button><button class="btn pri" id="drawnext">Next step →</button><div class="dots" id="drawdots"></div></div>
+  <div class="explain" style="margin-top:16px"><b>Label checklist:</b> Sdomestic, Ddomestic, Sworld at Pw and Sworld + tariff · Q1–Q4 on the quantity axis · imports before (Q4 − Q1) and after (Q3 − Q2) · areas a, b, c, d with their meaning.</div></div></div>
+</section>
+<!-- /LAB SECTIONS -->
+
+<section class="step" id="cases"><div class="shead"><span class="num"></span><h2>Real-world cases</h2><p>Answer in your notebook, sketch the diagram, then open the model answer.</p></div><div class="cases" id="casebox"></div></section>
+
+<section class="step" id="quiz"><div class="shead"><span class="num"></span><h2>Check yourself</h2><p>Auto-marked multiple choice first, then quick-fire questions with model answers.</p><p class="score" id="mcqscore"></p></div><div class="quiz" id="mcqs"></div>
+  <h3 style="margin:30px 0 12px">Quick-fire checklist</h3><div class="quiz" id="qf"></div></section>
+
+<section class="step" id="mistakes"><div class="shead"><span class="num"></span><h2>Common mistakes to avoid</h2></div><div class="mist" id="mist"></div></section>
+
+<section class="step" id="exam"><div class="shead"><span class="num"></span><h2>Exam practice</h2><p>Plan each answer before opening the guide.</p></div><div class="cases" id="exambox"></div></section>
+
+<footer>Trade Protection Lab · based on the IB Economics guide (4.2 Types of trade protection) and Hoang, Wray &amp; Chakraborty, <i>Economics for the IB Diploma</i> (Hodder 2020), Chapter 28. Figures used: 28.2, 28.4, 28.5, 28.7–28.10, 28.12. The domestic market equations are a consistent teaching model; Hoang’s Fig 28.4 numbers do not fit straight lines (see errata). Case figures are illustrative.</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+/* ============================ CONFIG ============================
+   NS     localStorage namespace, unique per lab (e.g. 'pedlab')
+   GOALS  [text, isHL]          TERMS [term, definition, isHL]
+   CASES  [title, context, [questions], [model answers]]
+   MCQ    [question, [4 options], correctIndex, explanation, isHL]
+   QF     [question, answer, isHL]          MI [mistake, correction]
+   EX     [paper label, question, [what a strong answer includes]]  (label containing 'HL' or 'Paper 3' = HL)
+================================================================== */
+const NS='tradeprotectionlab';
+const GOALS=[['Explain the types of trade protection: tariffs, quotas, subsidies, administrative barriers',0],['Draw the tariff, quota and subsidy diagrams with price, production, consumption and imports',0],['Identify spending, revenues and welfare loss on each diagram',0],['Analyse the effects of protection on consumers, producers, foreign firms and the government',0],['Calculate the effects on stakeholders from tariff, quota and subsidy diagrams',1]];
+const TERMS=[['Trade protection','Government barriers that shield domestic producers from foreign competition.',0],['Tariff','A tax on imports: raises the domestic price, increases domestic output, reduces imports and raises revenue.',0],['World supply (Sworld)','Supply from the rest of the world to a small economy: horizontal (perfectly elastic) at the world price.',0],['Quota','A legal limit on the quantity (or value) of imports.',0],['Import licence','A permit to import part of a quota; if sold by the government, it captures the quota rent.',0],['Production subsidy','A per-unit payment to domestic producers; domestic supply shifts down.',0],['Export subsidy','A payment for each unit exported, making exports cheaper abroad.',0],['Administrative barriers','Standards, safety rules, labelling and slow customs that raise foreign firms’ costs.',0],['Embargo','A complete ban on trade with a country or in a good.',0],['Welfare loss','Surplus lost through inefficient domestic production and lost consumption.',0],['Retaliation','Other countries respond with their own barriers, which can start a trade war.',0],['Quota rent','(P with quota − Pw) × quota: the gain from selling quota imports at the higher price.',1],['Tariff revenue','Tariff per unit × imports after the tariff.',1]];
+const CASES=[['India’s tariff on imported smartphones','India raised import duties to encourage domestic assembly. Suppose the world price of a mid-range phone is ₹15,000 and a 20% tariff raises the domestic price to ₹18,000. Demand falls from 100m to 92m phones a year; domestic output rises from 40m to 55m.',['Calculate imports before and after.','Calculate tariff revenue.','Who gains and who loses?'],['Before: 100m − 40m = 60m. After: 92m − 55m = 37m.','₹3,000 × 37m = ₹111bn.','Consumers pay 20% more and buy 8m fewer phones. Domestic assemblers sell 15m more at a higher price. Foreign producers’ revenue falls from ₹900bn to ₹555bn (they still receive ₹15,000 a phone). Society suffers welfare loss, unless Indian assembly becomes efficient over time (the infant-industry argument, Chapter 29).']],
+['Quota on garment imports','A country limits imports of cotton T-shirts from Bangladesh to 20 million a year. Before the quota it imported 50 million at the world price of $4. The domestic price rises to $5.50, and import licences are given free to established importers.',['What is the quota rent, and who gets it?','How could the government capture it?','How are Bangladeshi exporters affected?'],['($5.50 − $4) × 20m = $30m, kept by licence holders, not the government.','Auction the licences: the quota then works much like a tariff for the government.','They sell 30m fewer shirts, cutting output and jobs in a developing economy whose comparative advantage is garments.']],
+['Subsidising domestic rice farmers','Rice imports arrive at a world price of $400 a tonne. The government pays domestic farmers $50 a tonne. Domestic output rises from 2m to 2.5m tonnes; consumption stays at 5m tonnes.',['What happens to the consumer price and to imports?','Calculate the cost and the welfare loss.','Who gains and who loses?'],['Consumers still pay $400; imports fall from 3m to 2.5m tonnes.','Cost = $50 × 2.5m = $125m. Welfare loss = ½ × 0.5m × $50 = $12.5m.','Farmers gain (revenue $800m → $1,125m); taxpayers pay, with an opportunity cost; foreign producers lose $200m of sales.']],
+['Oktoberfest and the beer purity law','Only beer brewed within Munich and following the 1516 Reinheitsgebot may be served at Oktoberfest (Hoang p. 453). Foreign brewers, and even German brewers from other cities, cannot sell there.',['What type of protection is this?','Who gains and who loses?','Is it disguised protectionism?'],['An administrative barrier: a standard rather than a tax or a quantity limit.','Munich brewers gain a protected market; visitors lose choice and may pay more; the government earns no revenue.','If the rule reflects genuine quality and cultural preferences, some of the cost is a real benefit; if it mainly keeps rivals out, it is disguised protectionism.']]];
+const MCQ=[['A tariff is…',['A limit on the quantity of imports','A tax on imports','A payment to domestic producers','A ban on trade'],1,'A tax on imported goods and services.',0],
+['In a small open economy, the world supply curve is…',['Upward-sloping','Vertical','Horizontal at the world price','The same as domestic supply'],2,'The country can import any amount at Pw.',0],
+['A tariff causes domestic production to…',['Fall','Rise','Stay the same','Become zero'],1,'The higher domestic price makes domestic firms expand along Sdomestic.',0],
+['After a tariff, foreign producers receive…',['The tariff-inclusive price','The world price','Nothing','The domestic price minus costs'],1,'The tariff goes to the government; Hoang’s p. 443 example gets this wrong.',0],
+['A quota raises government revenue only if…',['The price falls','Import licences are sold','Demand is elastic','It is very large'],1,'Otherwise licence holders keep the quota rent.',0],
+['A production subsidy in a small open economy…',['Lowers the price consumers pay','Leaves the consumer price at Pw and reduces imports','Raises the consumer price','Increases imports'],1,'Consumers still pay the world price.',0],
+['Which is an administrative barrier?',['A 10% tariff on cars','A quota of 1m tonnes of sugar','Strict labelling rules that delay imports at customs','A subsidy to steel firms'],2,'Rules and procedures rather than taxes or quantities.',0],
+['The welfare loss of a tariff represents…',['Government revenue','Inefficient domestic production and lost consumption','Producer surplus gained','Foreign producers’ revenue'],1,'Triangles b and d.',0],
+['(HL) Pw = $8, tariff $2, imports after the tariff = 40m. Tariff revenue is…',['$40m','$80m','$320m','$400m'],1,'$2 × 40m = $80m.',1],
+['(HL) Subsidy $3 per unit; domestic output after the subsidy is 40,000. The cost to the government is…',['$40,000','$120,000','$13,333','$3,000'],1,'$3 × 40,000 = $120,000.',1]];
+const QF=[['Define a tariff.','A tax on imported goods and services.',0],['On the tariff diagram, which area is government revenue?','The rectangle between the world price and the tariff-inclusive price, over the post-tariff imports (Q3 − Q2).',0],['Which areas make up the welfare loss of a tariff, and what do they represent?','The two triangles: inefficient domestic production and lost consumption.',0],['What happens to imports under a tariff?','They fall, because domestic output rises and domestic consumption falls.',0],['What is an import licence?','A permit to import part of a quota; selling licences gives the government the quota rent.',0],['How is Sdomestic + quota drawn?','Parallel to Sdomestic, shifted right by the size of the quota, starting at the world price.',0],['Why does a production subsidy not change the price consumers pay?','The country is a price taker at the world price; the subsidy only lets domestic firms supply more at that price.',0],['What is the welfare loss of a subsidy?','The triangle of extra domestic units whose true cost is above the world price.',0],['Give two examples of administrative barriers.','Any two of: product standards, health and safety rules, labelling requirements, slow customs checks, embargoes, exchange controls.',0],['(HL) Pw = $5, tariff = $1, post-tariff imports = 30,000. Tariff revenue?','$1 × 30,000 = $30,000.',1],['(HL) After a tariff, imports are 20m and Pw = £8. Foreign producer revenue?','£8 × 20m = £160m (foreign firms receive the world price).',1],['(HL) Subsidy $3; domestic output after the subsidy is 40,000. Cost to the government?','$3 × 40,000 = $120,000.',1],['(HL) Why can’t quota revenue be calculated from the quota diagram?','It depends on the licence fee and the number of licences sold, which the diagram does not show (p. 448).',1]];
+const MI=[['“Foreign producers receive the tariff-inclusive price”','They receive the world price; the tariff goes to the government. Hoang’s wine example (pp. 442–443) uses £10; it should be £8 × 20m = £160m.'],['“A quota always raises government revenue”','Only if import licences are sold; otherwise licence holders keep the quota rent.'],['“A production subsidy lowers the consumer price”','In a small open economy consumers still pay the world price; only the mix of domestic and imported supply changes.'],['“The welfare loss is just an area”','Explain it: inefficient domestic production (resources better used elsewhere) and lost consumption (p. 450).'],['“A tariff shifts domestic supply”','It raises the world supply line; domestic supply does not move.'],['“Protection always saves jobs overall”','Jobs saved may be lost in industries using the protected good, or in exports hit by retaliation.'],['“Administrative barriers are harmless”','They can cause welfare losses as large as tariffs and raise no revenue.']];
+const EX=[['Paper 1 (a) · 10 marks','Explain the economic impacts on different stakeholders following the imposition of a quota.',['Define a quota and draw the diagram (Sdomestic + quota).','Consumers: higher price, lower consumption. Domestic producers: higher price and output.','Foreign producers: fewer sales; licence holders gain the quota rent.','Government: revenue only if licences are sold; society: welfare loss.']],
+['Paper 1 (b) · 15 marks','Using real-world examples, evaluate the effects of a tariff on different stakeholders.',['Tariff diagram with areas a–d; effects on consumers, domestic producers, foreign producers and the government.','Real examples: US steel tariffs (2018), India’s smartphone duties.','Evaluation: size of the tariff, elasticities, short vs long run (infant industry), retaliation, effects on downstream industries.','A supported judgement.']],
+['Paper 2 · 4 marks','Using a diagram, explain how a production subsidy given to domestic producers affects the quantity of imports.',['Sdomestic shifts down by the subsidy; at Pw domestic output rises from Q1 to Q2; Qd unchanged [2].','Imports fall from (Qd − Q1) to (Qd − Q2), because domestic firms now supply more at the world price [2].']],
+['Paper 2 · 15 marks','Evaluate a government’s decision to impose import tariffs on steel.',['Diagram and stakeholder effects (steel firms and workers gain; steel users such as carmakers pay more).','Revenue, jobs saved vs jobs lost downstream, retaliation risk, WTO rules.','Alternatives: subsidies, retraining, safeguard measures.','A supported judgement.']],
+['Paper 3 HL · 2 marks','Using the diagram, calculate the change in revenue earned by foreign producers following the imposition of the tariff.',['Foreign revenue before = Pw × imports before; after = Pw × imports after.','Hoang’s wine data: £8 × 40m = £320m → £8 × 20m = £160m, a fall of £160m.']],
+['Paper 3 HL · 2 marks','Using the diagram, calculate the cost to the government of the subsidy and the resulting welfare loss.',['Cost = subsidy × domestic output after (Hoang: $2 × 60,000 = $120,000).','Welfare loss = ½ × increase in domestic output × subsidy (½ × 10,000 × $2 = $10,000).']]];
+
+/* ============================ CORE (do not edit per chapter) ============================ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const st={get(k,d){try{const v=localStorage.getItem(NS+'.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(NS+'.'+k,JSON.stringify(v))}catch(e){}}};
+const f0=v=>Math.round(v).toLocaleString(), f1=v=>(Math.round(v*10)/10).toLocaleString(), f2=v=>(Math.round(v*100)/100).toLocaleString(), money=v=>(v<0?'−$':'$')+Math.round(Math.abs(v)).toLocaleString();
+const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tween(from,to,ms,cb){if(RM||document.hidden){cb(to);return}const t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;cb(from+(to-from)*e);if(k<1)requestAnimationFrame(f)})(t0)}
+const LC={s:'ls',s2:'ls',d:'ld',d2:'ld2',sm:'lm'};
+/* Plot({xmax,ymax,xl,yl,w?,h?,L?}) : fn(f,cls,label,lx) pts(points,cls) poly(points,cls) seg(x0,y0,x1,y1,cls) rect(x,y,cls)
+   bar(xCentre,width,height,cls,label) dot(x,y,cls) guide(x,y,xLabel,yLabel) xt(x,t) yt(y,t) text(x,y,t,cls,anchor) arrow(...) gap(x0,x1,y) svg(aria)
+   classes: d d2 s s2 sm ghost guide arrow | areas: spend (blue) area (orange) dwl (gold) | bars: bar, bar dim */
+function Plot(o){const W=o.w||540,H=o.h||380,L=o.L||54,R=26,T=24,B=44;const sx=x=>L+x/o.xmax*(W-L-R),sy=y=>H-B-y/o.ymax*(H-T-B);const out=[];
+ return{sx,sy,
+  fn(f,cls,label,lx){let d='',pen=false;for(let i=0;i<=160;i++){const x=o.xmax*i/160,y=f(x);if(!isFinite(y)||y<0||y>o.ymax){pen=false;continue}d+=(pen?'L':'M')+sx(x).toFixed(1)+' '+sy(y).toFixed(1)+' ';pen=true}if(d)out.push(`<path class="${cls}" d="${d}"/>`);if(label){const x=lx!=null?lx:o.xmax*.86,y=f(x);if(isFinite(y)&&y>=0&&y<=o.ymax)out.push(`<text class="${LC[cls]||'lg'}" x="${sx(x)+6}" y="${sy(y)-6}">${label}</text>`)}},
+  pts(p,cls){out.push(`<path class="${cls}" d="${p.map((q,i)=>(i?'L':'M')+sx(q[0]).toFixed(1)+' '+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  poly(p,cls){out.push(`<polygon class="${cls}" points="${p.map(q=>sx(q[0]).toFixed(1)+','+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  rect(x,y,cls){out.push(`<rect class="${cls}" x="${sx(0)}" y="${sy(y)}" width="${sx(x)-sx(0)}" height="${sy(0)-sy(y)}"/>`)},
+  bar(x,w,h,cls,lab){out.push(`<rect class="bar ${cls||''}" x="${sx(x-w/2)}" y="${sy(h)}" width="${sx(w)-sx(0)}" height="${sy(0)-sy(h)}"/>`);if(lab!=null)out.push(`<text class="note" x="${sx(x)}" y="${sy(h)-6}" text-anchor="middle">${lab}</text>`)},
+  seg(x0,y0,x1,y1,cls){out.push(`<path class="${cls}" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  dot(x,y,c){out.push(`<circle class="${c||'dot'}" cx="${sx(x)}" cy="${sy(y)}" r="5"/>`)},
+  guide(x,y,xl,yl){out.push(`<path class="guide" d="M${sx(0)} ${sy(y)} L${sx(x)} ${sy(y)} L${sx(x)} ${sy(0)}"/>`);if(yl)out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${yl}</text>`);if(xl)out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${xl}</text>`)},
+  xt(x,t){out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${t}</text>`)},
+  yt(y,t){out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${t}</text>`)},
+  text(x,y,t,c,a){out.push(`<text class="${c||'note'}" x="${sx(x)}" y="${sy(y)}" text-anchor="${a||'start'}">${t}</text>`)},
+  arrow(x0,y0,x1,y1){out.push(`<path class="arrow" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  gap(x0,x1,y){out.push(`<path class="gap" d="M${sx(x0)} ${sy(y)} L${sx(x1)} ${sy(y)}"/>`)},
+  svg(aria){return `<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria||''}"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0 0 L10 5 L0 10z"/></marker></defs>${out.join('')}<path class="axis" d="M${sx(0)} ${sy(o.ymax)} L${sx(0)} ${sy(0)} L${sx(o.xmax)} ${sy(0)}"/><text class="axl" x="${sx(0)-8}" y="${T-8}">${o.yl}</text><text class="axl" x="${sx(o.xmax)}" y="${H-8}" text-anchor="end">${o.xl}</text><text class="tick" x="${sx(0)-6}" y="${sy(0)+17}" text-anchor="end">0</text></svg>`}}}
+/* sorter('pre', [[card text, answerKey, explanation]], {key: label}, 'data-attr')  — needs ids pre+n/q/fb/next/sc */
+function sorter(pre,cards,labels,attr){let i=st.get(pre+'i',0),sc=st.get(pre+'s',[0,0]);
+ const draw=()=>{i%=cards.length;$('#'+pre+'n').textContent=`Card ${i+1} of ${cards.length}`;$('#'+pre+'q').textContent=cards[i][0];$('#'+pre+'fb').textContent='';$('#'+pre+'next').hidden=true;$$(`[${attr}]`).forEach(b=>b.disabled=false);$('#'+pre+'sc').textContent=`Score ${sc[0]} / ${sc[1]}`};
+ $$(`[${attr}]`).forEach(b=>b.addEventListener('click',()=>{const c=cards[i],ok=b.getAttribute(attr)===c[1];sc[1]++;if(ok)sc[0]++;st.set(pre+'s',sc);const fb=$('#'+pre+'fb');fb.className='fb '+(ok?'ok':'no');fb.textContent=(ok?'✓ Correct. ':'✗ Answer: '+labels[c[1]]+'. ')+c[2];$$(`[${attr}]`).forEach(x=>x.disabled=true);$('#'+pre+'next').hidden=false;$('#'+pre+'sc').textContent=`Score ${sc[0]} / ${sc[1]}`}));
+ $('#'+pre+'next').addEventListener('click',()=>{i++;st.set(pre+'i',i);draw()});draw()}
+/* stepper('pre', steps[[title, html]], draw(stepIndex)) — needs ids pre+t/x/prev/next/dots */
+function stepper(pre,steps,draw){let k=0;const go=()=>{k=Math.max(0,Math.min(steps.length-1,k));draw(k);$('#'+pre+'t').textContent=`Step ${k+1}: ${steps[k][0]}`;$('#'+pre+'x').innerHTML=steps[k][1];$('#'+pre+'dots').innerHTML=steps.map((_,i)=>`<i class="${i<=k?'on':''}"></i>`).join('');$('#'+pre+'prev').disabled=k===0;$('#'+pre+'next').disabled=k===steps.length-1};
+ $('#'+pre+'next').addEventListener('click',()=>{k++;go()});$('#'+pre+'prev').addEventListener('click',()=>{k--;go()});go();return{reset(){k=0;go()}}}
+let LVL=st.get('lvl','HL');const HASLVL=!!$('.lvl');
+function renderGoals(){const d=st.get('goals',[]);$('#goals').innerHTML=GOALS.map((g,i)=>g[1]&&LVL==='SL'?'':`<li><input type="checkbox" id="g${i}" ${d.includes(i)?'checked':''}><label for="g${i}">${g[0]} ${g[1]&&HASLVL?'<span class="badge b-hl">HL</span>':''}</label></li>`).join('');$$('#goals input').forEach(c=>c.addEventListener('change',()=>{const i=+c.id.slice(1);let v=st.get('goals',[]);v=c.checked?[...new Set([...v,i])]:v.filter(x=>x!==i);st.set('goals',v)}))}
+function renderCards(){$('#cards').innerHTML=TERMS.filter(t=>!(t[2]&&LVL==='SL')).map(t=>`<button class="flip" aria-label="${t[0]}: show definition"><div class="in"><div class="f"><b>${t[0]}</b><span class="hint">${t[2]&&HASLVL?'<span class="badge b-hl">HL</span> ':''}Click to flip</span></div><div class="b">${t[1]}</div></div></button>`).join('');$$('#cards .flip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on')))}
+function renderMCQ(){const list=MCQ.map((q,i)=>[q,i]).filter(x=>!(x[0][4]&&LVL==='SL'));
+ $('#mcqs').innerHTML=list.map(([q,i],k)=>`<div class="mcq" data-i="${i}"><p><b>${k+1}.</b> ${q[0]}</p><div class="opts">${q[1].map((o,j)=>`<button class="btn opt" data-j="${j}">${String.fromCharCode(65+j)}. ${o}</button>`).join('')}</div><p class="why" hidden></p></div>`).join('');
+ const sc=()=>{const a=st.get('mcq',{});const done=list.filter(x=>a[x[1]]!=null);const ok=done.filter(x=>a[x[1]]===x[0][2]).length;$('#mcqscore').innerHTML=done.length?`Score: ${ok} / ${list.length} <button class="btn" id="mcqreset" style="margin-left:10px;padding:4px 10px">Try again</button>`:'';const r=$('#mcqreset');if(r)r.addEventListener('click',()=>{st.set('mcq',{});renderMCQ()})};
+ $$('.mcq').forEach(el=>{const i=+el.dataset.i,q=MCQ[i];const mark=j=>{el.querySelectorAll('.opt').forEach(b=>{const k=+b.dataset.j;b.disabled=true;if(k===q[2])b.classList.add('ok');else if(k===j)b.classList.add('no')});const w=el.querySelector('.why');w.hidden=false;w.textContent=(j===q[2]?'✓ ':'✗ ')+q[3]};
+  const a=st.get('mcq',{});if(a[i]!=null)mark(a[i]);el.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{const a=st.get('mcq',{});a[i]=+b.dataset.j;st.set('mcq',a);mark(+b.dataset.j);sc()}))});sc()}
+function renderQF(){$('#qf').innerHTML=QF.filter(q=>!(q[2]&&LVL==='SL')).map(q=>`<div class="qa"><p><b>${q[0]}</b></p><details><summary>Show answer</summary><p>${q[1]}</p></details></div>`).join('')}
+function renderStatic(){
+ $('#casebox').innerHTML=CASES.map(c=>`<article class="case"><h3>${c[0]}</h3><p>${c[1]}</p><ol>${c[2].map(q=>`<li>${q}</li>`).join('')}</ol><details><summary>Model answer</summary><ol>${c[3].map(a=>`<li>${a}</li>`).join('')}</ol></details></article>`).join('');
+ $('#mist').innerHTML=MI.map(m=>`<div><b>✗ ${m[0]}</b>${m[1]}</div>`).join('');
+ $('#exambox').innerHTML=EX.map(e=>{const hl=/HL|Paper 3/.test(e[0]);return `<article class="case ${hl&&HASLVL?'hlonly':''}"><span class="badge ${hl?'b-hl':'b-sl'}">${e[0]}</span><p style="font-family:var(--serif);font-size:17px">${e[1]}</p><details><summary>What a strong answer includes</summary><ol>${e[2].map(x=>`<li>${x}</li>`).join('')}</ol></details></article>`}).join('')}
+function setLvl(l){LVL=HASLVL?l:'HL';st.set('lvl',LVL);$$('.lvl button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lvl===LVL));$$('.hlonly').forEach(e=>e.hidden=LVL==='SL');renderCards();renderGoals();renderMCQ();renderQF()}
+$$('.lvl button').forEach(b=>b.addEventListener('click',()=>setLvl(b.dataset.lvl)));
+
+/* LAB CODE: chapter-specific interactive sections. Each section = a draw() function + event listeners. */
+
+/* Domestic market: Qd = 120 − 5P, Qs = 5P − 20 (million). Inverse: D(q) = 24 − q/5, S(q) = 4 + q/5. World price Pw = 8. */
+const Dq=p=>Math.max(0,120-5*p),Sq=p=>Math.max(0,5*p-20),Dp=q=>24-q/5,Sp=q=>4+q/5,PW=8;const Mn=v=>(v<0?'−$':'$')+(Math.round(Math.abs(v)*10)/10).toLocaleString()+'m',CS=(q,p)=>.5*q*(24-p),PS=(q,p)=>.5*q*(p-4);
+const ar=(a,b)=>Math.abs(a-b)<1e-9?'—':(b>a?'▲ +':'▼ −')+Mn(Math.abs(b-a));
+const plot=()=>Plot({xmax:120,ymax:24,xl:'Quantity (million units)',yl:'Price ($)'});
+const lbl=(g,x,y,t)=>g.text(x,y,t,'lm','middle');
+
+/* 02 free trade */
+function drawFr(){const pw=+$('#frp').value;$('#frpo').textContent='$'+pw;const qd=Dq(pw),qs=Sq(pw);const g=plot();
+ g.fn(Dp,'d','Ddomestic',100);g.fn(Sp,'s','Sdomestic',84);g.seg(0,pw,120,pw,'sm');g.text(118,pw+.6,'Sworld = Pw','lm','end');g.dot(50,14,'dot2');g.text(51,14.8,'no trade: $14','note');
+ if(pw!==14){g.gap(Math.min(qd,qs),Math.max(qd,qs),pw);g.dot(qd,pw);g.dot(qs,pw);g.guide(qs,pw,pw<14?'Q1':'Qd','$'+pw);g.guide(qd,pw,pw<14?'Q4':'Qs','');g.text((qd+qs)/2,pw+(pw<14?-1.4:1),pw<14?'imports':'exports','note','middle')}
+ $('#frfig').innerHTML=g.svg('Free trade diagram');
+ $('#frread').innerHTML=`<dt>Domestic consumption</dt><dd>${f0(qd)}m</dd><dt>Domestic production</dt><dd>${f0(qs)}m</dd><dt>${pw<=14?'Imports':'Exports'}</dt><dd>${f0(Math.abs(qd-qs))}m</dd><dt>Consumer surplus</dt><dd>${Mn(CS(qd,pw))}</dd>`;
+ $('#frx').innerHTML=pw<14?`The world price ($${pw}) is <b>below</b> the domestic no-trade price ($14), so the country <b>imports</b> ${f0(qd-qs)}m units (Hoang Fig 27.6). Consumers gain from lower prices; domestic producers supply less.`:pw>14?`The world price is <b>above</b> $14, so domestic firms <b>export</b> ${f0(qs-qd)}m units (Fig 27.5).`:'At $14 the world price equals the domestic price: no trade takes place.'}
+$('#frp').addEventListener('input',drawFr);
+
+/* 03 tariff */
+function tariff(t){const p=Math.min(PW+t,14),s1=Sq(PW),d1=Dq(PW),s2=Sq(p),d2=Dq(p);return{p,s1,d1,s2,d2,imp1:d1-s1,imp2:d2-s2,rev:(p-PW)*(d2-s2),cs:CS(d2,p),ps:PS(s2,p),dwl:.5*(p-PW)*(s2-s1)+.5*(p-PW)*(d1-d2)}}
+function drawTa(){const t=+$('#tat').value;$('#tato').textContent='$'+f2(t);const r=tariff(t);const g=plot();
+ if(t){g.poly([[0,PW],[0,r.p],[r.s2,r.p],[r.s1,PW]],'area');g.poly([[r.s1,PW],[r.s2,r.p],[r.s2,PW]],'dwl');g.poly([[r.s2,PW],[r.s2,r.p],[r.d2,r.p],[r.d2,PW]],'spend');g.poly([[r.d2,r.p],[r.d1,PW],[r.d2,PW]],'dwl');
+  lbl(g,r.s1*.55,(PW+r.p)/2-.3,'a');lbl(g,r.s1+(r.s2-r.s1)*.68,PW+(r.p-PW)*.3,'b');if(r.d2>r.s2+4)lbl(g,(r.s2+r.d2)/2,(PW+r.p)/2-.3,'c');lbl(g,r.d2+(r.d1-r.d2)*.32,PW+(r.p-PW)*.3,'d')}
+ g.fn(Dp,'d','D',105);g.fn(Sp,'s','Sdomestic',84);g.seg(0,PW,120,PW,'sm');g.text(118,PW-1,'Sworld','lm','end');if(t){g.seg(0,r.p,120,r.p,'s2');g.text(118,r.p+.6,'Sworld + tariff','ls','end')}
+ g.guide(r.s1,PW,'Q1','');g.guide(r.d1,PW,'Q4','Pw');if(t){g.guide(r.s2,r.p,'Q2','');g.guide(r.d2,r.p,'Q3','Pw+t')}
+ $('#tafig').innerHTML=g.svg('Tariff diagram');const b=tariff(0);
+ $('#taread').innerHTML=`<dt>Domestic price</dt><dd>$${f2(PW)} → $${f2(r.p)}</dd><dt>Domestic production</dt><dd>${f0(r.s1)}m → ${f0(r.s2)}m</dd><dt>Consumption</dt><dd>${f0(r.d1)}m → ${f0(r.d2)}m</dd><dt>Imports</dt><dd>${f0(r.imp1)}m → ${f0(r.imp2)}m</dd><dt>Consumer spending</dt><dd>${Mn(PW*r.d1)} → ${Mn(r.p*r.d2)}</dd><dt>Domestic producers’ revenue</dt><dd>${Mn(PW*r.s1)} → ${Mn(r.p*r.s2)}</dd><dt>Foreign producers’ revenue (Pw × imports)</dt><dd>${Mn(PW*r.imp1)} → ${Mn(PW*r.imp2)}</dd><dt>Tariff revenue (c)</dt><dd>${Mn(r.rev)}</dd>`;
+ $('#tahl').innerHTML=`<dt>Consumer surplus</dt><dd>${Mn(b.cs)} → ${Mn(r.cs)} (${ar(b.cs,r.cs)})</dd><dt>Producer surplus</dt><dd>${Mn(b.ps)} → ${Mn(r.ps)} (${ar(b.ps,r.ps)})</dd><dt>Welfare loss (b + d)</dt><dd>${Mn(r.dwl)}</dd>`;
+ $('#tax').innerHTML=!t?'Move the slider to impose a tariff.':r.imp2<=0?'This tariff is <b>prohibitive</b>: the price reaches the no-trade level ($14) and imports stop completely. No tariff revenue is raised.':`Domestic producers gain area <b>a</b> and expand output, but units between Q1 and Q2 cost more to make at home than to import (<b>b</b>). Consumers pay more and buy less (<b>d</b>). The government collects <b>c</b> = ${Mn(r.rev)}. Foreign firms still receive the world price, but sell fewer units.`+(t===2?' At $2 the HL answers are: ΔCS −$150m, ΔPS +$50m, revenue $80m, welfare loss $20m.':'')}
+$('#tat').addEventListener('input',()=>{drawTa();drawCm()});
+
+/* 04 quota */
+let lic='gov';
+function quota(q){const s1=Sq(PW),d1=Dq(PW);if(q>=d1-s1)return{p:PW,s2:s1,d2:d1,rent:0,q:d1-s1,s1,d1,binding:false};const p=(140-q)/10,s2=Sq(p),d2=Dq(p);return{p,s1,d1,s2,d2,q,rent:(p-PW)*q,cs:CS(d2,p),ps:PS(s2,p),dwl:.5*(p-PW)*(s2-s1)+.5*(p-PW)*(d1-d2),binding:true}}
+function drawQu(){const q=+$('#quq').value;$('#quqo').textContent=q+'m';$$('[data-lic]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lic===lic));const r=quota(q);const g=plot();
+ if(r.binding){g.poly([[0,PW],[0,r.p],[r.s2,r.p],[r.s1,PW]],'area');g.poly([[r.s1,PW],[r.s2,r.p],[r.s2,PW]],'dwl');g.poly([[r.s2,PW],[r.s2,r.p],[r.d2,r.p],[r.d2,PW]],'spend');g.poly([[r.d2,r.p],[r.d1,PW],[r.d2,PW]],'dwl');if(r.d2-r.s2>6)lbl(g,(r.s2+r.d2)/2,(PW+r.p)/2-.3,'quota rent')}
+ g.fn(Dp,'d','D',105);g.fn(Sp,'s','Sdomestic',84);g.seg(0,PW,120,PW,'sm');g.text(118,PW-1,'Sworld','lm','end');
+ if(q>0){g.seg(r.s1,PW,r.s1+q,PW,'s2');g.fn(x=>x<r.s1+q?NaN:Sp(x-q),'s2','Sdomestic + quota',Math.min(110,r.s1+q+50))}
+ if(r.binding){g.dot(r.d2,r.p);g.guide(r.s2,r.p,'Q2','');g.guide(r.d2,r.p,'Q3','Pq')}g.guide(r.s1,PW,'Q1','');g.guide(r.d1,PW,'Q4','Pw');
+ $('#qufig').innerHTML=g.svg('Quota diagram');const who={gov:'the government (licence sales)',imp:'domestic importers (free licences)',for:'foreign exporters'}[lic];
+ const forRev=lic==='for'?r.p*r.q:PW*r.q;
+ $('#quread').innerHTML=r.binding?`<dt>Domestic price</dt><dd>$${f2(PW)} → $${f2(r.p)}</dd><dt>Domestic production</dt><dd>${f0(r.s1)}m → ${f0(r.s2)}m</dd><dt>Consumption</dt><dd>${f0(r.d1)}m → ${f0(r.d2)}m</dd><dt>Imports (= quota)</dt><dd>${f0(r.d1-r.s1)}m → ${f0(q)}m</dd><dt>Quota rent = (Pq − Pw) × quota</dt><dd>${Mn(r.rent)} → ${who}</dd><dt>Foreign producers’ revenue</dt><dd>${Mn(PW*(r.d1-r.s1))} → ${Mn(forRev)}</dd><dt class="hlonly">Welfare loss (HL)</dt><dd class="hlonly">${Mn(r.dwl)}</dd>`:`<dt>Effect</dt><dd>None: the quota (${q}m) is at least the free-trade imports (60m)</dd>`;
+ $('#qux').innerHTML=r.binding?`Imports are capped at ${q}m, so the price rises to <b>$${f2(r.p)}</b>, the price at which demand equals domestic supply plus the quota. The quota rent of <b>${Mn(r.rent)}</b> goes to ${who}. `+(lic==='gov'?'Auctioning licences makes a quota work like a tariff for the government.':'The government earns nothing, so the quota is worse for the country than an equivalent tariff.')+(q===40?' A 40m quota has the same price and welfare effects as a $2 tariff.':''):'Lower the quota below 60m for it to bind.';$$('#quread .hlonly').forEach(e=>e.hidden=LVL==='SL')}
+$('#quq').addEventListener('input',()=>{drawQu();drawCm()});$$('[data-lic]').forEach(b=>b.addEventListener('click',()=>{lic=b.dataset.lic;drawQu();drawCm()}));
+
+/* 05 subsidy */
+function subsidy(s){const s1=Sq(PW),s2=Sq(PW+s),d=Dq(PW);return{s1,s2,d,imp1:d-s1,imp2:d-s2,cost:s*s2,ps1:PS(s1,PW),ps2:PS(s2,PW+s),dwl:.5*s*(s2-s1)}}
+function drawSb(){const sv=+$('#sbs').value;$('#sbso').textContent='$'+f2(sv);const r=subsidy(sv);const g=plot();
+ if(sv){g.poly([[0,PW],[0,PW+sv],[r.s2,PW+sv],[r.s2,PW]],'spend');g.poly([[r.s1,PW],[r.s2,PW+sv],[r.s2,PW]],'dwl')}
+ g.fn(Dp,'d','D',105);g.fn(Sp,'s','Sdomestic',84);if(sv)g.fn(q=>Sp(q)-sv,'s2','Sdomestic + subsidy',100);g.seg(0,PW,120,PW,'sm');g.text(118,PW-1,'Sworld','lm','end');
+ g.guide(r.s1,PW,'Q1','Pw');if(sv)g.guide(r.s2,PW,'Q2','');g.guide(r.d,PW,'Q3','');g.dot(r.d,PW);
+ $('#sbfig').innerHTML=g.svg('Subsidy diagram');
+ $('#sbread').innerHTML=`<dt>Price consumers pay</dt><dd>$${f2(PW)} (unchanged)</dd><dt>Price domestic producers receive</dt><dd>$${f2(PW+sv)}</dd><dt>Domestic production</dt><dd>${f0(r.s1)}m → ${f0(r.s2)}m</dd><dt>Imports</dt><dd>${f0(r.imp1)}m → ${f0(r.imp2)}m</dd><dt>Cost to government = subsidy × Q2 (blue)</dt><dd>${Mn(r.cost)}</dd><dt>Foreign producers’ revenue</dt><dd>${Mn(PW*r.imp1)} → ${Mn(PW*r.imp2)}</dd>`;
+ $('#sbhl').innerHTML=`<dt>Producer surplus</dt><dd>${Mn(r.ps1)} → ${Mn(r.ps2)} (${ar(r.ps1,r.ps2)})</dd><dt>Consumer surplus</dt><dd>unchanged at ${Mn(CS(r.d,PW))}</dd><dt>Welfare loss (gold)</dt><dd>${Mn(r.dwl)}</dd>`;
+ $('#sbx').innerHTML=sv?`Domestic firms produce ${f0(r.s2-r.s1)}m more units at the world price, so imports fall by the same amount. <b>Taxpayers</b> pay ${Mn(r.cost)}, not consumers. Units between Q1 and Q2 cost more to make at home than to import: welfare loss ${Mn(r.dwl)}.`+(sv===2?' At $2: cost $60m, ΔPS +$50m, welfare loss $10m.':''):'Move the slider to subsidise domestic producers.'}
+$('#sbs').addEventListener('input',()=>{drawSb();drawCm()});
+
+/* 06 compare */
+function drawCm(){const t=tariff(+$('#tat').value),q=quota(+$('#quq').value),s=subsidy(+$('#sbs').value),b=tariff(0);const qg=lic==='gov'?q.rent:0;
+ const rows=[['Settings',`$${f2(+$('#tat').value)} tariff`,`${$('#quq').value}m quota (${lic==='gov'?'licences sold':lic==='imp'?'free licences':'rent to foreigners'})`,`$${f2(+$('#sbs').value)} subsidy`],
+ ['Price consumers pay',`$${f2(t.p)}`,`$${f2(q.p)}`,`$${f2(PW)}`],['Consumers (surplus)',ar(b.cs,t.cs),q.binding?ar(b.cs,q.cs):'—','—'],['Domestic producers (surplus)',ar(b.ps,t.ps),q.binding?ar(b.ps,q.ps):'—',ar(s.ps1,s.ps2)],
+ ['Government',t.rev?'▲ +'+Mn(t.rev):'—',qg?'▲ +'+Mn(qg):'—',s.cost?'▼ −'+Mn(s.cost):'—'],['Importers / licence holders','—',lic==='imp'&&q.rent?'▲ +'+Mn(q.rent):'—','—'],
+ ['Foreign producers (revenue)',ar(PW*b.imp1,PW*t.imp2),q.binding?ar(PW*b.imp1,lic==='for'?q.p*q.q:PW*q.q):'—',ar(PW*s.imp1,PW*s.imp2)],['Welfare loss',Mn(t.dwl),q.binding?Mn(q.dwl):'—',Mn(s.dwl)]];
+ $('#cmtb').innerHTML=rows.map((r,i)=>`<tr>${r.map((x,j)=>j?`<td style="text-align:left;font-family:var(--mono);font-size:13px${i===0?';color:var(--muted)':''}">${x}</td>`:`<td><b>${x}</b></td>`).join('')}</tr>`).join('')}
+sorter('tp',[['The USA imposes a 25% tax on imported steel (2018)','tar','A tax on imports.'],['The EU limits imports of Chinese steel to a fixed tonnage each year','quo','A limit on quantity.'],['Brazil pays sugar-cane farmers per tonne produced','sub','A payment to domestic producers.'],['A country requires all imported toys to pass its own safety tests, taking six months','adm','A standard and procedure that delays imports.'],['India adds a 20% duty on imported smartphones','tar','A tax on imports.'],['A ban on all trade with a country for political reasons','adm','An embargo: an administrative barrier.'],['A government pays exporters $5 for every unit sold abroad','sub','An export subsidy.'],['Japan allows only 770,000 tonnes of tariff-free rice imports a year','quo','A quantity limit (a tariff-rate quota).'],['Only beer brewed in Munich may be sold at Oktoberfest','adm','A standard that excludes foreign producers (Hoang p. 453).'],['Residents may buy only $1,000 of foreign currency a year','adm','Exchange controls limit spending on imports.']],{tar:'Tariff',quo:'Quota',sub:'Subsidy',adm:'Administrative barrier'},'data-tp');
+
+/* 07 HL calculator with Hoang presets */
+const HP=[['UK wine tariff (Fig 28.4)','tar',8,10,90,80,50,60,'m',' (£)'],['Cheese quota (Fig 28.9)','quo',8,10,90,80,50,70,'m',' (£)'],['Baby milk subsidy (Fig 28.12)','sub',8,10,90,90,50,60,'k',' ($)'],['Model market: $2 tariff','tar',8,10,80,70,20,30,'m',' ($)']];
+let hm='tar',hu='m';$('#hcpre').innerHTML=HP.map((p,i)=>`<button class="btn" data-hp="${i}">${p[0]}</button>`).join('');
+$$('[data-hp]').forEach(b=>b.addEventListener('click',()=>{const p=HP[+b.dataset.hp];hm=p[1];hu=p[8];['hpw','hp2','hd1','hd2','hs1','hs2'].forEach((id,k)=>$('#'+id).value=p[k+2]);drawHc()}));
+$$('[data-hm]').forEach(b=>b.addEventListener('click',()=>{hm=b.dataset.hm;drawHc()}));
+function drawHc(){$$('[data-hm]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.hm===hm));$('#hp2l').textContent=hm==='sub'?'Price producers receive (Pw + subsidy)':'Domestic price after protection';
+ const [pw,p2,d1,d2,s1,s2]=['hpw','hp2','hd1','hd2','hs1','hs2'].map(id=>+$('#'+id).value);const u=hu==='k'?1000:1e6,U=v=>money(v*u),cp=hm==='sub'?pw:p2,i1=d1-s1,i2=(hm==='sub'?d1:d2)-s2;
+ const rows=[['Consumer spending',`${f0(pw)} × ${f0(d1)} = ${U(pw*d1)}`,`${f0(cp)} × ${f0(hm==='sub'?d1:d2)} = ${U(cp*(hm==='sub'?d1:d2))}`],['Domestic producers’ revenue',`${f0(pw)} × ${f0(s1)} = ${U(pw*s1)}`,`${f0(p2)} × ${f0(s2)} = ${U(p2*s2)}`],['Imports',`${f0(i1)}`,`${f0(i2)}`],['Foreign producers’ revenue',`${f0(pw)} × ${f0(i1)} = ${U(pw*i1)}`,hm==='quo'?`${f0(p2)} × ${f0(i2)} = ${U(p2*i2)} (if foreign exporters keep the rent)`:`${f0(pw)} × ${f0(i2)} = ${U(pw*i2)}`]];
+ let gov=hm==='tar'?`Tariff revenue = (${f0(p2)} − ${f0(pw)}) × ${f0(i2)} = <b>${U((p2-pw)*i2)}</b>`:hm==='sub'?`Subsidy cost = (${f0(p2)} − ${f0(pw)}) × ${f0(s2)} = <b>${U((p2-pw)*s2)}</b>`:`Licence revenue: cannot be calculated from the diagram (it depends on the fee and the number of licences sold, p. 448)`;
+ const dwl=hm==='sub'?.5*(p2-pw)*(s2-s1):.5*(p2-pw)*(s2-s1)+.5*(p2-pw)*(d1-d2);
+ $('#hcread').innerHTML=rows.map(r=>`<dt>${r[0]}</dt><dd style="text-align:left">${r[1]} → ${r[2]}</dd>`).join('')+`<dt>Government</dt><dd style="text-align:left;font-family:var(--sans);font-weight:500">${gov}</dd><dt>Welfare loss (triangles)</dt><dd>${U(dwl)}</dd>`;
+ const check=hm==='tar'?`Check: consumer spending ${U(p2*d2)} = domestic ${U(p2*s2)} + foreign ${U(pw*i2)} + government ${U((p2-pw)*i2)}. `:'';
+ $('#hcx').innerHTML=check+(hm==='tar'&&pw===8&&p2===10&&s2===60?'<b>Erratum:</b> Hoang (pp. 442–443) gives foreign revenue as £10 × 20m = £200m. Foreign firms receive the world price, so it is <b>£160m</b>; the £40m goes to the government.':hm==='sub'?'Consumers still pay the world price. Domestic revenue includes the subsidy received.':hm==='quo'?'Here foreign exporters receive the higher domestic price on their quota imports, as in Hoang’s cheese example.':'')}
+['hpw','hp2','hd1','hd2','hs1','hs2'].forEach(id=>$('#'+id).addEventListener('input',drawHc));['hpw','hp2','hd1','hd2','hs1','hs2'].forEach((id,k)=>$('#'+id).value=HP[0][k+2]);
+
+/* 08 draw builder: $2 tariff */
+stepper('draw',[['Domestic market','Draw Ddomestic and Sdomestic. Without trade the price would be $14.'],['World price and imports','Draw Sworld, horizontal at Pw = $8. Domestic firms supply Q1 = 20m, consumers buy Q4 = 80m: imports = 60m.'],['Add the tariff','Draw Sworld + tariff at $10. Domestic supply rises to Q2 = 30m, consumption falls to Q3 = 70m: imports = 40m.'],['Revenue and transfer','Area <b>a</b> (orange) = gain to domestic producers taken from consumers. Area <b>c</b> (blue) = tariff revenue ($2 × 40m = $80m).'],['Welfare loss','Triangles <b>b</b> (inefficient production) and <b>d</b> (lost consumption) = $20m, lost to everyone.']],k=>{
+ const g=plot();const r=tariff(2);if(k>=3){g.poly([[0,PW],[0,10],[30,10],[20,PW]],'area');g.poly([[30,PW],[30,10],[70,10],[70,PW]],'spend');lbl(g,10,8.7,'a');lbl(g,50,8.7,'c')}if(k>=4){g.poly([[20,PW],[30,10],[30,PW]],'dwl');g.poly([[70,10],[80,PW],[70,PW]],'dwl');lbl(g,27.5,8.5,'b');lbl(g,72.5,8.5,'d')}
+ g.fn(Dp,'d','Ddomestic',105);g.fn(Sp,'s','Sdomestic',84);if(k===0){g.dot(50,14);g.guide(50,14,'','$14')}
+ if(k>=1){g.seg(0,PW,120,PW,'sm');g.text(118,PW-1,'Sworld','lm','end');g.guide(20,PW,'Q1','Pw');g.guide(80,PW,'Q4','')}if(k>=2){g.seg(0,10,120,10,'s2');g.text(118,10.6,'Sworld + tariff','ls','end');g.guide(30,10,'Q2','');g.guide(70,10,'Q3','Pw+t')}
+ $('#drawfig').innerHTML=g.svg('Tariff diagram build')});
+/* /LAB CODE */
+
+$$('section.step').forEach(sec=>{const n=sec.querySelector('.num');const list=[...$$('section.step')].filter(x=>x.id!=='guide');if(n&&sec.id!=='guide'&&!n.dataset.fixed)n.textContent=String(list.indexOf(sec)+1).padStart(2,'0')});
+renderStatic();setLvl(LVL);
+/* LAB INIT: call each section's first draw here */
+drawFr();drawTa();drawQu();drawSb();drawCm();drawHc();
+/* /LAB INIT */
+})();
+</script>
+<script id="cg-js">
+(function(){
+const CG={"title": "Chapter 28 · Types of trade protection", "intro": "Free trade brings lower prices and more choice, but governments often protect domestic industries from foreign competition. Chapter 28 examines the main tools – tariffs, quotas, subsidies and administrative barriers – and uses diagrams to show exactly how each affects prices, production, consumption, imports, revenues and welfare, and which stakeholders gain or lose.", "groups": [{"name": "Free trade baseline", "terms": [{"term": "Trade protection (protectionism)", "level": "SL/HL", "definition": "Government use of barriers to trade to shield domestic producers from foreign competition.", "explanation": "Protection raises the price of imports or limits their quantity so that domestic firms can sell more. It usually helps a concentrated group (domestic producers and their workers) at the expense of a larger, dispersed group (consumers, taxpayers, users of the protected good).", "example": "In 2018 the USA imposed 25% tariffs on imported steel to protect US steelmakers.", "exam_tip": "Always identify who gains and who loses.", "related": ["Barriers to trade"]}, {"term": "Barriers to trade", "level": "SL/HL", "definition": "Government-imposed measures such as tariffs, quotas, subsidies and administrative rules that make foreign goods less competitive in the domestic market.", "explanation": "Tariffs are taxes; the others are non-tariff barriers. They differ in who bears the cost (consumers or taxpayers) and in whether the government earns revenue.", "example": "Japan uses a tariff-rate quota for rice, while the EU applies strict food-safety standards to imports.", "exam_tip": "Classify each barrier before analysing it.", "related": ["Non-tariff barriers"]}, {"term": "World supply (Sworld)", "level": "SL/HL", "definition": "The supply of a good from the rest of the world to a small economy, drawn as perfectly price elastic (horizontal) at the world price.", "explanation": "A small country cannot affect world prices, so it can import any quantity at Pw. If Pw is below the domestic no-trade price the country imports; if above, it exports.", "example": "With Qd = 120 − 5P and Qs = 5P − 20, the no-trade price is $14; at a world price of $8 domestic firms supply 20m, consumers buy 80m, and 60m are imported.", "exam_tip": "Label Sworld and Pw; imports are the horizontal gap between Qd and Qs at Pw.", "related": ["Tariff"]}]}, {"name": "Tariffs", "terms": [{"term": "Tariff", "level": "SL/HL", "definition": "A tax on imported goods and services; it raises the domestic price, increases domestic production, reduces consumption and imports, and generates government revenue.", "explanation": "On the diagram the world supply line rises to Pw + tariff. Domestic output rises from Q1 to Q2, consumption falls from Q4 to Q3 and imports fall to Q3 − Q2. Area a is a transfer from consumers to domestic producers, c is tariff revenue, and b and d are the welfare loss.", "example": "In the model market, a $2 tariff raises the price from $8 to $10: domestic output 20m → 30m, consumption 80m → 70m, imports 60m → 40m, tariff revenue $80m, welfare loss $20m.", "exam_tip": "Name all four areas and say what each represents.", "related": ["Tariff revenue", "Welfare (deadweight) loss"]}, {"term": "Tariff revenue", "level": "HL", "definition": "Government income from a tariff: tariff per unit × the quantity imported after the tariff.", "explanation": "On the diagram it is the rectangle between Pw and Pw + tariff over the post-tariff imports (Q3 − Q2). Foreign producers still receive only the world price.", "example": "Hoang's UK wine example: a £2 tariff on 20m bottles raises £40m. Foreign revenue = £8 × 20m = £160m (not £200m as printed on p. 443).", "exam_tip": "Consumer spending = domestic revenue + foreign revenue + tariff revenue: use this as a check.", "related": ["Tariff"]}, {"term": "Welfare (deadweight) loss", "level": "SL/HL", "definition": "The loss of community surplus that no stakeholder gains, caused by inefficient domestic production and reduced consumption under protection.", "explanation": "Triangle b: units now made at home cost more than imports would (wasted resources). Triangle d: consumers who would have bought at the world price no longer do. These losses are not gained by producers or the government.", "example": "For a $2 tariff: b = ½ × 10m × $2 = $10m and d = ½ × 10m × $2 = $10m, a total of $20m.", "exam_tip": "Explain what the triangles mean, not just where they are (Hoang p. 450).", "related": ["Consumer surplus", "Producer surplus"]}, {"term": "Consumer surplus", "level": "SL/HL", "definition": "The difference between the highest price consumers would pay and the price they actually pay; the area below demand and above price.", "explanation": "Protection raises the domestic price (tariff, quota), so consumer surplus falls by areas a + b + c + d.", "example": "A $2 tariff cuts consumer surplus from $640m to $490m in the model market.", "exam_tip": "Consumers are the biggest losers from tariffs and quotas.", "related": ["Producer surplus"]}, {"term": "Producer surplus", "level": "SL/HL", "definition": "The difference between the price producers receive and the lowest price they would accept; the area above supply and below price.", "explanation": "Domestic producers gain area a from a tariff or quota, or from a subsidy, because they sell more at a higher price (or receive more per unit).", "example": "A $2 tariff raises domestic producer surplus from $40m to $90m.", "exam_tip": "Domestic producers' gain is smaller than consumers' loss: the difference is revenue plus welfare loss.", "related": ["Consumer surplus"]}]}, {"name": "Quotas and subsidies", "terms": [{"term": "Quota", "level": "SL/HL", "definition": "A legal limit on the quantity (or value) of a good that may be imported in a given period.", "explanation": "Supply becomes Sdomestic + quota: domestic supply shifted right by the quota from the world price. The price rises until demand equals that supply. Effects on price, production and consumption are like a tariff, but the gap between the domestic and world price on the imported units (the quota rent) goes to whoever holds the licences.", "example": "A 40m quota in the model market raises the price to $10, the same as a $2 tariff, with a quota rent of $80m.", "exam_tip": "Say who receives the quota rent.", "related": ["Quota rent", "Import licence"]}, {"term": "Import licence", "level": "SL/HL", "definition": "A permit to import a set quantity under a quota.", "explanation": "If the government auctions licences, it earns the quota rent, making the quota similar to a tariff. If licences are given away, domestic importers or foreign exporters keep the rent.", "example": "A country limits T-shirt imports from Bangladesh to 20m a year and gives licences free to importers, so they keep a quota rent of ($5.50 − $4) × 20m = $30m.", "exam_tip": "Quota revenue cannot be read from the diagram (Hoang p. 448).", "related": ["Quota"]}, {"term": "Quota rent", "level": "HL", "definition": "The gain from selling quota-limited imports at the higher domestic price: (Pquota − Pw) × quota.", "explanation": "This rectangle would be tariff revenue under an equivalent tariff. Who captures it determines how much the importing country loses overall.", "example": "In Hoang's cheese example, foreign exporters sell 10m units at £10 instead of £8, so they keep a rent of £20m while their total revenue falls from £320m to £100m.", "exam_tip": "Show the calculation and name the recipient.", "related": ["Quota", "Import licence"]}, {"term": "Production subsidy", "level": "SL/HL", "definition": "A per-unit payment to all domestic producers of a good, which shifts domestic supply down by the value of the subsidy.", "explanation": "In a small open economy consumers still pay the world price, so consumption does not change. Domestic firms supply more at Pw, so imports fall. Taxpayers pay the subsidy × new domestic output, and the extra domestic units that cost more than imports create a welfare loss.", "example": "Hoang's baby milk powder example: a $2 subsidy raises domestic output from 50,000 to 60,000; it costs $120,000; welfare loss = ½ × 10,000 × $2 = $10,000.", "exam_tip": "The price consumers pay does not change; the cost falls on taxpayers.", "related": ["Export subsidy"]}, {"term": "Export subsidy", "level": "SL/HL", "definition": "A payment to domestic firms for each unit they export, making exports cheaper for foreign buyers.", "explanation": "Export subsidies boost domestic production and exports but cost taxpayers money, can harm producers in other countries (especially developing ones), and are restricted under WTO rules.", "example": "EU export subsidies for farm products, criticised for undercutting farmers in developing countries, were phased out under a 2015 WTO agreement.", "exam_tip": "Link to retaliation and fairness in evaluation (Chapter 29).", "related": ["Production subsidy"]}]}, {"name": "Other barriers and consequences", "terms": [{"term": "Administrative barriers", "level": "SL/HL", "definition": "Bureaucratic rules such as product standards, health and safety regulations, labelling and slow customs procedures that raise costs for foreign firms or delay imports.", "explanation": "They may protect consumers genuinely, but they can also be disguised protectionism. They raise no government revenue, so the higher price is a gain to protected firms or a pure cost.", "example": "Only beer brewed in Munich under the 1516 purity law may be served at Oktoberfest (Hoang p. 453).", "exam_tip": "Evaluate whether a standard reflects real consumer protection or hidden protectionism.", "related": ["Non-tariff barriers", "Embargo"]}, {"term": "Non-tariff barriers", "level": "SL/HL", "definition": "Restrictions on international trade that are not taxes, such as quotas, subsidies and administrative barriers.", "explanation": "As tariffs have fallen under WTO agreements, non-tariff barriers have become relatively more important and are often harder to measure and challenge.", "example": "Complex rules of origin and certification requirements for food imports.", "exam_tip": "Name the specific type in answers.", "related": ["Administrative barriers"]}, {"term": "Embargo", "level": "SL/HL", "definition": "A complete ban on trade with a particular country, or in a particular good, usually for political or security reasons.", "explanation": "An embargo is the most extreme barrier: imports fall to zero. Consumers lose access to the goods entirely, and parallel markets may develop.", "example": "The long-standing US trade embargo on Cuba.", "exam_tip": "Link to the national-security argument for protection (Chapter 29).", "related": ["Administrative barriers"]}, {"term": "Retaliation", "level": "SL/HL", "definition": "When a country responds to another's trade barriers by imposing barriers of its own, which can lead to a trade war.", "explanation": "Retaliation harms the original country's exporters and can wipe out any gain from protection. Escalating tariffs reduce trade and world output.", "example": "After US tariffs in 2018, China and the EU placed tariffs on US goods such as soybeans and bourbon.", "exam_tip": "Use retaliation as a key argument against protection.", "related": ["Trade protection (protectionism)"]}]}]};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const box=document.getElementById('cgbox'),q=document.getElementById('cgq'),cnt=document.getElementById('cgcount');
+const id=t=>'cg-'+t.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+box.innerHTML='<p style="max-width:72ch">'+esc(CG.intro)+'</p>'+CG.groups.map(g=>{const hl=g.terms.every(t=>t.level==='HL');return `<div class="cg-group ${hl?'hlonly cg-hl':''}"><h3>${esc(g.name)}</h3>`+g.terms.map(t=>`<details class="cg-item ${t.level==='HL'?'cg-hl':''}" id="${id(t.term)}" data-s="${esc((t.term+' '+t.definition+' '+t.explanation+' '+t.example).toLowerCase())}"><summary><b>${esc(t.term)}</b><span class="badge ${t.level==='HL'?'b-hl':'b-sl'}">${t.level}</span><span class="cg-def">${esc(t.definition)}</span></summary><div class="cg-body"><div><span class="lbl">Definition</span><p class="defn">${esc(t.definition)}</p></div><div><span class="lbl">Explanation</span><p>${esc(t.explanation)}</p></div><div class="cg-ex"><span class="lbl">Example</span><p>${esc(t.example)}</p></div><div class="cg-tip"><span class="lbl">Exam tip</span><p>${esc(t.exam_tip)}</p></div>${(t.related||[]).length?`<div><span class="lbl">Related terms</span><div class="cg-rel">${t.related.map(r=>`<button type="button" data-go="${id(r)}">${esc(r)}</button>`).join('')}</div></div>`:''}</div></details>`).join('')+'</div>'}).join('')+'<p class="cg-empty" id="cgnone" hidden>No terms match your search.</p>';
+function lvl(){let l='HL';try{l=JSON.parse(localStorage.getItem('tradeprotectionlab.lvl'))||'HL'}catch(e){}return l}
+function apply(){const sl=document.querySelector('.lvl [data-lvl="SL"][aria-pressed="true"]')||lvl()==='SL';const s=(q.value||'').trim().toLowerCase();let n=0;
+ box.querySelectorAll('.cg-item').forEach(d=>{const show=!(sl&&d.classList.contains('cg-hl'))&&(!s||d.dataset.s.includes(s));d.hidden=!show;if(show)n++;if(s&&show)d.open=true});
+ box.querySelectorAll('.cg-group').forEach(g=>{g.hidden=![...g.querySelectorAll('.cg-item')].some(d=>!d.hidden)});
+ cnt.textContent=n+' term'+(n===1?'':'s');document.getElementById('cgnone').hidden=n>0}
+q.addEventListener('input',apply);
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(apply,0)));
+document.getElementById('cgopen').addEventListener('click',()=>box.querySelectorAll('.cg-item:not([hidden])').forEach(d=>d.open=true));
+document.getElementById('cgclose').addEventListener('click',()=>box.querySelectorAll('.cg-item').forEach(d=>d.open=false));
+box.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const t=document.getElementById(b.dataset.go);if(t){q.value='';apply();t.open=true;t.scrollIntoView({block:'center'})}});
+apply();
+})();
+</script>
+<script id="sb-js">
+(function(){
+const secs=[...document.querySelectorAll('section.step[id]')];
+const sb=document.createElement('aside');sb.className='sb';sb.setAttribute('aria-label','Lesson contents');
+const title=document.querySelector('.brand')?document.querySelector('.brand').childNodes[0].textContent.trim():document.title;
+const sub=document.querySelector('.brand span')?document.querySelector('.brand span').textContent:'';
+sb.innerHTML=`<a class="home" href="index.html">IB Economics</a><div class="sub">${title} · ${sub}</div><p class="lbl">In this lab</p>`+
+ secs.map(s=>{const n=s.querySelector('.num'),h=s.querySelector('h2');const t=h?h.childNodes[0].textContent.replace(/[:·].*$/,'').trim():s.id;return `<a class="it" href="#${s.id}" data-id="${s.id}"><span>${n?n.textContent:''}</span><span>${t}</span></a>`}).join('')+
+ `<p class="lbl">More</p><div class="links"><a href="plan/ch28.html">Teacher plan for this chapter</a><a href="index.html">All chapters</a></div>`;
+document.body.appendChild(sb);
+const btn=document.createElement('button');btn.className='sbbtn';btn.type='button';btn.textContent='☰ Contents';btn.setAttribute('aria-expanded','false');
+const bar=document.querySelector('.topin');if(bar)bar.insertBefore(btn,bar.firstChild);
+btn.addEventListener('click',()=>{sb.classList.toggle('open');btn.setAttribute('aria-expanded',sb.classList.contains('open'))});
+sb.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+function sync(){secs.forEach(s=>{const a=sb.querySelector(`[data-id="${s.id}"]`);if(a)a.hidden=s.hidden})}
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(sync,0)));sync();
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){sb.querySelectorAll('a.it').forEach(a=>a.classList.toggle('act',a.dataset.id===e.target.id))}}),{rootMargin:'-20% 0px -70% 0px'});secs.forEach(s=>io.observe(s))}
+})();
+</script>
