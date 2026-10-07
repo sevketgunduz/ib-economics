@@ -23,6 +23,7 @@ aligned to the IB Economics guide.
   - [Chapter 9: Elasticity of supply (PES)](https://sevketgunduz.github.io/ib-economics/ch09-supply-elasticity-lab.html)
   - [Chapter 10: Role of government in microeconomics](https://sevketgunduz.github.io/ib-economics/ch10-intervention-lab.html)
   - [Chapter 28: Types of trade protection](https://sevketgunduz.github.io/ib-economics/ch28-trade-protection-lab.html)
+  - [Chapter 29: Arguments for and against trade control/protection](https://sevketgunduz.github.io/ib-economics/ch29-protection-debate-lab.html)
 
 The [site's front page](https://sevketgunduz.github.io/ib-economics/) shows the whole course
 map, so the labs already written and those still to come are both visible.

@@ -1,0 +1,443 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Protection Debate Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#f4f5f1; --panel:#ffffff; --panel2:#f8f9f5; --ink:#1a2029; --muted:#5a636c; --rule:#d9ddd3; --grid:#e7eae2;
+  --supply:#c0441f; --supply2:#e8876a; --demand:#2451c4; --good:#12795f; --bad:#b3261e; --hl:#6f3aa8; --hlbg:#efe6f8; --slbg:#e2efe9; --sl:#0d6b5c;
+  --tint:#eaf0fc; --focus:#2451c4; --shade:rgba(192,68,31,.14); --shadeb:rgba(36,81,196,.14);
+  --serif:"Source Serif 4",Georgia,serif; --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:16px/1.6 var(--sans);margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:0 80px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--ground);border-bottom:1px solid var(--rule)}
+.topin{max-width:1120px;margin:0 auto;padding:10px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{font:650 18px var(--serif);margin-right:auto}
+.brand span{font:600 12px var(--sans);color:var(--muted);margin-left:8px}
+nav.jump{display:flex;gap:2px;flex-wrap:wrap}
+nav.jump a{font:600 12.5px var(--sans);color:var(--muted);text-decoration:none;padding:6px 9px;border-radius:6px}
+nav.jump a:hover{background:var(--panel);color:var(--ink)}
+.lvl{display:flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden}
+.lvl button{font:700 12px var(--sans);border:0;background:var(--panel);color:var(--muted);padding:6px 12px;cursor:pointer}
+.lvl button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+h1,h2,h3{font-family:var(--serif);font-weight:650;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h1{font-size:40px;line-height:1.1} h2{font-size:27px;line-height:1.2} h3{font-size:19px}
+p{margin:0} .muted{color:var(--muted)}
+.eyebrow{font:700 11.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--demand)}
+.badge{display:inline-block;font:700 10.5px var(--sans);letter-spacing:.06em;padding:2px 7px;border-radius:4px;vertical-align:3px}
+.b-hl{background:var(--hlbg);color:var(--hl)} .b-sl{background:var(--slbg);color:var(--sl)}
+button:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+section.step{padding-top:56px;scroll-margin-top:70px}
+.shead{display:grid;gap:8px;max-width:72ch;margin-bottom:20px}
+.shead .num{font:600 13px var(--mono);color:var(--muted)}
+.hero{padding-top:44px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:36px;align-items:center}
+.hero p.lead{font-size:18px;margin-top:14px;max-width:56ch}
+.goals{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px}
+.goals ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.goals li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:15px}
+.goals input{width:18px;height:18px;accent-color:var(--good);margin-top:3px}
+.lab{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:20px}
+.lab2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+svg.g{width:100%;height:auto;display:block;border-radius:8px;background:var(--panel2);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px}
+svg .axis{stroke:var(--ink);stroke-width:1.7;fill:none} svg .axl{fill:var(--ink);font:700 12.5px var(--sans)} svg .tick{fill:var(--muted);font:11.5px var(--mono)}
+svg .guide{stroke:var(--muted);stroke-dasharray:4 4;fill:none}
+svg .s{stroke:var(--supply);stroke-width:3;fill:none;stroke-linecap:round} svg .s2{stroke:var(--supply2);stroke-width:2.2;fill:none;stroke-dasharray:7 5}
+svg .sm{stroke:var(--ink);stroke-width:3;fill:none} svg .d{stroke:var(--demand);stroke-width:3;fill:none}
+svg .ghost{stroke:var(--muted);stroke-width:1.6;stroke-dasharray:3 4;fill:none}
+svg text.ls{fill:var(--supply);font:700 13px var(--sans)} svg text.ld{fill:var(--demand);font:700 13px var(--sans)} svg text.lm{fill:var(--ink);font:700 13px var(--sans)} svg text.lg{fill:var(--muted);font:700 12px var(--sans)}
+svg .dot{fill:var(--ink)} svg .dot2{fill:var(--panel);stroke:var(--ink);stroke-width:1.8}
+svg .arrow{stroke:var(--good);stroke-width:2.4;fill:none;marker-end:url(#ah)} svg .ahead{fill:var(--good)}
+svg .bar{fill:var(--demand);opacity:.7} svg .bar.dim{fill:var(--supply);opacity:.75}
+svg .note{fill:var(--muted);font:600 11.5px var(--sans)} svg .area{fill:var(--shade)}
+.ctl{display:grid;grid-template-columns:1fr 70px;gap:2px 10px;align-items:center;font-size:14px;margin-bottom:12px}
+.ctl span{grid-column:1/-1;font-weight:600;color:var(--muted)} .ctl input{width:100%;accent-color:var(--demand)} .ctl output{font:600 13px var(--mono);text-align:right}
+.read{display:grid;grid-template-columns:1fr auto;gap:6px 14px;font-size:14.5px;margin:6px 0 0}
+.read dt{color:var(--muted)} .read dd{margin:0;font:600 13.5px var(--mono);text-align:right}
+.explain{margin-top:14px;padding:12px 14px;border-left:3px solid var(--demand);background:var(--tint);border-radius:0 8px 8px 0;font-size:14.5px}
+.btn{font:600 14px var(--sans);border:1px solid var(--rule);background:var(--panel);color:var(--ink);padding:9px 13px;border-radius:8px;cursor:pointer;text-align:left}
+.btn:hover{border-color:var(--demand)} .btn.pri{background:var(--ink);color:var(--ground);border-color:var(--ink)} .btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.flip{perspective:900px;height:170px;border:0;background:none;padding:0;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:6px}
+.flip .f{background:var(--panel);justify-content:space-between} .flip .f b{font:650 19px var(--serif)}
+.flip .b{background:var(--tint);transform:rotateY(180deg);font-size:14.5px;overflow:auto}
+.flip .hint{font-size:12px;color:var(--muted)}
+.events{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;margin:14px 0}
+.ev{display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:start}
+.ev .l{font:700 14px var(--mono);color:var(--demand);background:var(--tint);border-radius:6px;text-align:center;padding:2px 0}
+.ev[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.predict{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.fb{font-weight:600} .fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+.sorter .card{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px;display:grid;gap:10px}
+.sorter .card p{font-size:16.5px;font-family:var(--serif)}
+.score{font:600 14px var(--mono)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--grid);text-align:right;font-variant-numeric:tabular-nums}
+th{font:700 11.5px var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule)}
+td:first-child,th:first-child{text-align:left} tr.cur td{background:var(--tint);font-weight:700} tr.dmr td:nth-child(3){color:var(--supply)}
+.tblwrap{overflow-x:auto}
+.case{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;display:grid;gap:10px}
+.case details{border-top:1px solid var(--grid);padding-top:10px}
+.case summary,.qa summary{cursor:pointer;font-weight:700;color:var(--demand)}
+.case ol{margin:8px 0 0;padding-left:20px}
+.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px}
+.mcq{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;display:grid;gap:8px}
+.mcq .opts{display:grid;gap:6px}
+.mcq .opt{font:500 14.5px var(--sans)} .mcq .opt.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--panel))} .mcq .opt.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--panel))}
+.mcq .why{font-size:14px;color:var(--muted)}
+.quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.qa{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 16px}
+.qa details p{margin-top:6px;padding:8px 10px;background:var(--panel2);border-radius:6px}
+.mist{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.mist div{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;font-size:14.5px}
+.mist b{display:block;color:var(--bad);font-size:13px;letter-spacing:.03em;margin-bottom:4px} .mist i{display:block;color:var(--good);font-style:normal;font-weight:600;margin-top:6px}
+.stepper{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.dots{display:flex;gap:5px} .dots i{width:9px;height:9px;border-radius:50%;background:var(--rule)} .dots i.on{background:var(--demand)}
+.pill{font:600 12.5px var(--mono);padding:3px 9px;border-radius:99px;background:var(--panel2);border:1px solid var(--rule)}
+footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+.hlonly[hidden]{display:none!important}
+@media (max-width:860px){.hero,.lab2{grid-template-columns:1fr} h1{font-size:32px} nav.jump{display:none}}
+@media (max-width:520px){.wrap,.topin{padding-inline:16px} .lab{padding:14px} h1{font-size:28px} h2{font-size:23px}}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}}
+svg .d2{stroke:var(--demand);stroke-width:2.2;fill:none;stroke-dasharray:7 5} svg text.ld2{fill:var(--demand);font:700 12px var(--sans)} svg .spend{fill:var(--shadeb)}
+svg .dwl{fill:rgba(214,151,0,.38)} svg .gap{stroke:var(--supply);stroke-width:5;opacity:.45}
+.sorter .btn[aria-pressed="true"],.lab .btn[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.flip .f span:not(.hint){font-size:14.5px;color:var(--muted)}
+.ctl input[type=number]{font:15px var(--mono);padding:7px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink);width:100%}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px} @media (max-width:860px){.two{grid-template-columns:1fr}}
+</style>
+<style id="sb-css">
+aside.sb{position:fixed;top:0;left:0;bottom:0;width:250px;overflow:auto;background:var(--panel);border-right:1px solid var(--rule);padding:16px 12px 40px;z-index:15;font-size:13.5px}
+aside.sb .home{display:block;font:700 15px var(--serif);color:var(--ink);text-decoration:none}
+aside.sb .sub{color:var(--muted);font-size:12px;margin:2px 0 14px}
+aside.sb .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:12px 4px 6px}
+aside.sb a.it{display:grid;grid-template-columns:30px 1fr;gap:2px;padding:6px 8px;border-radius:6px;color:var(--ink);text-decoration:none;line-height:1.3}
+aside.sb a.it span:first-child{font:600 11.5px var(--mono);color:var(--muted);padding-top:1px}
+aside.sb a.it:hover{background:var(--panel2)} aside.sb a.it.act{background:var(--tint);font-weight:700}
+aside.sb .links a{display:block;padding:4px 8px;color:var(--demand);font-weight:600;text-decoration:none}
+.sbbtn{display:none}
+@media (min-width:1100px){header.top,.wrap{margin-left:250px} nav.jump{display:none!important}}
+@media (max-width:1099px){aside.sb{transform:translateX(-105%);transition:transform .2s;box-shadow:0 0 30px rgba(0,0,0,.25);width:84%;max-width:300px}
+ aside.sb.open{transform:none} nav.jump{display:none!important}
+ .sbbtn{display:inline-block;font:700 13px var(--sans);padding:6px 10px;border-radius:8px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);cursor:pointer;order:-1}}
+@media (prefers-reduced-motion:reduce){aside.sb{transition:none}}
+</style>
+
+<style id="cg-css">
+.cg-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.cg-tools input{flex:1;min-width:220px;max-width:420px;font:15px var(--sans);padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink)}
+.cg-group{margin-top:22px} .cg-group h3{margin-bottom:10px}
+.cg-item{background:var(--panel);border:1px solid var(--rule);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.cg-item summary{cursor:pointer;list-style:none;padding:14px 18px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:baseline}
+.cg-item summary::-webkit-details-marker{display:none}
+.cg-item summary b{font:650 18px var(--serif)} .cg-item summary .cg-def{grid-column:1/-1;color:var(--muted);font-size:14.5px}
+.cg-item[open] summary .cg-def{display:none}
+.cg-body{padding:0 18px 16px;display:grid;gap:10px}
+.cg-body .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+.cg-body .defn{font-weight:600}
+.cg-ex{background:var(--tint);border-radius:8px;padding:10px 12px}
+.cg-tip{border-left:3px solid var(--good);padding:6px 12px;background:var(--panel2);border-radius:0 8px 8px 0}
+.cg-rel{display:flex;gap:6px;flex-wrap:wrap} .cg-rel button{font:600 12.5px var(--sans);border:1px solid var(--rule);background:var(--panel2);color:var(--ink);border-radius:99px;padding:3px 10px;cursor:pointer}
+.cg-empty{color:var(--muted)}
+</style>
+
+
+
+
+
+
+
+
+
+
+<header class="top"><div class="topin">
+  <div class="brand">Protection Debate Lab <span>IB Economics 4.3 · Hoang Ch 29</span></div>
+  <nav class="jump" aria-label="Sections"><a href="#terms">Terms</a><a href="#guide">Guide</a><a href="#for">For</a><a href="#against">Against</a><a href="#infant">Infant</a><a href="#jobs">Jobs</a><a href="#war">Trade war</a><a href="#verdict">Verdict</a><a href="#cases">Cases</a><a href="#quiz">Quiz</a><a href="#exam">Exam</a></nav>
+  <span class="badge b-sl">SL &amp; HL</span>
+</div></header>
+
+<div class="wrap">
+<section class="hero">
+  <div><p class="eyebrow">Unit 4 · The global economy · Chapter 29</p><h1>If free trade is so good, why does every country protect something?</h1>
+  <p class="lead">Weigh the ten arguments for protection against the seven arguments against (PC CRIME). Test them with simulations: grow an infant industry, count the cost of each job saved, and play a trade war. Then build your own evaluation.</p>
+  <p class="muted" style="margin-top:12px;font-size:14px">Textbook: Hoang, Wray &amp; Chakraborty, pp. 455–468. Everything in this chapter is the same for SL and HL, and it is assessed mainly through evaluation (AO3).</p></div>
+  <div class="goals"><p class="eyebrow" style="color:var(--muted)">By the end I can…</p><ul id="goals"></ul></div>
+</section>
+
+<section class="step" id="terms"><div class="shead"><span class="num">01</span><h2>Key terms: flip the cards</h2><p class="muted">Say the definition out loud first, then click to check.</p></div><div class="cards" id="cards"></div></section>
+<section class="step" id="guide"><div class="shead"><span class="num">01b</span><h2>Concept guide: every term explained</h2><p>A fuller explanation of each term in this chapter, with a worked real-world example and an exam tip. Open a term, read it, then close the page and explain it to a partner in your own words.</p></div>
+  <div class="cg-tools"><input id="cgq" type="search" placeholder="Search terms, examples…" aria-label="Search the concept guide"><button class="btn" id="cgopen">Open all</button><button class="btn" id="cgclose">Close all</button><span class="pill" id="cgcount"></span></div>
+  <div id="cgbox"></div></section>
+
+<!-- LAB SECTIONS: numbered 02, 03 … one <section class="step" id="…"> per interactive topic -->
+
+<section class="step" id="for"><div class="shead"><span class="num">02</span><h2>Ten arguments for protection</h2><p>The syllabus lists ten arguments (Hoang pp. 455–461). Click each one to see the reasoning, a real example and the strongest counter-argument. The tag shows whether the case is mainly <b>economic</b> or mainly <b>political</b>.</p></div>
+  <div class="cards" id="forcards"></div>
+</section>
+
+<section class="step" id="against"><div class="shead"><span class="num">03</span><h2>Seven arguments against: PC CRIME</h2><p>Higher <b>P</b>rices · less <b>C</b>hoice · increased <b>C</b>osts · <b>R</b>etaliation · <b>I</b>nefficiency (no incentive to improve) · <b>M</b>isallocation of resources · reduced <b>E</b>xport competitiveness (Hoang Fig 29.6). Click a letter.</p></div>
+  <div class="lab lab2"><div id="pcfig"></div><div><h3 id="pct">Choose a letter</h3><p id="pcx" style="margin-top:8px" class="muted">Each argument against protection links back to the Chapter 28 diagrams.</p></div></div>
+</section>
+
+<section class="step" id="infant"><div class="shead"><span class="num">04</span><h2>Can an infant industry grow up?</h2><p>A new domestic industry’s average cost falls as it gains experience and scale (dynamic comparative advantage). A temporary tariff lets it survive while it learns. Set the policy and see whether the industry becomes competitive before protection ends.</p></div>
+  <div class="lab lab2"><div id="iffig"></div><div><label class="ctl" for="ift"><span>Tariff (% of the world price)</span><input type="range" id="ift" min="0" max="80" step="5" value="50"><output id="ifto"></output></label>
+   <label class="ctl" for="ify"><span>Years of protection</span><input type="range" id="ify" min="0" max="15" step="1" value="8"><output id="ifyo"></output></label>
+   <label class="ctl" style="display:flex;gap:8px;align-items:center" for="ifp"><input type="checkbox" id="ifp" checked style="width:18px;height:18px"><span style="color:var(--ink);font-weight:500">Performance targets: the tariff falls each year and support depends on export goals</span></label><dl class="read" id="ifread"></dl><p class="explain" id="ifx"></p><p class="muted" style="font-size:12.5px">Illustrative model: world price $10; domestic cost starts at $15 and falls 6% a year with performance targets, or 2% a year without them (X-inefficiency).</p></div></div>
+</section>
+
+<section class="step" id="jobs"><div class="shead"><span class="num">05</span><h2>“Protecting jobs”: what does each job cost?</h2><p>Protection can save jobs in the protected industry, but consumers pay higher prices and jobs may be lost elsewhere. Calculate the <b>cost to consumers per job saved</b>.</p></div>
+  <div class="lab lab2"><div id="jbfig"></div><div><div class="row" id="jbpre" style="margin-bottom:12px"></div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <label class="ctl" for="jbu" style="grid-template-columns:1fr"><span>Units bought per year (million)</span><input id="jbu" type="number" step="0.1"></label>
+    <label class="ctl" for="jbp" style="grid-template-columns:1fr"><span>Price rise per unit ($)</span><input id="jbp" type="number" step="1"></label>
+    <label class="ctl" for="jbs" style="grid-template-columns:1fr"><span>Jobs saved in protected industry</span><input id="jbs" type="number" step="100"></label>
+    <label class="ctl" for="jbl" style="grid-template-columns:1fr"><span>Jobs lost in user and export industries</span><input id="jbl" type="number" step="100"></label></div><dl class="read" id="jbread" style="margin-top:10px"></dl><p class="explain" id="jbx"></p></div></div>
+</section>
+
+<section class="step" id="war"><div class="shead"><span class="num">06</span><h2>Trade war: retaliation in action</h2><p>Each round, choose <b>free trade</b> or <b>impose tariffs</b>. Your rival copies whatever you did last round (tit-for-tat). Tariffs win a little once, but retaliation makes both countries poorer, as in the US–China trade war from 2018.</p></div>
+  <div class="lab lab2"><div id="twfig"></div><div><div class="row" style="margin-bottom:12px"><button class="btn" id="twfree">Free trade</button><button class="btn" id="twtar">Impose tariffs</button><button class="btn" id="twreset">Reset</button></div>
+   <div class="tblwrap"><table><thead><tr><th>Payoff (welfare)</th><th>Rival free trade</th><th>Rival tariffs</th></tr></thead><tbody><tr><td>You free trade</td><td>10 / 10</td><td>6 / 12</td></tr><tr><td>You tariffs</td><td>12 / 6</td><td>5 / 5</td></tr></tbody></table></div><dl class="read" id="twread" style="margin-top:10px"></dl><p class="explain" id="twx"></p></div></div>
+</section>
+
+<section class="step" id="sort"><div class="shead"><span class="num">07</span><h2>For or against?</h2><p>Each statement is an argument in the protection debate. Decide which side it supports.</p></div>
+  <div class="lab sorter"><div class="card"><div class="row" style="justify-content:space-between"><span class="pill" id="fan"></span><span class="score" id="fasc"></span></div><p id="faq"></p>
+   <div class="row"><button class="btn" data-fa="for">Argument FOR protection</button><button class="btn" data-fa="ag">Argument AGAINST protection</button></div><p class="fb" id="fafb"></p><div class="row"><button class="btn pri" id="fanext" hidden>Next card</button></div></div></div>
+</section>
+
+<section class="step" id="verdict"><div class="shead"><span class="num">08</span><h2>Build your evaluation</h2><p>Real policy is never “free trade or protection”: it is about <b>which industry, how much and for how long</b>. Describe a proposed measure and see which way the evidence leans. Then write the paragraph yourself.</p></div>
+  <div class="lab lab2"><div><div id="vdtog"></div></div><div><div id="vdfig"></div><p class="explain" id="vdx"></p></div></div>
+</section>
+<!-- /LAB SECTIONS -->
+
+<section class="step" id="cases"><div class="shead"><span class="num"></span><h2>Real-world cases</h2><p>Answer in your notebook, sketch the diagram, then open the model answer.</p></div><div class="cases" id="casebox"></div></section>
+
+<section class="step" id="quiz"><div class="shead"><span class="num"></span><h2>Check yourself</h2><p>Auto-marked multiple choice first, then quick-fire questions with model answers.</p><p class="score" id="mcqscore"></p></div><div class="quiz" id="mcqs"></div>
+  <h3 style="margin:30px 0 12px">Quick-fire checklist</h3><div class="quiz" id="qf"></div></section>
+
+<section class="step" id="mistakes"><div class="shead"><span class="num"></span><h2>Common mistakes to avoid</h2></div><div class="mist" id="mist"></div></section>
+
+<section class="step" id="exam"><div class="shead"><span class="num"></span><h2>Exam practice</h2><p>Plan each answer before opening the guide.</p></div><div class="cases" id="exambox"></div></section>
+
+<footer>Protection Debate Lab · based on the IB Economics guide (4.3 Arguments for and against trade control/protection) and Hoang, Wray &amp; Chakraborty, <i>Economics for the IB Diploma</i> (Hodder 2020), Chapter 29. Fig 29.6 (PC CRIME), Table 29.1. The infant-industry model, payoffs and verdict weights are illustrative; job-cost and case figures are approximate.</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+/* ============================ CONFIG ============================
+   NS     localStorage namespace, unique per lab (e.g. 'pedlab')
+   GOALS  [text, isHL]          TERMS [term, definition, isHL]
+   CASES  [title, context, [questions], [model answers]]
+   MCQ    [question, [4 options], correctIndex, explanation, isHL]
+   QF     [question, answer, isHL]          MI [mistake, correction]
+   EX     [paper label, question, [what a strong answer includes]]  (label containing 'HL' or 'Paper 3' = HL)
+================================================================== */
+const NS='protectiondebatelab';
+const GOALS=[['Explain the ten arguments for trade protection',0],['Explain the seven arguments against (PC CRIME)',0],['Distinguish economic from political arguments',0],['Use the Chapter 28 diagrams to support arguments',0],['Evaluate free trade versus protection for different stakeholders',0]];
+const TERMS=[['Infant (sunrise) industry','A new industry that could become competitive with time and scale but cannot yet compete with established foreign firms.',0],['Dynamic comparative advantage','Comparative advantage built over time through investment, learning and scale.',0],['National security','Protecting strategic industries (defence, energy, food, technology) to avoid dependence in a crisis.',0],['Dumping','Selling goods abroad below their cost of production, often with state support.',0],['Anti-dumping measures','Tariffs on dumped imports, allowed by the WTO if dumping and injury are shown.',0],['Unfair competition','The claim that foreign firms gain from subsidies or low standards, so protection “levels the playing field”.',0],['ELDC diversification','Protecting new industries so poor countries depend less on volatile primary exports.',0],['PC CRIME','The arguments against: Prices, Choice, Costs, Retaliation, Inefficiency, Misallocation, Export competitiveness.',0],['Retaliation','A country responds to barriers on its exports with barriers of its own.',0],['Trade war','An escalating series of reciprocal trade barriers that harms both sides.',0],['X-inefficiency','Costs higher than necessary because firms face little competition.',0],['Regressive effect','Tariffs take a larger share of low incomes.',0]];
+const CASES=[['Ethiopia’s infant garment and leather industries','Ethiopia is trying to move from coffee and other primary exports into manufacturing through industrial parks. Suppose the government proposes a 30% tariff on imported shoes for eight years, while coffee still earns about a third of export revenue.',['Which two arguments for protection apply?','Who loses from the tariff?','How could the policy be designed to work?'],['The infant-industry argument (factories need time to reach economies of scale) and ELDC diversification (less dependence on volatile, price-inelastic coffee prices).','Low-income consumers pay more for shoes (regressive); resources are misallocated in the short run; trading partners may retaliate; the industry may never grow up (X-inefficiency).','Make the tariff temporary and falling, tie support to export targets, and combine it with training and infrastructure. The judgement depends on whether a dynamic comparative advantage in footwear is realistic.']],
+['Anti-dumping duties on Chinese steel','The EU imposes anti-dumping duties on some Chinese steel products, arguing that state support lets Chinese firms sell below cost. EU car and construction firms buy large amounts of steel. China calls the duties disguised protectionism.',['What is the economic case for the duties?','Who loses?','Why is the right duty hard to set?'],['If dumped imports drive out efficient domestic producers, foreign firms could later raise prices. The WTO allows duties if dumping and injury are shown.','EU steel users (carmakers, builders) and their customers: increased costs and reduced export competitiveness (the C and E of PC CRIME).','The true cost of production, the size of the foreign subsidy and the elasticities are hard to measure, so a duty can over- or under-correct (Hoang pp. 458–459).']],
+['The US–China trade war','From 2018 the USA imposed tariffs on hundreds of billions of dollars of Chinese goods; China retaliated with tariffs on US soybeans, pork and cars (Hoang p. 463). US farmers lost sales and received billions of dollars in government support; studies found US importers and consumers paid most of the tariff cost.',['Which PC CRIME arguments does this illustrate?','Did the US trade deficit disappear?','Overall judgement?'],['Retaliation (soybeans), higher prices, less choice, increased costs for US manufacturers using Chinese inputs.','No: imports switched to Vietnam, Mexico and others (trade diversion). The current account reflects national saving and investment, not just tariffs.','Short-run gains for protected industries were outweighed by wider costs. National security concerns over technology remain a non-economic argument that some find persuasive.']],
+['Revenue tariffs in a small island economy','Palau had one of the world’s highest weighted mean tariffs, 34.6% (World Bank 2018, Hoang Table 29.1). Small island economies often have small income-tax bases and import most of what they consume.',['Why do such economies rely on tariffs for revenue?','Which imports should be taxed?','What are the drawbacks?'],['Tariffs are easy to collect at a few ports; income and sales taxes need administrative capacity.','Price-inelastic imports, especially luxuries or demerit goods (cars, alcohol): quantity falls little, so revenue stays high and the burden falls less on the poor.','Higher prices, less choice, a higher cost of living and dearer imported inputs; tariffs on food are regressive.']]];
+const MCQ=[['Which argument for protection depends on economies of scale and learning over time?',['National security','Infant industry','Government revenue','Health and safety'],1,'A new industry needs time to reach the scale of foreign rivals.',0],
+['Dumping is…',['Selling exports below the cost of production','Imposing a tariff on imports','Banning trade with a country','Subsidising domestic consumers'],0,'Often supported by foreign subsidies.',0],
+['Which is mainly a political rather than an economic argument?',['Anti-dumping','Infant industry','National security','ELDC diversification'],2,'It rests on strategic independence, not efficiency.',0],
+['In PC CRIME, “R” stands for…',['Revenue','Retaliation','Regulation','Recession'],1,'Other countries may respond with their own barriers.',0],
+['Protection can reduce export competitiveness because…',['Exports become cheaper','Tariffs on imported inputs raise domestic firms’ costs','Exchange rates always fall','Foreign demand rises'],1,'Higher input costs make exports dearer.',0],
+['Why are tariffs often regressive?',['They are paid only by the rich','Low-income households spend a larger share of income on traded goods','Firms pay them','They lower prices'],1,'They take a larger share of low incomes.',0],
+['A revenue tariff raises most money when imports have…',['Price-elastic demand','Price-inelastic demand','Perfectly elastic supply','No demand'],1,'Quantity falls little, so tariff × imports stays high.',0],
+['ELDCs may protect manufacturing mainly to…',['Increase dependence on coffee','Diversify away from volatile primary exports','Reduce government revenue','Lower domestic prices'],1,'Commodity prices are volatile and price inelastic.',0],
+['Using tariffs to cut a current account deficit is criticised because…',['It treats a symptom, not the causes of low competitiveness','It always works permanently','Exports rise automatically','It has no effect on imports'],0,'Retaliation, exchange rates and saving and investment matter more.',0],
+['X-inefficiency in protected firms means…',['Costs are minimised','Costs are higher than necessary because of weak competition','Firms export more','Prices fall'],1,'Little incentive to control costs or innovate.',0]];
+const QF=[['What is an infant (sunrise) industry?','A new industry that could become competitive with time and scale but cannot yet compete with established foreign firms.',0],['Define dumping.','Selling exports in a foreign market below the cost of production.',0],['Give one example of protection on health and safety grounds.','US restrictions on some Chinese smartphones and appliances (p. 457), or bans on poultry imports during bird flu.',0],['Why should a revenue tariff target price-inelastic imports?','Quantity falls only slightly, so tariff × imports stays high.',0],['Why might ELDCs protect manufacturing?','To diversify away from volatile, price-inelastic primary exports and build a new comparative advantage.',0],['What does PC CRIME stand for?','Higher Prices, less Choice, increased Costs, Retaliation, Inefficiency, Misallocation of resources, reduced Export competitiveness.',0],['Explain retaliation in one sentence.','A country responds to barriers against its exports by imposing its own barriers, which can escalate into a trade war.',0],['How can protection reduce export competitiveness?','Tariffs on imported inputs raise domestic firms’ costs, making their exports more expensive.',0],['Why are tariffs said to be regressive?','They take a larger share of the income of low-income households, who spend more of their income on traded goods.',0],['Give one real example of a trade war.','The US–China trade war from 2018, or the US–EU dispute that led to the 25% tariff on Scotch whisky.',0],['Name two evaluation criteria for judging protection.','Any two of: short run vs long run, affected stakeholders, type of good (externalities), size of the industry, likelihood of retaliation, political vs economic motive.',0]];
+const MI=[['“All arguments for protection are equally economic”','National security and some job claims are mainly political; infant industry and anti-dumping have a clearer economic basis.'],['“Protection saves jobs overall”','It may save jobs in the protected industry but cost jobs in industries that use its output, and in exporters hit by retaliation.'],['“Tariffs fix a current account deficit permanently”','They treat a symptom; retaliation and exchange-rate changes can cancel the effect.'],['“Infant industries automatically grow up”','Without time limits and pressure to improve, they may stay inefficient and dependent.'],['“Only consumers lose”','Importing firms, exporters, taxpayers (subsidies) and foreign producers in ELDCs lose too.'],['Hoang p. 459: “current account deficit = imports > exports”','That is a trade deficit. The current account also includes income and transfers (Chapter 32), and demand for a currency also comes from investment, remittances and speculation (Chapter 31).']];
+const EX=[['Paper 1 (a) · 10 marks','Explain how trade protection may support economically least developed countries (ELDCs).',['Infant-industry and diversification arguments: escaping dependence on volatile, price-inelastic primary exports.','Government revenue where tax systems are weak.','A tariff diagram showing domestic output rising.','Real examples (Ethiopia’s shoes and garments).']],
+['Paper 1 (b) · 15 marks','Using real-world examples, discuss the possible implications of trade protection for the balance of payments.',['In the short run imports may fall and the current account improve.','Retaliation cuts exports; dearer inputs reduce export competitiveness; trade diversion (US–China).','The deficit reflects saving, investment and competitiveness; exchange-rate effects.','A judgement on short run vs long run.']],
+['Paper 1 (a) · 10 marks','Explain two arguments against trade protection.',['Choose two from PC CRIME, e.g. misallocation of resources (welfare-loss triangles) and retaliation.','Use the Chapter 28 tariff diagram.','Real examples.']],
+['Paper 1 (b) · 15 marks','Using real-world examples, evaluate the view that protecting domestic jobs is a valid reason for imposing trade barriers.',['For: concentrated job losses hit regions hard; there are adjustment costs.','Against: a high cost per job saved (US washing machines, about $815,000 per job), jobs lost downstream and in exports, retaliation.','Alternatives: retraining, regional and supply-side policies.','A supported judgement.']],
+['Paper 2 · 15 marks','Discuss the possible economic outcomes for the United States and Scotland of the 25% US tariff on Scotch whisky.',['Scotland: lower export revenue, threat to jobs (about 10,000 direct, 40,000 supported) and rural communities.','USA: higher prices and less choice for consumers; gains for US whiskey producers; part of a retaliation dispute.','Elasticities, possible trade diversion, and the dispute resolution in 2021.','A judgement.']]];
+
+/* ============================ CORE (do not edit per chapter) ============================ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const st={get(k,d){try{const v=localStorage.getItem(NS+'.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(NS+'.'+k,JSON.stringify(v))}catch(e){}}};
+const f0=v=>Math.round(v).toLocaleString(), f1=v=>(Math.round(v*10)/10).toLocaleString(), f2=v=>(Math.round(v*100)/100).toLocaleString(), money=v=>(v<0?'−$':'$')+Math.round(Math.abs(v)).toLocaleString();
+const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tween(from,to,ms,cb){if(RM||document.hidden){cb(to);return}const t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;cb(from+(to-from)*e);if(k<1)requestAnimationFrame(f)})(t0)}
+const LC={s:'ls',s2:'ls',d:'ld',d2:'ld2',sm:'lm'};
+/* Plot({xmax,ymax,xl,yl,w?,h?,L?}) : fn(f,cls,label,lx) pts(points,cls) poly(points,cls) seg(x0,y0,x1,y1,cls) rect(x,y,cls)
+   bar(xCentre,width,height,cls,label) dot(x,y,cls) guide(x,y,xLabel,yLabel) xt(x,t) yt(y,t) text(x,y,t,cls,anchor) arrow(...) gap(x0,x1,y) svg(aria)
+   classes: d d2 s s2 sm ghost guide arrow | areas: spend (blue) area (orange) dwl (gold) | bars: bar, bar dim */
+function Plot(o){const W=o.w||540,H=o.h||380,L=o.L||54,R=26,T=24,B=44;const sx=x=>L+x/o.xmax*(W-L-R),sy=y=>H-B-y/o.ymax*(H-T-B);const out=[];
+ return{sx,sy,
+  fn(f,cls,label,lx){let d='',pen=false;for(let i=0;i<=160;i++){const x=o.xmax*i/160,y=f(x);if(!isFinite(y)||y<0||y>o.ymax){pen=false;continue}d+=(pen?'L':'M')+sx(x).toFixed(1)+' '+sy(y).toFixed(1)+' ';pen=true}if(d)out.push(`<path class="${cls}" d="${d}"/>`);if(label){const x=lx!=null?lx:o.xmax*.86,y=f(x);if(isFinite(y)&&y>=0&&y<=o.ymax)out.push(`<text class="${LC[cls]||'lg'}" x="${sx(x)+6}" y="${sy(y)-6}">${label}</text>`)}},
+  pts(p,cls){out.push(`<path class="${cls}" d="${p.map((q,i)=>(i?'L':'M')+sx(q[0]).toFixed(1)+' '+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  poly(p,cls){out.push(`<polygon class="${cls}" points="${p.map(q=>sx(q[0]).toFixed(1)+','+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  rect(x,y,cls){out.push(`<rect class="${cls}" x="${sx(0)}" y="${sy(y)}" width="${sx(x)-sx(0)}" height="${sy(0)-sy(y)}"/>`)},
+  bar(x,w,h,cls,lab){out.push(`<rect class="bar ${cls||''}" x="${sx(x-w/2)}" y="${sy(h)}" width="${sx(w)-sx(0)}" height="${sy(0)-sy(h)}"/>`);if(lab!=null)out.push(`<text class="note" x="${sx(x)}" y="${sy(h)-6}" text-anchor="middle">${lab}</text>`)},
+  seg(x0,y0,x1,y1,cls){out.push(`<path class="${cls}" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  dot(x,y,c){out.push(`<circle class="${c||'dot'}" cx="${sx(x)}" cy="${sy(y)}" r="5"/>`)},
+  guide(x,y,xl,yl){out.push(`<path class="guide" d="M${sx(0)} ${sy(y)} L${sx(x)} ${sy(y)} L${sx(x)} ${sy(0)}"/>`);if(yl)out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${yl}</text>`);if(xl)out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${xl}</text>`)},
+  xt(x,t){out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${t}</text>`)},
+  yt(y,t){out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${t}</text>`)},
+  text(x,y,t,c,a){out.push(`<text class="${c||'note'}" x="${sx(x)}" y="${sy(y)}" text-anchor="${a||'start'}">${t}</text>`)},
+  arrow(x0,y0,x1,y1){out.push(`<path class="arrow" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  gap(x0,x1,y){out.push(`<path class="gap" d="M${sx(x0)} ${sy(y)} L${sx(x1)} ${sy(y)}"/>`)},
+  svg(aria){return `<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria||''}"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0 0 L10 5 L0 10z"/></marker></defs>${out.join('')}<path class="axis" d="M${sx(0)} ${sy(o.ymax)} L${sx(0)} ${sy(0)} L${sx(o.xmax)} ${sy(0)}"/><text class="axl" x="${sx(0)-8}" y="${T-8}">${o.yl}</text><text class="axl" x="${sx(o.xmax)}" y="${H-8}" text-anchor="end">${o.xl}</text><text class="tick" x="${sx(0)-6}" y="${sy(0)+17}" text-anchor="end">0</text></svg>`}}}
+/* sorter('pre', [[card text, answerKey, explanation]], {key: label}, 'data-attr')  — needs ids pre+n/q/fb/next/sc */
+function sorter(pre,cards,labels,attr){let i=st.get(pre+'i',0),sc=st.get(pre+'s',[0,0]);
+ const draw=()=>{i%=cards.length;$('#'+pre+'n').textContent=`Card ${i+1} of ${cards.length}`;$('#'+pre+'q').textContent=cards[i][0];$('#'+pre+'fb').textContent='';$('#'+pre+'next').hidden=true;$$(`[${attr}]`).forEach(b=>b.disabled=false);$('#'+pre+'sc').textContent=`Score ${sc[0]} / ${sc[1]}`};
+ $$(`[${attr}]`).forEach(b=>b.addEventListener('click',()=>{const c=cards[i],ok=b.getAttribute(attr)===c[1];sc[1]++;if(ok)sc[0]++;st.set(pre+'s',sc);const fb=$('#'+pre+'fb');fb.className='fb '+(ok?'ok':'no');fb.textContent=(ok?'✓ Correct. ':'✗ Answer: '+labels[c[1]]+'. ')+c[2];$$(`[${attr}]`).forEach(x=>x.disabled=true);$('#'+pre+'next').hidden=false;$('#'+pre+'sc').textContent=`Score ${sc[0]} / ${sc[1]}`}));
+ $('#'+pre+'next').addEventListener('click',()=>{i++;st.set(pre+'i',i);draw()});draw()}
+/* stepper('pre', steps[[title, html]], draw(stepIndex)) — needs ids pre+t/x/prev/next/dots */
+function stepper(pre,steps,draw){let k=0;const go=()=>{k=Math.max(0,Math.min(steps.length-1,k));draw(k);$('#'+pre+'t').textContent=`Step ${k+1}: ${steps[k][0]}`;$('#'+pre+'x').innerHTML=steps[k][1];$('#'+pre+'dots').innerHTML=steps.map((_,i)=>`<i class="${i<=k?'on':''}"></i>`).join('');$('#'+pre+'prev').disabled=k===0;$('#'+pre+'next').disabled=k===steps.length-1};
+ $('#'+pre+'next').addEventListener('click',()=>{k++;go()});$('#'+pre+'prev').addEventListener('click',()=>{k--;go()});go();return{reset(){k=0;go()}}}
+let LVL=st.get('lvl','HL');const HASLVL=!!$('.lvl');
+function renderGoals(){const d=st.get('goals',[]);$('#goals').innerHTML=GOALS.map((g,i)=>g[1]&&LVL==='SL'?'':`<li><input type="checkbox" id="g${i}" ${d.includes(i)?'checked':''}><label for="g${i}">${g[0]} ${g[1]&&HASLVL?'<span class="badge b-hl">HL</span>':''}</label></li>`).join('');$$('#goals input').forEach(c=>c.addEventListener('change',()=>{const i=+c.id.slice(1);let v=st.get('goals',[]);v=c.checked?[...new Set([...v,i])]:v.filter(x=>x!==i);st.set('goals',v)}))}
+function renderCards(){$('#cards').innerHTML=TERMS.filter(t=>!(t[2]&&LVL==='SL')).map(t=>`<button class="flip" aria-label="${t[0]}: show definition"><div class="in"><div class="f"><b>${t[0]}</b><span class="hint">${t[2]&&HASLVL?'<span class="badge b-hl">HL</span> ':''}Click to flip</span></div><div class="b">${t[1]}</div></div></button>`).join('');$$('#cards .flip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on')))}
+function renderMCQ(){const list=MCQ.map((q,i)=>[q,i]).filter(x=>!(x[0][4]&&LVL==='SL'));
+ $('#mcqs').innerHTML=list.map(([q,i],k)=>`<div class="mcq" data-i="${i}"><p><b>${k+1}.</b> ${q[0]}</p><div class="opts">${q[1].map((o,j)=>`<button class="btn opt" data-j="${j}">${String.fromCharCode(65+j)}. ${o}</button>`).join('')}</div><p class="why" hidden></p></div>`).join('');
+ const sc=()=>{const a=st.get('mcq',{});const done=list.filter(x=>a[x[1]]!=null);const ok=done.filter(x=>a[x[1]]===x[0][2]).length;$('#mcqscore').innerHTML=done.length?`Score: ${ok} / ${list.length} <button class="btn" id="mcqreset" style="margin-left:10px;padding:4px 10px">Try again</button>`:'';const r=$('#mcqreset');if(r)r.addEventListener('click',()=>{st.set('mcq',{});renderMCQ()})};
+ $$('.mcq').forEach(el=>{const i=+el.dataset.i,q=MCQ[i];const mark=j=>{el.querySelectorAll('.opt').forEach(b=>{const k=+b.dataset.j;b.disabled=true;if(k===q[2])b.classList.add('ok');else if(k===j)b.classList.add('no')});const w=el.querySelector('.why');w.hidden=false;w.textContent=(j===q[2]?'✓ ':'✗ ')+q[3]};
+  const a=st.get('mcq',{});if(a[i]!=null)mark(a[i]);el.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{const a=st.get('mcq',{});a[i]=+b.dataset.j;st.set('mcq',a);mark(+b.dataset.j);sc()}))});sc()}
+function renderQF(){$('#qf').innerHTML=QF.filter(q=>!(q[2]&&LVL==='SL')).map(q=>`<div class="qa"><p><b>${q[0]}</b></p><details><summary>Show answer</summary><p>${q[1]}</p></details></div>`).join('')}
+function renderStatic(){
+ $('#casebox').innerHTML=CASES.map(c=>`<article class="case"><h3>${c[0]}</h3><p>${c[1]}</p><ol>${c[2].map(q=>`<li>${q}</li>`).join('')}</ol><details><summary>Model answer</summary><ol>${c[3].map(a=>`<li>${a}</li>`).join('')}</ol></details></article>`).join('');
+ $('#mist').innerHTML=MI.map(m=>`<div><b>✗ ${m[0]}</b>${m[1]}</div>`).join('');
+ $('#exambox').innerHTML=EX.map(e=>{const hl=/HL|Paper 3/.test(e[0]);return `<article class="case ${hl&&HASLVL?'hlonly':''}"><span class="badge ${hl?'b-hl':'b-sl'}">${e[0]}</span><p style="font-family:var(--serif);font-size:17px">${e[1]}</p><details><summary>What a strong answer includes</summary><ol>${e[2].map(x=>`<li>${x}</li>`).join('')}</ol></details></article>`}).join('')}
+function setLvl(l){LVL=HASLVL?l:'HL';st.set('lvl',LVL);$$('.lvl button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lvl===LVL));$$('.hlonly').forEach(e=>e.hidden=LVL==='SL');renderCards();renderGoals();renderMCQ();renderQF()}
+$$('.lvl button').forEach(b=>b.addEventListener('click',()=>setLvl(b.dataset.lvl)));
+
+/* LAB CODE: chapter-specific interactive sections. Each section = a draw() function + event listeners. */
+
+/* 02 arguments for */
+const FOR=[['Infant (sunrise) industries','econ','New firms need time to reach economies of scale; a temporary barrier lets a dynamic comparative advantage develop.','Hong Kong long protected its film industry with quotas on foreign films (p. 456).','The industry may never “grow up”; it is hard to pick winners; consumers pay in the meantime.'],
+['National security','pol','Strategic industries (defence, energy, food, technology) should not depend on possibly hostile suppliers.','Arms embargoes; restrictions on Chinese telecoms equipment in several countries.','Easily stretched to cover almost any industry; costly self-sufficiency.'],
+['Health and safety','econ','Imports that fail safety standards can harm consumers (an information failure).','US restrictions on some Chinese smartphones and appliances (p. 457); bans on poultry during bird flu.','Standards can be disguised protectionism if stricter for foreign firms.'],
+['Environmental standards','econ','Imports from countries with weak environmental rules can reflect negative externalities not paid for.','The EU’s Carbon Border Adjustment Mechanism charges for the carbon content of some imports.','Hard to measure; can punish poorer countries that cannot afford high standards.'],
+['Anti-dumping','econ','Imports sold below cost can drive out efficient domestic firms; the WTO allows anti-dumping duties.','China’s 2018 anti-dumping probe into chlorobutyl rubber (p. 458); EU duties on Chinese steel.','Proving dumping is hard; duties raise costs for firms using the product.'],
+['Unfair competition','pol','Foreign firms gain from subsidies, low taxes or weak labour laws, so protection “levels the playing field”.','Complaints over state support for Chinese solar panels and electric cars.','Low wages often reflect genuine comparative advantage, not unfairness.'],
+['Balance of payments correction','econ','Cutting imports can reduce a current account deficit in the short run.','Emergency import restrictions in countries facing currency crises.','Treats the symptom; retaliation and exchange rates undo it; Hoang mislabels a trade deficit as the current account (p. 459).'],
+['Government revenue','econ','Tariffs are easy to collect, especially in small or developing economies with weak tax systems.','Palau’s weighted mean tariff of 34.6% (Table 29.1).','Distorts trade and is regressive if applied to necessities.'],
+['Protection of jobs','pol','Protects employment in industries facing import competition, avoiding regional unemployment.','British Steel and Jaguar jobs kept after foreign takeovers (p. 460); US steel tariffs (2018).','Very high cost per job saved; jobs are lost in user and export industries.'],
+['ELDC diversification','econ','Poor countries over-specialised in volatile primary exports can build manufacturing behind barriers.','Ethiopia’s push into garments and leather; sub-Saharan Africa’s trade openness rose from 16% to 81% of GDP (p. 462).','Risk of inefficient industries; WTO rules limit protection; aid and FDI may be better.']];
+$('#forcards').innerHTML=FOR.map((f,i)=>`<button class="flip" style="height:300px" aria-label="${f[0]}"><div class="in"><div class="f"><b>${f[0]}</b><span><span class="badge ${f[1]==='econ'?'b-sl':'b-hl'}">${f[1]==='econ'?'Economic case':'Mainly political'}</span></span><span>${f[2]}</span><span class="hint">Click for example and counter-argument</span></div><div class="b"><b style="font-family:var(--serif)">Example</b>${f[3]}<b style="font-family:var(--serif);margin-top:8px">But…</b>${f[4]}</div></div></button>`).join('');
+$$('#forcards .flip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on')));
+
+/* 03 PC CRIME map */
+const PC=[['P','Higher prices','Tariffs and quotas raise the domestic price: consumers lose surplus (areas a + b + c + d in Chapter 28).','US washing-machine prices rose about 12% after the 2018 tariffs.'],['C','Less choice','Fewer foreign products reach the shelves.','Quotas on foreign films limit what audiences can watch (Hong Kong).'],['C','Increased costs','Protected inputs make production dearer for user industries.','US steel tariffs raised costs for carmakers and appliance makers.'],['R','Retaliation','Trading partners respond with their own barriers, possibly a trade war.','China’s tariffs on US soybeans after 2018.'],['I','Inefficiency','Shielded firms have little incentive to cut costs or innovate (X-inefficiency).','Long-protected industries often lag behind world best practice.'],['M','Misallocation','Resources move into industries without a comparative advantage: the welfare-loss triangles.','Domestic output Q1 → Q2 at a cost above the world price.'],['E','Export competitiveness','Dearer inputs and retaliation reduce exports.','Scotch whisky exports to the USA fell under the 25% tariff (2019–21).']];
+let pcSel=-1;
+function drawPc(){const W=520,H=360,cx=260,cy=180,R=130;let svg=`<circle cx="${cx}" cy="${cy}" r="52" fill="var(--tint)" stroke="var(--rule)"/><text x="${cx}" y="${cy-4}" text-anchor="middle" class="lm">Trade</text><text x="${cx}" y="${cy+14}" text-anchor="middle" class="lm">protection</text>`;
+ PC.forEach((p,i)=>{const a=-Math.PI/2+i*2*Math.PI/7,x=cx+R*Math.cos(a),y=cy+R*Math.sin(a);svg+=`<path class="guide" d="M${cx+52*Math.cos(a)} ${cy+52*Math.sin(a)} L${x-30*Math.cos(a)} ${y-30*Math.sin(a)}"/><g data-pc="${i}" style="cursor:pointer" tabindex="0" role="button" aria-label="${p[1]}"><circle cx="${x}" cy="${y}" r="30" fill="${i===pcSel?'var(--supply)':'var(--panel)'}" stroke="var(--supply)" stroke-width="2"/><text x="${x}" y="${y+7}" text-anchor="middle" style="font:700 22px var(--serif);fill:${i===pcSel?'var(--panel)':'var(--supply)'}">${p[0]}</text></g>`});
+ $('#pcfig').innerHTML=`<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="PC CRIME mind map">${svg}</svg>`;
+ $$('[data-pc]').forEach(g=>{const go=()=>{pcSel=+g.dataset.pc;const p=PC[pcSel];$('#pct').textContent=p[0]+': '+p[1];$('#pcx').classList.remove('muted');$('#pcx').innerHTML=p[2]+'<br><b>Example:</b> '+p[3];drawPc()};g.addEventListener('click',go);g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}})})}
+
+/* 04 infant industry */
+function drawIf(){const t=+$('#ift').value,y=+$('#ify').value,perf=$('#ifp').checked;$('#ifto').textContent=t+'%';$('#ifyo').textContent=y+' years';const PWw=10,c0=15,rate=perf?.06:.02;
+ const yrs=20,cost=k=>c0*Math.pow(1-rate,k),tarK=k=>k>=y?0:(perf?t*(1-k/Math.max(y,1)):t),pp=k=>PWw*(1+tarK(k)/100);
+ let surv=true,first=-1;for(let k=0;k<=yrs;k++){if(cost(k)<=PWw&&first<0)first=k;if(cost(k)>pp(k)){surv=false}}
+ const deadAt=(()=>{for(let k=0;k<=yrs;k++)if(cost(k)>pp(k))return k;return -1})();
+ const g=Plot({xmax:20.5,ymax:20,xl:'Years',yl:'$ per unit'});[0,5,10,15,20].forEach(v=>g.yt(v,'$'+v));[0,5,10,15,20].forEach(v=>g.xt(v,v));
+ if(y>0)g.poly([[0,PWw],...Array.from({length:y+1},(_,k)=>[k,pp(Math.min(k,y-.001))]),[y,PWw]],'spend');
+ g.seg(0,PWw,20.5,PWw,'sm');g.text(20.4,PWw-.7,'world price','lm','end');g.pts(Array.from({length:21},(_,k)=>[k,pp(k)]),'s2');g.pts(Array.from({length:21},(_,k)=>[k,cost(k)]),'d');g.text(.3,c0+.6,'domestic average cost','ld');
+ if(first>=0){g.dot(first,cost(first));g.text(first+.3,cost(first)-1,'competitive','note')}if(deadAt>=0){g.dot(deadAt,cost(deadAt),'dot2');g.text(deadAt+.3,cost(deadAt)+.8,'firms fail','note')}
+ $('#iffig').innerHTML=g.svg('Infant industry cost path');
+ const consumerCost=Array.from({length:y},(_,k)=>(pp(k)-PWw)).reduce((a,b)=>a+b,0);
+ $('#ifread').innerHTML=`<dt>Year the industry matches the world price</dt><dd>${first>=0?'year '+first:'not within 20 years'}</dd><dt>Survives the end of protection?</dt><dd>${deadAt<0?'Yes':'No: fails in year '+deadAt}</dd><dt>Extra paid by consumers per unit, summed over protection</dt><dd>$${f1(consumerCost)}</dd>`;
+ $('#ifx').innerHTML=deadAt<0?`<b>Success:</b> the industry grows up by year ${first} and survives without protection: a dynamic comparative advantage. Consumers still paid a total of $${f1(consumerCost)} per unit during protection; the evaluation question is whether the long-run gain was worth it.`:(!perf?'<b>X-inefficiency:</b> without performance targets, firms have little reason to cut costs, so costs fall too slowly and the industry fails, or needs protection for ever. This is the main criticism of the infant-industry argument.':'Protection is too low or too short: the industry cannot cover its costs before support ends. Lengthen or raise the protection, but every extra year costs consumers more.')}
+['ift','ify'].forEach(id=>$('#'+id).addEventListener('input',drawIf));$('#ifp').addEventListener('change',drawIf);
+
+/* 05 cost per job */
+const JP=[['US washers & dryers 2018 (approx.)',17.4,86,1800,0],['US steel tariffs (illustrative)',100,10,8000,20000],['Your own numbers',10,20,2000,500]];
+$('#jbpre').innerHTML=JP.map((p,i)=>`<button class="btn" data-jp="${i}">${p[0]}</button>`).join('');
+$$('[data-jp]').forEach(b=>b.addEventListener('click',()=>{const p=JP[+b.dataset.jp];['jbu','jbp','jbs','jbl'].forEach((id,k)=>$('#'+id).value=p[k+1]);drawJb()}));
+function drawJb(){const u=+$('#jbu').value,p=+$('#jbp').value,sv=+$('#jbs').value,ls=+$('#jbl').value;const cost=u*1e6*p,per=sv?cost/sv:0,net=sv-ls;
+ const g=Plot({xmax:2,ymax:Math.max(sv,ls,1)*1.25,xl:'',yl:'Jobs',h:280,L:66});g.bar(.6,.5,sv,'',f0(sv));g.bar(1.4,.5,ls,'dim',f0(ls));g.xt(.6,'Saved (protected industry)');g.xt(1.4,'Lost elsewhere');$('#jbfig').innerHTML=g.svg('Jobs saved and lost');
+ $('#jbread').innerHTML=`<dt>Extra paid by consumers per year</dt><dd>${money(cost)}</dd><dt><b>Cost per job saved</b></dt><dd>${sv?money(per):'—'}</dd><dt>Net jobs</dt><dd>${net>0?'+':''}${f0(net)}</dd>`;
+ $('#jbx').innerHTML=sv?`Each job saved costs consumers about <b>${money(per)}</b> a year, far more than the job pays in wages. `+(net<0?'Once jobs lost in user and export industries are counted, protection <b>destroys</b> jobs overall.':'Retraining or regional policy might protect workers far more cheaply.')+' The washing-machine preset uses published estimates (about 1,800 jobs and about $1.5bn a year for washers and dryers, so roughly $800,000 or more per job); treat them as approximate.':'Enter the number of jobs saved.'}
+['jbu','jbp','jbs','jbl'].forEach(id=>$('#'+id).addEventListener('input',drawJb));['jbu','jbp','jbs','jbl'].forEach((id,k)=>$('#'+id).value=JP[0][k+1]);
+
+/* 06 trade war (iterated game, rival plays tit-for-tat) */
+let tw=[],rivalNext='F';const PAY={FF:[10,10],FT:[6,12],TF:[12,6],TT:[5,5]};
+function playTw(me){const r=rivalNext,p=PAY[me+r];tw.push({me,r,you:p[0],them:p[1]});rivalNext=me;drawTw()}
+function drawTw(){const n=tw.length,ty=tw.reduce((a,x)=>a+x.you,0),tt=tw.reduce((a,x)=>a+x.them,0);const g=Plot({xmax:Math.max(10,n)+.5,ymax:13,xl:'Round',yl:'Welfare each round'});
+ [0,5,10].forEach(v=>g.yt(v,v));for(let i=1;i<=Math.max(10,n);i++)g.xt(i,i);g.seg(0,10,Math.max(10,n)+.5,10,'guide');g.text(.2,10.4,'both free trade = 10','note');
+ if(n){g.pts(tw.map((x,i)=>[i+1,x.you]),'d');g.pts(tw.map((x,i)=>[i+1,x.them]),'s');tw.forEach((x,i)=>{g.dot(i+1,x.you)})}g.text(.2,1.5,'— you   — rival','note');
+ $('#twfig').innerHTML=g.svg('Trade war rounds');const last=tw[n-1];
+ $('#twread').innerHTML=`<dt>Rounds played</dt><dd>${n}</dd><dt>Your total welfare</dt><dd>${ty}</dd><dt>Rival’s total</dt><dd>${tt}</dd><dt>If both had kept free trade</dt><dd>${10*n} each</dd><dt>Rival will play next</dt><dd>${rivalNext==='F'?'free trade':'tariffs'}</dd>`;
+ $('#twx').innerHTML=!n?'Choose a policy for round 1.':last.me==='T'&&last.r==='F'?'You gained this round (12 vs 6), but your rival will <b>retaliate</b> next round.':last.me==='T'&&last.r==='T'?'Both countries now have tariffs: welfare is <b>5 each</b>, far below the 10 each from free trade. This is a <b>trade war</b>; no one wins.':last.me==='F'&&last.r==='T'?'You returned to free trade while the rival retaliated (6 vs 12). If you stay with free trade, the rival copies you and both recover to 10.':'Both chose free trade: <b>10 each</b>, the best joint outcome. Over many rounds, cooperation (WTO rules) beats tariffs.'}
+$('#twfree').addEventListener('click',()=>playTw('F'));$('#twtar').addEventListener('click',()=>playTw('T'));$('#twreset').addEventListener('click',()=>{tw=[];rivalNext='F';drawTw()});
+
+/* 07 sorter */
+sorter('fa',[['“Our new solar-panel makers need ten years to reach the scale of Chinese rivals.”','for','The infant-industry argument.'],['“Tariffs on steel will raise costs for our car industry.”','ag','Increased costs and reduced export competitiveness (PC CRIME).'],['“We must not depend on imports for our military equipment.”','for','National security.'],['“Our partners will put tariffs on our soybeans in response.”','ag','Retaliation.'],['“Foreign firms are selling below cost thanks to state subsidies.”','for','Anti-dumping and unfair competition.'],['“Sheltered firms stop innovating and their costs creep up.”','ag','Inefficiency (X-inefficiency).'],['“Poor households will pay more for imported food.”','ag','Higher prices; tariffs are regressive.'],['“We need to rely less on cocoa exports, whose price swings wildly.”','for','ELDC diversification.'],['“Resources will flow into industries where we have no comparative advantage.”','ag','Misallocation of resources.'],['“Import duties are the easiest tax for our small island to collect.”','for','Government revenue.']],{for:'For protection',ag:'Against protection'},'data-fa');
+
+/* 08 verdict meter */
+const VD=[['tmp','The measure is temporary, with a clear end date',2],['str','The good is strategic (defence, energy, food security)',1],['dmp','Dumping or illegal subsidies abroad have been proven',2],['ext','Imports cause negative externalities (pollution, health)',2],['eldc','The country is an ELDC needing diversification',1],['ret','Retaliation is likely from major trading partners',-2],['inp','The product is an input used by many other firms',-2],['poor','Low-income households spend a lot on the product',-1],['alt','Cheaper alternatives exist (retraining, subsidies, supply-side policy)',-2],['lob','The main push comes from a powerful industry lobby',-1]];
+let vdOn=st.get('vd',{tmp:true,ret:true,inp:true});
+$('#vdtog').innerHTML=VD.map(v=>`<label class="ctl" style="display:flex;gap:8px;align-items:flex-start" for="vd_${v[0]}"><input type="checkbox" id="vd_${v[0]}" style="width:18px;height:18px;margin-top:3px"><span style="color:var(--ink);font-weight:500">${v[1]} <span class="badge ${v[2]>0?'b-sl':'b-hl'}">${v[2]>0?'for':'against'}</span></span></label>`).join('');
+VD.forEach(v=>{const c=$('#vd_'+v[0]);c.checked=!!vdOn[v[0]];c.addEventListener('change',()=>{vdOn[v[0]]=c.checked;st.set('vd',vdOn);drawVd()})});
+function drawVd(){const sc=VD.reduce((a,v)=>a+(vdOn[v[0]]?v[2]:0),0);const W=520,H=120,x=v=>40+(v+8)/16*(W-80);
+ $('#vdfig').innerHTML=`<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="Verdict meter"><rect x="${x(-8)}" y="50" width="${x(0)-x(-8)}" height="22" fill="var(--shade)"/><rect x="${x(0)}" y="50" width="${x(8)-x(0)}" height="22" fill="var(--shadeb)"/><text class="note" x="${x(-8)}" y="40">Free trade is better</text><text class="note" x="${x(8)}" y="40" text-anchor="end">Protection may be justified</text><path class="axis" d="M${x(0)} 44 L${x(0)} 78"/><circle cx="${x(Math.max(-8,Math.min(8,sc)))}" cy="61" r="10" class="dot"/><text class="tick" x="${x(Math.max(-8,Math.min(8,sc)))}" y="98" text-anchor="middle">${sc>0?'+':''}${sc}</text></svg>`;
+ const fors=VD.filter(v=>vdOn[v[0]]&&v[2]>0).map(v=>v[1].toLowerCase()),ags=VD.filter(v=>vdOn[v[0]]&&v[2]<0).map(v=>v[1].toLowerCase());
+ $('#vdx').innerHTML=`<b>Verdict: ${sc>=3?'protection may be justified':sc<=-3?'free trade is the better option':'finely balanced'}.</b> Paragraph scaffold: “Protection could be justified because ${fors.length?fors.join('; '):'(no supporting factors chosen)'}. However, ${ags.length?ags.join('; '):'there are few costs in this case'}. On balance… (short run vs long run, which stakeholders, how large and how long).” The weights are illustrative: the point is to name the factors and weigh them.`}
+/* /LAB CODE */
+
+$$('section.step').forEach(sec=>{const n=sec.querySelector('.num');const list=[...$$('section.step')].filter(x=>x.id!=='guide');if(n&&sec.id!=='guide'&&!n.dataset.fixed)n.textContent=String(list.indexOf(sec)+1).padStart(2,'0')});
+renderStatic();setLvl(LVL);
+/* LAB INIT: call each section's first draw here */
+drawPc();drawIf();drawJb();drawTw();drawVd();
+/* /LAB INIT */
+})();
+</script>
+<script id="cg-js">
+(function(){
+const CG={"title": "Chapter 29 · Arguments for and against trade control/protection", "intro": "Most economists argue that free trade raises world output and living standards, yet almost every government protects some industries. Chapter 29 sets out the ten syllabus arguments for protection and the seven arguments against it (PC CRIME). It then asks how to judge them: which are genuinely economic, which are political, and when protection might be justified.", "groups": [{"name": "Economic arguments for protection", "terms": [{"term": "Infant (sunrise) industry", "level": "SL/HL", "definition": "A new domestic industry that may develop a comparative advantage in the future but cannot yet compete with established foreign firms because it lacks economies of scale and experience.", "explanation": "Temporary protection lets the industry survive while costs fall through learning and scale. The argument is strongest when protection is time-limited and tied to performance targets; without them, firms may never become competitive.", "example": "Hong Kong protected its film industry with quotas on foreign films for decades (Hoang p. 456); South Korea nurtured its car and electronics industries behind barriers in the 1960s–80s.", "exam_tip": "Always add: protection must be temporary, or the industry may never 'grow up'.", "related": ["Dynamic comparative advantage", "X-inefficiency"]}, {"term": "Dynamic comparative advantage", "level": "SL/HL", "definition": "Comparative advantage that develops over time through investment, learning and scale.", "explanation": "Free trade can lock a country into its current (static) advantage, such as raw materials. Supporters of protection argue that a country can create new advantages in higher-value industries if given time.", "example": "Taiwan and South Korea moved from textiles into semiconductors over a few decades.", "exam_tip": "Contrast static and dynamic comparative advantage (link to Chapter 27).", "related": ["Infant (sunrise) industry"]}, {"term": "Health, safety and environmental standards", "level": "SL/HL", "definition": "Barriers that block imports which fail domestic safety, health or environmental rules.", "explanation": "Standards can correct information failures and negative externalities, protecting consumers and the environment. But they can also be designed to keep foreign firms out (disguised protectionism).", "example": "Bans on poultry imports during bird-flu outbreaks; the EU's Carbon Border Adjustment Mechanism charges for the carbon content of some imports.", "exam_tip": "Evaluate: genuine consumer protection or hidden protectionism?", "related": ["Anti-dumping measures"]}, {"term": "Dumping", "level": "SL/HL", "definition": "Selling goods in a foreign market below their cost of production (or below the price in the home market), often supported by government subsidies.", "explanation": "Dumping can drive efficient domestic firms out of business; once they have gone, the foreign supplier may raise prices. Consumers gain in the short run from cheap imports.", "example": "The EU has imposed anti-dumping duties on some Chinese steel products, arguing that state support allows below-cost pricing.", "exam_tip": "Note the difficulty of proving cost of production.", "related": ["Anti-dumping measures", "Unfair competition"]}, {"term": "Anti-dumping measures", "level": "SL/HL", "definition": "Tariffs or other barriers imposed on dumped imports, permitted under WTO rules if dumping and injury to domestic producers can be shown.", "explanation": "They have a stronger economic justification than most protection, but they raise costs for firms that use the product and are easily captured by domestic lobbies.", "example": "China opened an anti-dumping probe into chlorobutyl rubber from the USA, EU and Singapore in 2018 (Hoang p. 458).", "exam_tip": "Mention the losers: user industries such as carmakers and builders.", "related": ["Dumping"]}, {"term": "Government revenue", "level": "SL/HL", "definition": "Using tariffs as a source of tax income, especially where other taxes are hard to collect.", "explanation": "Tariffs are easy to collect at a few ports, which matters for small or developing economies with limited tax administration. Revenue is highest when import demand is price inelastic; taxing luxuries reduces the regressive effect.", "example": "Palau's weighted mean tariff was 34.6% (World Bank 2018; Hoang Table 29.1).", "exam_tip": "Link to PED: inelastic imports keep revenue high.", "related": ["Regressive effect of tariffs"]}, {"term": "Diversification (ELDCs)", "level": "SL/HL", "definition": "Widening the range of goods a country produces and exports, for example from primary commodities into manufacturing, to reduce dependence on a few volatile, price-inelastic exports.", "explanation": "Economically least developed countries are often over-specialised in primary goods whose prices swing sharply. Protecting new industries may help them diversify, but it risks inefficiency, and WTO rules limit what is allowed.", "example": "Ethiopia's industrial parks for garments and leather aim to reduce reliance on coffee, which still earns about a third of export revenue.", "exam_tip": "Combine with the infant-industry argument for ELDCs.", "related": ["Infant (sunrise) industry"]}]}, {"name": "Mainly political arguments", "terms": [{"term": "National security argument", "level": "SL/HL", "definition": "The claim that strategic industries (defence, energy, food, key technology) should be protected so that the country does not depend on potentially hostile suppliers in war or crisis.", "explanation": "It is mainly a political, not an efficiency, argument. It is easily stretched to cover industries that are not truly strategic, and self-sufficiency is costly.", "example": "Restrictions on Chinese telecoms equipment in several countries; arms embargoes (Hoang p. 457).", "exam_tip": "Say that it is a non-economic argument, which can still be valid.", "related": ["Embargo"]}, {"term": "Embargo", "level": "SL/HL", "definition": "A ban on trade with a particular country or in a particular good, used for security, political or health reasons.", "explanation": "The most extreme barrier: trade falls to zero, with large welfare costs for both sides.", "example": "US arms embargoes on several countries (Hoang p. 457); the US embargo on Cuba.", "exam_tip": "Link to national security and health and safety arguments.", "related": ["National security argument"]}, {"term": "Unfair competition", "level": "SL/HL", "definition": "The argument that foreign firms gain an advantage from subsidies, low taxes or weak labour and environmental rules, so protection 'levels the playing field'.", "explanation": "Some advantages come from genuine comparative advantage (lower wages reflecting lower productivity) rather than unfair practices, so this argument is often overused.", "example": "Complaints about state support for Chinese solar panels and electric vehicles.", "exam_tip": "Distinguish real subsidies from genuine comparative advantage.", "related": ["Dumping"]}, {"term": "Protection of jobs", "level": "SL/HL", "definition": "Using barriers to save jobs in industries facing import competition.", "explanation": "Job losses can devastate particular regions. But the cost per job saved is often very high, and jobs are lost in industries that use the protected product and in exporters hit by retaliation.", "example": "US tariffs on washing machines (2018) saved about 1,800 jobs while consumers paid about $1.5bn a year: roughly $800,000 or more per job (published estimates, approximate).", "exam_tip": "Compare protection with retraining and regional policy.", "related": ["Retaliation"]}, {"term": "Balance of payments correction", "level": "SL/HL", "definition": "Using protection to reduce import spending and so reduce a current account deficit.", "explanation": "It treats the symptom rather than the causes (low competitiveness, saving and investment). Retaliation, exchange-rate changes and trade diversion can cancel the effect. Hoang's p. 459 definition describes a trade deficit; the current account also includes income and transfers (Chapter 32).", "example": "Despite US tariffs on Chinese goods after 2018, imports switched to Vietnam and Mexico and the overall US deficit remained large.", "exam_tip": "Use 'symptom vs cause' in evaluation.", "related": ["Retaliation"]}]}, {"name": "Arguments against: PC CRIME", "terms": [{"term": "PC CRIME", "level": "SL/HL", "definition": "A mnemonic for the arguments against protection: higher Prices, less Choice, increased Costs, Retaliation, Inefficiency, Misallocation of resources, reduced Export competitiveness.", "explanation": "Each argument links to the Chapter 28 diagrams: consumers lose surplus through higher prices and less choice; resources are misallocated (the welfare-loss triangles); firms using protected inputs face higher costs and become less competitive abroad.", "example": "US washing-machine prices rose about 12% after the 2018 tariffs.", "exam_tip": "Pick two or three and explain each fully, rather than listing all seven.", "related": ["Misallocation of resources", "Retaliation"]}, {"term": "Misallocation of resources", "level": "SL/HL", "definition": "Protection moves resources into industries where the country lacks a comparative advantage, causing a net loss of social surplus.", "explanation": "Units produced at home under protection cost more than imports would. Those resources could produce more value elsewhere. The loss appears as the welfare-loss triangles.", "example": "A $2 tariff in the Chapter 28 model creates a welfare loss of $20m.", "exam_tip": "Refer to the welfare-loss triangle by name.", "related": ["PC CRIME"]}, {"term": "Retaliation", "level": "SL/HL", "definition": "A country responding to trade barriers imposed on its exports by introducing barriers of its own.", "explanation": "Retaliation harms the original country's exporters, so the gains from protecting one industry are offset by losses in others.", "example": "China responded to US tariffs from 2018 with tariffs on US soybeans, pork and cars (Hoang p. 463).", "exam_tip": "Show how retaliation can wipe out the benefits of protection.", "related": ["Trade war"]}, {"term": "Trade war", "level": "SL/HL", "definition": "An escalating series of reciprocal trade barriers between countries, which reduces trade and harms both sides.", "explanation": "Like a prisoner's dilemma, each country may gain by imposing tariffs alone, but if both do, both end up worse off than under free trade. International agreements (WTO) help keep cooperation.", "example": "The US–EU aircraft-subsidy dispute led to a 25% US tariff on Scotch whisky in 2019; Scotch exports to the USA fell sharply until the tariff was suspended in 2021.", "exam_tip": "Link to game theory (Chapter 14) for HL students.", "related": ["Retaliation"]}, {"term": "X-inefficiency", "level": "SL/HL", "definition": "Higher-than-necessary costs in firms that face little competition and so have little incentive to control costs or innovate.", "explanation": "Protection removes the competitive pressure that forces firms to improve. Long-protected industries often lag behind world best practice.", "example": "Industries protected for decades behind high tariffs in several economies before they liberalised trade.", "exam_tip": "Use as the main criticism of infant-industry protection.", "related": ["Infant (sunrise) industry"]}, {"term": "Regressive effect of tariffs", "level": "SL/HL", "definition": "Tariffs take a larger proportion of the income of low-income households, who spend a higher share of their income on traded goods.", "explanation": "Taxes on food, clothing and basic goods hit the poor hardest, raising equity concerns.", "example": "Tariffs on imported rice or clothing raise the cost of living most for low-income families.", "exam_tip": "Link to equity in evaluation.", "related": ["Government revenue"]}, {"term": "Export competitiveness", "level": "SL/HL", "definition": "Domestic firms' ability to sell successfully abroad; protection of inputs raises costs and can reduce it.", "explanation": "If a country protects steel, its carmakers pay more for steel and their exports become dearer. Retaliation further reduces export sales.", "example": "US steel tariffs raised costs for US carmakers and appliance makers.", "exam_tip": "This is the E in PC CRIME.", "related": ["PC CRIME"]}]}]};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const box=document.getElementById('cgbox'),q=document.getElementById('cgq'),cnt=document.getElementById('cgcount');
+const id=t=>'cg-'+t.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+box.innerHTML='<p style="max-width:72ch">'+esc(CG.intro)+'</p>'+CG.groups.map(g=>{const hl=g.terms.every(t=>t.level==='HL');return `<div class="cg-group ${hl?'hlonly cg-hl':''}"><h3>${esc(g.name)}</h3>`+g.terms.map(t=>`<details class="cg-item ${t.level==='HL'?'cg-hl':''}" id="${id(t.term)}" data-s="${esc((t.term+' '+t.definition+' '+t.explanation+' '+t.example).toLowerCase())}"><summary><b>${esc(t.term)}</b><span class="badge ${t.level==='HL'?'b-hl':'b-sl'}">${t.level}</span><span class="cg-def">${esc(t.definition)}</span></summary><div class="cg-body"><div><span class="lbl">Definition</span><p class="defn">${esc(t.definition)}</p></div><div><span class="lbl">Explanation</span><p>${esc(t.explanation)}</p></div><div class="cg-ex"><span class="lbl">Example</span><p>${esc(t.example)}</p></div><div class="cg-tip"><span class="lbl">Exam tip</span><p>${esc(t.exam_tip)}</p></div>${(t.related||[]).length?`<div><span class="lbl">Related terms</span><div class="cg-rel">${t.related.map(r=>`<button type="button" data-go="${id(r)}">${esc(r)}</button>`).join('')}</div></div>`:''}</div></details>`).join('')+'</div>'}).join('')+'<p class="cg-empty" id="cgnone" hidden>No terms match your search.</p>';
+function lvl(){let l='HL';try{l=JSON.parse(localStorage.getItem('protectiondebatelab.lvl'))||'HL'}catch(e){}return l}
+function apply(){const sl=document.querySelector('.lvl [data-lvl="SL"][aria-pressed="true"]')||lvl()==='SL';const s=(q.value||'').trim().toLowerCase();let n=0;
+ box.querySelectorAll('.cg-item').forEach(d=>{const show=!(sl&&d.classList.contains('cg-hl'))&&(!s||d.dataset.s.includes(s));d.hidden=!show;if(show)n++;if(s&&show)d.open=true});
+ box.querySelectorAll('.cg-group').forEach(g=>{g.hidden=![...g.querySelectorAll('.cg-item')].some(d=>!d.hidden)});
+ cnt.textContent=n+' term'+(n===1?'':'s');document.getElementById('cgnone').hidden=n>0}
+q.addEventListener('input',apply);
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(apply,0)));
+document.getElementById('cgopen').addEventListener('click',()=>box.querySelectorAll('.cg-item:not([hidden])').forEach(d=>d.open=true));
+document.getElementById('cgclose').addEventListener('click',()=>box.querySelectorAll('.cg-item').forEach(d=>d.open=false));
+box.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const t=document.getElementById(b.dataset.go);if(t){q.value='';apply();t.open=true;t.scrollIntoView({block:'center'})}});
+apply();
+})();
+</script>
+<script id="sb-js">
+(function(){
+const secs=[...document.querySelectorAll('section.step[id]')];
+const sb=document.createElement('aside');sb.className='sb';sb.setAttribute('aria-label','Lesson contents');
+const title=document.querySelector('.brand')?document.querySelector('.brand').childNodes[0].textContent.trim():document.title;
+const sub=document.querySelector('.brand span')?document.querySelector('.brand span').textContent:'';
+sb.innerHTML=`<a class="home" href="index.html">IB Economics</a><div class="sub">${title} · ${sub}</div><p class="lbl">In this lab</p>`+
+ secs.map(s=>{const n=s.querySelector('.num'),h=s.querySelector('h2');const t=h?h.childNodes[0].textContent.replace(/[:·].*$/,'').trim():s.id;return `<a class="it" href="#${s.id}" data-id="${s.id}"><span>${n?n.textContent:''}</span><span>${t}</span></a>`}).join('')+
+ `<p class="lbl">More</p><div class="links"><a href="plan/ch29.html">Teacher plan for this chapter</a><a href="index.html">All chapters</a></div>`;
+document.body.appendChild(sb);
+const btn=document.createElement('button');btn.className='sbbtn';btn.type='button';btn.textContent='☰ Contents';btn.setAttribute('aria-expanded','false');
+const bar=document.querySelector('.topin');if(bar)bar.insertBefore(btn,bar.firstChild);
+btn.addEventListener('click',()=>{sb.classList.toggle('open');btn.setAttribute('aria-expanded',sb.classList.contains('open'))});
+sb.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+function sync(){secs.forEach(s=>{const a=sb.querySelector(`[data-id="${s.id}"]`);if(a)a.hidden=s.hidden})}
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(sync,0)));sync();
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){sb.querySelectorAll('a.it').forEach(a=>a.classList.toggle('act',a.dataset.id===e.target.id))}}),{rootMargin:'-20% 0px -70% 0px'});secs.forEach(s=>io.observe(s))}
+})();
+</script>
