@@ -21,6 +21,7 @@ aligned to the IB Economics guide.
   - [Chapter 7: Elasticity of demand: price elasticity of demand (PED)](https://sevketgunduz.github.io/ib-economics/ch07-elasticity-lab.html)
   - [Chapter 8: Elasticity of demand: income elasticity of demand (YED)](https://sevketgunduz.github.io/ib-economics/ch08-income-elasticity-lab.html)
   - [Chapter 9: Elasticity of supply (PES)](https://sevketgunduz.github.io/ib-economics/ch09-supply-elasticity-lab.html)
+  - [Chapter 10: Role of government in microeconomics](https://sevketgunduz.github.io/ib-economics/ch10-intervention-lab.html)
 
 The [site's front page](https://sevketgunduz.github.io/ib-economics/) shows the whole course
 map, so the labs already written and those still to come are both visible.
