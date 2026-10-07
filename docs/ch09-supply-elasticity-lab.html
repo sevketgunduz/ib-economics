@@ -1,0 +1,456 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Supply Elasticity Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#f4f5f1; --panel:#ffffff; --panel2:#f8f9f5; --ink:#1a2029; --muted:#5a636c; --rule:#d9ddd3; --grid:#e7eae2;
+  --supply:#c0441f; --supply2:#e8876a; --demand:#2451c4; --good:#12795f; --bad:#b3261e; --hl:#6f3aa8; --hlbg:#efe6f8; --slbg:#e2efe9; --sl:#0d6b5c;
+  --tint:#eaf0fc; --focus:#2451c4; --shade:rgba(192,68,31,.14); --shadeb:rgba(36,81,196,.14);
+  --serif:"Source Serif 4",Georgia,serif; --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:16px/1.6 var(--sans);margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:0 80px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--ground);border-bottom:1px solid var(--rule)}
+.topin{max-width:1120px;margin:0 auto;padding:10px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{font:650 18px var(--serif);margin-right:auto}
+.brand span{font:600 12px var(--sans);color:var(--muted);margin-left:8px}
+nav.jump{display:flex;gap:2px;flex-wrap:wrap}
+nav.jump a{font:600 12.5px var(--sans);color:var(--muted);text-decoration:none;padding:6px 9px;border-radius:6px}
+nav.jump a:hover{background:var(--panel);color:var(--ink)}
+.lvl{display:flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden}
+.lvl button{font:700 12px var(--sans);border:0;background:var(--panel);color:var(--muted);padding:6px 12px;cursor:pointer}
+.lvl button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+h1,h2,h3{font-family:var(--serif);font-weight:650;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h1{font-size:40px;line-height:1.1} h2{font-size:27px;line-height:1.2} h3{font-size:19px}
+p{margin:0} .muted{color:var(--muted)}
+.eyebrow{font:700 11.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--demand)}
+.badge{display:inline-block;font:700 10.5px var(--sans);letter-spacing:.06em;padding:2px 7px;border-radius:4px;vertical-align:3px}
+.b-hl{background:var(--hlbg);color:var(--hl)} .b-sl{background:var(--slbg);color:var(--sl)}
+button:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+section.step{padding-top:56px;scroll-margin-top:70px}
+.shead{display:grid;gap:8px;max-width:72ch;margin-bottom:20px}
+.shead .num{font:600 13px var(--mono);color:var(--muted)}
+.hero{padding-top:44px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:36px;align-items:center}
+.hero p.lead{font-size:18px;margin-top:14px;max-width:56ch}
+.goals{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px}
+.goals ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.goals li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:15px}
+.goals input{width:18px;height:18px;accent-color:var(--good);margin-top:3px}
+.lab{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:20px}
+.lab2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+svg.g{width:100%;height:auto;display:block;border-radius:8px;background:var(--panel2);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px}
+svg .axis{stroke:var(--ink);stroke-width:1.7;fill:none} svg .axl{fill:var(--ink);font:700 12.5px var(--sans)} svg .tick{fill:var(--muted);font:11.5px var(--mono)}
+svg .guide{stroke:var(--muted);stroke-dasharray:4 4;fill:none}
+svg .s{stroke:var(--supply);stroke-width:3;fill:none;stroke-linecap:round} svg .s2{stroke:var(--supply2);stroke-width:2.2;fill:none;stroke-dasharray:7 5}
+svg .sm{stroke:var(--ink);stroke-width:3;fill:none} svg .d{stroke:var(--demand);stroke-width:3;fill:none}
+svg .ghost{stroke:var(--muted);stroke-width:1.6;stroke-dasharray:3 4;fill:none}
+svg text.ls{fill:var(--supply);font:700 13px var(--sans)} svg text.ld{fill:var(--demand);font:700 13px var(--sans)} svg text.lm{fill:var(--ink);font:700 13px var(--sans)} svg text.lg{fill:var(--muted);font:700 12px var(--sans)}
+svg .dot{fill:var(--ink)} svg .dot2{fill:var(--panel);stroke:var(--ink);stroke-width:1.8}
+svg .arrow{stroke:var(--good);stroke-width:2.4;fill:none;marker-end:url(#ah)} svg .ahead{fill:var(--good)}
+svg .bar{fill:var(--demand);opacity:.7} svg .bar.dim{fill:var(--supply);opacity:.75}
+svg .note{fill:var(--muted);font:600 11.5px var(--sans)} svg .area{fill:var(--shade)}
+.ctl{display:grid;grid-template-columns:1fr 70px;gap:2px 10px;align-items:center;font-size:14px;margin-bottom:12px}
+.ctl span{grid-column:1/-1;font-weight:600;color:var(--muted)} .ctl input{width:100%;accent-color:var(--demand)} .ctl output{font:600 13px var(--mono);text-align:right}
+.read{display:grid;grid-template-columns:1fr auto;gap:6px 14px;font-size:14.5px;margin:6px 0 0}
+.read dt{color:var(--muted)} .read dd{margin:0;font:600 13.5px var(--mono);text-align:right}
+.explain{margin-top:14px;padding:12px 14px;border-left:3px solid var(--demand);background:var(--tint);border-radius:0 8px 8px 0;font-size:14.5px}
+.btn{font:600 14px var(--sans);border:1px solid var(--rule);background:var(--panel);color:var(--ink);padding:9px 13px;border-radius:8px;cursor:pointer;text-align:left}
+.btn:hover{border-color:var(--demand)} .btn.pri{background:var(--ink);color:var(--ground);border-color:var(--ink)} .btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.flip{perspective:900px;height:170px;border:0;background:none;padding:0;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:6px}
+.flip .f{background:var(--panel);justify-content:space-between} .flip .f b{font:650 19px var(--serif)}
+.flip .b{background:var(--tint);transform:rotateY(180deg);font-size:14.5px;overflow:auto}
+.flip .hint{font-size:12px;color:var(--muted)}
+.events{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;margin:14px 0}
+.ev{display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:start}
+.ev .l{font:700 14px var(--mono);color:var(--demand);background:var(--tint);border-radius:6px;text-align:center;padding:2px 0}
+.ev[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.predict{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.fb{font-weight:600} .fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+.sorter .card{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px;display:grid;gap:10px}
+.sorter .card p{font-size:16.5px;font-family:var(--serif)}
+.score{font:600 14px var(--mono)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--grid);text-align:right;font-variant-numeric:tabular-nums}
+th{font:700 11.5px var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule)}
+td:first-child,th:first-child{text-align:left} tr.cur td{background:var(--tint);font-weight:700} tr.dmr td:nth-child(3){color:var(--supply)}
+.tblwrap{overflow-x:auto}
+.case{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;display:grid;gap:10px}
+.case details{border-top:1px solid var(--grid);padding-top:10px}
+.case summary,.qa summary{cursor:pointer;font-weight:700;color:var(--demand)}
+.case ol{margin:8px 0 0;padding-left:20px}
+.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px}
+.mcq{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;display:grid;gap:8px}
+.mcq .opts{display:grid;gap:6px}
+.mcq .opt{font:500 14.5px var(--sans)} .mcq .opt.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--panel))} .mcq .opt.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--panel))}
+.mcq .why{font-size:14px;color:var(--muted)}
+.quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.qa{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 16px}
+.qa details p{margin-top:6px;padding:8px 10px;background:var(--panel2);border-radius:6px}
+.mist{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.mist div{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;font-size:14.5px}
+.mist b{display:block;color:var(--bad);font-size:13px;letter-spacing:.03em;margin-bottom:4px} .mist i{display:block;color:var(--good);font-style:normal;font-weight:600;margin-top:6px}
+.stepper{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.dots{display:flex;gap:5px} .dots i{width:9px;height:9px;border-radius:50%;background:var(--rule)} .dots i.on{background:var(--demand)}
+.pill{font:600 12.5px var(--mono);padding:3px 9px;border-radius:99px;background:var(--panel2);border:1px solid var(--rule)}
+footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+.hlonly[hidden]{display:none!important}
+@media (max-width:860px){.hero,.lab2{grid-template-columns:1fr} h1{font-size:32px} nav.jump{display:none}}
+@media (max-width:520px){.wrap,.topin{padding-inline:16px} .lab{padding:14px} h1{font-size:28px} h2{font-size:23px}}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}}
+svg .d2{stroke:var(--demand);stroke-width:2.2;fill:none;stroke-dasharray:7 5} svg text.ld2{fill:var(--demand);font:700 12px var(--sans)} svg .spend{fill:var(--shadeb)}
+svg .dwl{fill:rgba(214,151,0,.38)} svg .gap{stroke:var(--supply);stroke-width:5;opacity:.45}
+.sorter .btn[aria-pressed="true"],.lab .btn[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.flip .f span:not(.hint){font-size:14.5px;color:var(--muted)}
+.ctl input[type=number]{font:15px var(--mono);padding:7px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink);width:100%}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px} @media (max-width:860px){.two{grid-template-columns:1fr}}
+</style>
+<style id="sb-css">
+aside.sb{position:fixed;top:0;left:0;bottom:0;width:250px;overflow:auto;background:var(--panel);border-right:1px solid var(--rule);padding:16px 12px 40px;z-index:15;font-size:13.5px}
+aside.sb .home{display:block;font:700 15px var(--serif);color:var(--ink);text-decoration:none}
+aside.sb .sub{color:var(--muted);font-size:12px;margin:2px 0 14px}
+aside.sb .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:12px 4px 6px}
+aside.sb a.it{display:grid;grid-template-columns:30px 1fr;gap:2px;padding:6px 8px;border-radius:6px;color:var(--ink);text-decoration:none;line-height:1.3}
+aside.sb a.it span:first-child{font:600 11.5px var(--mono);color:var(--muted);padding-top:1px}
+aside.sb a.it:hover{background:var(--panel2)} aside.sb a.it.act{background:var(--tint);font-weight:700}
+aside.sb .links a{display:block;padding:4px 8px;color:var(--demand);font-weight:600;text-decoration:none}
+.sbbtn{display:none}
+@media (min-width:1100px){header.top,.wrap{margin-left:250px} nav.jump{display:none!important}}
+@media (max-width:1099px){aside.sb{transform:translateX(-105%);transition:transform .2s;box-shadow:0 0 30px rgba(0,0,0,.25);width:84%;max-width:300px}
+ aside.sb.open{transform:none} nav.jump{display:none!important}
+ .sbbtn{display:inline-block;font:700 13px var(--sans);padding:6px 10px;border-radius:8px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);cursor:pointer;order:-1}}
+@media (prefers-reduced-motion:reduce){aside.sb{transition:none}}
+</style>
+
+<style id="cg-css">
+.cg-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.cg-tools input{flex:1;min-width:220px;max-width:420px;font:15px var(--sans);padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink)}
+.cg-group{margin-top:22px} .cg-group h3{margin-bottom:10px}
+.cg-item{background:var(--panel);border:1px solid var(--rule);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.cg-item summary{cursor:pointer;list-style:none;padding:14px 18px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:baseline}
+.cg-item summary::-webkit-details-marker{display:none}
+.cg-item summary b{font:650 18px var(--serif)} .cg-item summary .cg-def{grid-column:1/-1;color:var(--muted);font-size:14.5px}
+.cg-item[open] summary .cg-def{display:none}
+.cg-body{padding:0 18px 16px;display:grid;gap:10px}
+.cg-body .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+.cg-body .defn{font-weight:600}
+.cg-ex{background:var(--tint);border-radius:8px;padding:10px 12px}
+.cg-tip{border-left:3px solid var(--good);padding:6px 12px;background:var(--panel2);border-radius:0 8px 8px 0}
+.cg-rel{display:flex;gap:6px;flex-wrap:wrap} .cg-rel button{font:600 12.5px var(--sans);border:1px solid var(--rule);background:var(--panel2);color:var(--ink);border-radius:99px;padding:3px 10px;cursor:pointer}
+.cg-empty{color:var(--muted)}
+</style>
+
+
+
+
+
+
+
+
+
+
+<header class="top"><div class="topin">
+  <div class="brand">Supply Elasticity Lab <span>IB Economics 2.6 · Hoang Ch 9</span></div>
+  <nav class="jump" aria-label="Sections"><a href="#terms">Terms</a><a href="#guide">Guide</a><a href="#compare">Compare</a><a href="#calc">Calculate</a><a href="#ticcs">TICCS</a><a href="#time">Time</a><a href="#cases">Cases</a><a href="#quiz">Quiz</a><a href="#exam">Exam</a></nav>
+  <div class="lvl" role="group" aria-label="Level"><button data-lvl="HL">HL</button><button data-lvl="SL">SL</button></div>
+</div></header>
+
+<div class="wrap">
+<section class="hero">
+  <div><p class="eyebrow">Unit 2 · Microeconomics · Chapter 9</p><h1>Why can a cola factory respond in weeks, but house builders take years?</h1>
+  <p class="lead">Measure how quickly producers can respond to a price change, calculate PES from Hoang’s data, and build supply curves by switching the determinants on and off. Then see why cocoa and housing prices explode while app prices never move.</p>
+  <p class="muted" style="margin-top:12px;font-size:14px">Textbook: Hoang, Wray &amp; Chakraborty, pp. 111–120. HL material is marked <span class="badge b-hl">HL</span>; switch to SL at the top to hide it.</p></div>
+  <div class="goals"><p class="eyebrow" style="color:var(--muted)">By the end I can…</p><ul id="goals"></ul></div>
+</section>
+
+<section class="step" id="terms"><div class="shead"><span class="num">01</span><h2>Key terms: flip the cards</h2><p class="muted">Say the definition out loud first, then click to check.</p></div><div class="cards" id="cards"></div></section>
+<section class="step" id="guide"><div class="shead"><span class="num">01b</span><h2>Concept guide: every term explained</h2><p>A fuller explanation of each term in this chapter, with a worked real-world example and an exam tip. Open a term, read it, then close the page and explain it to a partner in your own words.</p></div>
+  <div class="cg-tools"><input id="cgq" type="search" placeholder="Search terms, examples…" aria-label="Search the concept guide"><button class="btn" id="cgopen">Open all</button><button class="btn" id="cgclose">Close all</button><span class="pill" id="cgcount"></span></div>
+  <div id="cgbox"></div></section>
+
+<!-- LAB SECTIONS: numbered 02, 03 … one <section class="step" id="…"> per interactive topic -->
+
+<section class="step" id="compare"><div class="shead"><span class="num">02</span><h2>Price elastic vs price inelastic supply</h2><p><b>Price elasticity of supply (PES)</b> measures how strongly quantity supplied responds to a change in price. Give the <b>same price rise</b> to a soft-drink maker and to house builders.</p></div>
+  <div class="lab"><label class="ctl" for="cmpp" style="max-width:420px"><span>Price rise (%)</span><input type="range" id="cmpp" min="0" max="50" step="5" value="20"><output id="cmppo"></output></label>
+  <div class="two"><div id="cmpa"></div><div id="cmpb"></div></div><p class="explain" id="cmpx"></p></div>
+</section>
+
+<section class="step" id="calc"><div class="shead"><span class="num">03</span><h2>Calculate PES</h2><p><b>PES = %ΔQs ÷ %ΔP</b>. Because of the law of supply, price and quantity supplied move in the <b>same</b> direction, so PES is <b>positive</b>.</p></div>
+  <div class="lab lab2"><div><div class="row" id="calcpre" style="margin-bottom:12px"></div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <label class="ctl" for="cp1" style="grid-template-columns:1fr"><span>Original price ($)</span><input id="cp1" type="number" step="0.01"></label>
+    <label class="ctl" for="cp2" style="grid-template-columns:1fr"><span>New price ($)</span><input id="cp2" type="number" step="0.01"></label>
+    <label class="ctl" for="cq1" style="grid-template-columns:1fr"><span>Original quantity supplied</span><input id="cq1" type="number" step="1"></label>
+    <label class="ctl" for="cq2" style="grid-template-columns:1fr"><span>New quantity supplied</span><input id="cq2" type="number" step="1"></label></div></div>
+   <div><dl class="read" id="calcread"></dl><p class="explain" id="calcx"></p></div></div>
+  <div class="lab" style="margin-top:16px"><h3>Working backwards: find the new quantity supplied</h3><p class="muted" style="margin:6px 0 10px">Hoang practice 9.1: PES = 3.0, price falls from $13 to $11.70, and 5,000 units were supplied.</p>
+   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
+    <label class="ctl" for="rp" style="grid-template-columns:1fr"><span>PES</span><input id="rp" type="number" step="0.1" value="3"></label>
+    <label class="ctl" for="rp1" style="grid-template-columns:1fr"><span>Original price ($)</span><input id="rp1" type="number" step="0.01" value="13"></label>
+    <label class="ctl" for="rp2" style="grid-template-columns:1fr"><span>New price ($)</span><input id="rp2" type="number" step="0.01" value="11.7"></label>
+    <label class="ctl" for="rq1" style="grid-template-columns:1fr"><span>Original quantity</span><input id="rq1" type="number" step="1" value="5000"></label></div><p class="explain" id="rx"></p></div>
+</section>
+
+<section class="step" id="degrees"><div class="shead"><span class="num">04</span><h2>Degrees of PES</h2><p>PES runs from <b>0</b> (perfectly inelastic) to <b>∞</b> (perfectly elastic). A handy rule for straight lines: a supply curve that cuts the <b>price</b> axis is elastic, one that cuts the <b>quantity</b> axis is inelastic, and <b>any</b> line through the origin has PES = 1.</p></div>
+  <div class="lab lab2"><div id="degfig"></div><div><div class="row" id="degbtns" style="margin-bottom:12px"></div><dl class="read" id="degread"></dl><p class="explain" id="degx"></p></div></div>
+</section>
+
+<section class="step" id="ticcs"><div class="shead"><span class="num">05</span><h2>Build a supply curve: TICCS</h2><p><b>T</b>ime · <b>I</b>nventory (ability to store) · <b>C</b>osts (how fast marginal cost rises) · <b>C</b>apacity (spare) · <b>S</b>ubstitution (mobility) of factors. Switch the conditions on and see how elastic supply becomes, and what happens when demand rises.</p></div>
+  <div class="lab lab2"><div id="tcfig"></div><div><div id="tctog"></div><dl class="read" id="tcread"></dl><p class="explain" id="tcx"></p><p class="muted" style="font-size:12.5px;margin-top:8px">Illustrative model: each condition multiplies a base PES of 0.2.</p></div></div>
+</section>
+
+<section class="step" id="time"><div class="shead"><span class="num">06</span><h2>Time: the most important determinant</h2><p>Right after a price rise, firms can hardly respond (<b>momentary</b> period). In the <b>short run</b> they can add workers and shifts. In the <b>long run</b> they can build factories and new firms can enter. Demand for fresh fruit rises sharply. Pick a time period.</p></div>
+  <div class="lab lab2"><div id="tmfig"></div><div><div class="row" style="margin-bottom:12px"><button class="btn" data-tm="0">Momentary (PES = 0)</button><button class="btn" data-tm="1">Short run (PES = 0.5)</button><button class="btn" data-tm="2">Long run (PES = 3)</button></div><dl class="read" id="tmread"></dl><p class="explain" id="tmx"></p></div></div>
+  <div class="lab sorter" style="margin-top:16px"><div class="card"><div class="row" style="justify-content:space-between"><span class="pill" id="ssn"></span><span class="score" id="sssc"></span></div><p id="ssq"></p>
+   <div class="row"><button class="btn" data-ss="el">Price elastic supply</button><button class="btn" data-ss="in">Price inelastic supply</button></div><p class="fb" id="ssfb"></p><div class="row"><button class="btn pri" id="ssnext" hidden>Next card</button></div></div></div>
+</section>
+
+<section class="step hlonly" id="primary"><div class="shead"><span class="num">07</span><h2>Primary commodities vs manufactured goods <span class="badge b-hl">HL</span></h2><p>Raw cocoa takes years to grow, rots if stored badly, and needs specific land and weather. Chocolate bars come off flexible factory lines and can be stockpiled. Raise demand for both by the same amount.</p></div>
+  <div class="lab lab2"><div id="prfig"></div><div><label class="ctl" for="prd"><span>Increase in demand (% at every price)</span><input type="range" id="prd" min="0" max="40" step="2" value="20"><output id="prdo"></output></label><dl class="read" id="prread"></dl><p class="explain" id="prx"></p><p class="muted" style="font-size:12.5px">Approximation: %ΔP ≈ demand shift ÷ (PES + PED), with PED = 0.5 for both goods and PES 0.1 for cocoa and 2 for chocolate bars (illustrative values).</p></div></div>
+</section>
+
+<section class="step" id="draw"><div class="shead"><span class="num">08</span><h2>Draw it like an examiner wants</h2><p>Build Hoang’s <b>relatively elastic</b> and <b>relatively inelastic</b> supply diagrams (Figs 9.2 and 9.4) step by step.</p></div>
+  <div class="lab lab2"><div id="drawfig"></div><div><h3 id="drawt"></h3><p id="drawx" style="margin-top:8px"></p><div class="stepper"><button class="btn" id="drawprev">← Back</button><button class="btn pri" id="drawnext">Next step →</button><div class="dots" id="drawdots"></div></div>
+  <div class="explain" style="margin-top:16px"><b>Label checklist:</b> axes Price (P) and Quantity supplied (Q) · S labelled “price elastic” or “price inelastic” · P₁, P₂, Q₁, Q₂ with dotted lines · the % changes · elastic S cuts the price axis, inelastic S cuts the quantity axis.</div></div></div>
+</section>
+<!-- /LAB SECTIONS -->
+
+<section class="step" id="cases"><div class="shead"><span class="num"></span><h2>Real-world cases</h2><p>Answer in your notebook, sketch the diagram, then open the model answer.</p></div><div class="cases" id="casebox"></div></section>
+
+<section class="step" id="quiz"><div class="shead"><span class="num"></span><h2>Check yourself</h2><p>Auto-marked multiple choice first, then quick-fire questions with model answers.</p><p class="score" id="mcqscore"></p></div><div class="quiz" id="mcqs"></div>
+  <h3 style="margin:30px 0 12px">Quick-fire checklist</h3><div class="quiz" id="qf"></div></section>
+
+<section class="step" id="mistakes"><div class="shead"><span class="num"></span><h2>Common mistakes to avoid</h2></div><div class="mist" id="mist"></div></section>
+
+<section class="step" id="exam"><div class="shead"><span class="num"></span><h2>Exam practice</h2><p>Plan each answer before opening the guide.</p></div><div class="cases" id="exambox"></div></section>
+
+<footer>Supply Elasticity Lab · based on the IB Economics guide (2.6 Elasticity of supply) and Hoang, Wray &amp; Chakraborty, <i>Economics for the IB Diploma</i> (Hodder 2020), Chapter 9. Figures used: 9.2–9.7. The TICCS model, the time-period curves and the primary-commodity values are illustrative; case figures are approximate.</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+/* ============================ CONFIG ============================
+   NS     localStorage namespace, unique per lab (e.g. 'pedlab')
+   GOALS  [text, isHL]          TERMS [term, definition, isHL]
+   CASES  [title, context, [questions], [model answers]]
+   MCQ    [question, [4 options], correctIndex, explanation, isHL]
+   QF     [question, answer, isHL]          MI [mistake, correction]
+   EX     [paper label, question, [what a strong answer includes]]  (label containing 'HL' or 'Paper 3' = HL)
+================================================================== */
+const NS='supplyelasticitylab';
+const GOALS=[['Define PES and calculate it from data',0],['Explain and draw the degrees of PES, including the axis rule',0],['Explain the determinants of PES (TICCS)',0],['Explain why supply is more elastic in the long run',0],['Use PES to explain why some prices are volatile',0],['Explain why primary commodities have lower PES than manufactured goods',1]];
+const TERMS=[['Price elasticity of supply (PES)','How responsive quantity supplied is to a change in price: PES = %ΔQs ÷ %ΔP (always positive).',0],['Price elastic supply','PES > 1: quantity supplied changes by a larger percentage than price.',0],['Price inelastic supply','PES < 1: quantity supplied changes by a smaller percentage than price.',0],['Perfectly inelastic supply','PES = 0: a vertical curve; quantity is fixed (stadium seats, an original painting).',0],['Perfectly elastic supply','PES = ∞: a horizontal curve; any quantity is supplied at the given price.',0],['Unit elastic supply','PES = 1: any straight-line supply curve through the origin.',0],['TICCS','Determinants of PES: Time, Inventory, Costs, Capacity, Substitution of factors.',0],['Spare capacity','Idle machines and workers, which let firms raise output quickly.',0],['Factor mobility','How easily resources can be moved between uses or places; more mobility means more elastic supply.',0],['Short run vs long run','Supply is more elastic in the long run, when all factors are variable and firms can enter.',0],['Primary commodities','Farm and mined products: long production times and perishability give low PES.',1]];
+const CASES=[['The 2023–24 cocoa price spike','Cocoa prices rose from about $2,500 a tonne in early 2023 to over $10,000 in April 2024, after disease and bad weather cut harvests in Côte d’Ivoire and Ghana, which grow around 60% of the world’s cocoa. New cocoa trees take three to five years to produce beans.',['Why did supply not respond to the price rise?','Show the market on a diagram.','(HL) Why is cocoa supply less elastic than chocolate-bar supply?'],['Time: new trees take years to bear fruit. There is little spare land or capacity, and beans cannot be stored indefinitely.','A steep supply curve shifting left, with fairly inelastic demand: price rises sharply and quantity falls only a little.','Chocolate makers can draw on stocks, change recipes and run factories longer, so their supply responds faster (Hoang pp. 119–120).']],
+['Housing in Vancouver','Average house prices in Vancouver roughly doubled between 2012 and 2022. A new apartment tower takes three to five years from planning to completion, and zoning rules limit the land available for dense housing.',['Is housing supply price elastic or inelastic?','Explain using two determinants.','How could government raise PES?'],['Price inelastic: big price rises lead to few extra homes in the short run.','Time (construction takes years) and factor immobility (land is fixed and zoned; skilled builders are scarce).','Relax zoning, speed up planning approvals and train construction workers, so that rising demand leads to more homes rather than higher prices.']],
+['Angry Birds and digital goods','Rovio’s Angry Birds sold for $0.99 a download and passed 2 billion downloads (Hoang p. 118). Each extra copy costs almost nothing to supply.',['What is the PES of the app?','Why does rising demand not raise the price?','Show it on a diagram.'],['Marginal cost of an extra download is close to zero and constant, so supply is perfectly price elastic (PES = ∞).','The firm can supply any quantity at $0.99, so a demand increase raises quantity only.','A horizontal S at $0.99; D₁ shifts right to D₂; quantity rises from Q₁ to Q₂ at the same price.']],
+['Face masks in 2020','When COVID-19 spread in early 2020, demand for surgical masks rose more than tenfold. In China, carmakers such as BYD and SAIC-GM-Wuling converted production lines to make masks, and daily output rose from about 20 million to over 100 million within about a month.',['Which determinants explain the rapid supply response?','How did PES change between January and March 2020?','Why did mask prices fall back later in 2020?'],['Factor mobility (car lines and workers switched to masks), spare capacity in idle factories, simple technology and storable output.','PES was very low at first (no spare mask capacity, a shortage of the special fabric), then rose sharply as new lines started: time matters.','Supply expanded so much that it caught up with demand, and prices fell back towards normal.']]];
+const MCQ=[['Price rises by 20% and quantity supplied rises by 5%. PES is…',['4','0.25','25','−0.25'],1,'5% ÷ 20% = 0.25: price inelastic.',0],
+['A vertical supply curve has PES of…',['0','1','∞','−1'],0,'Quantity supplied is fixed whatever the price.',0],
+['A straight-line supply curve through the origin has PES of…',['0','1, wherever it is','more than 1','less than 1'],1,'Any line through the origin is unit elastic (Hoang Fig 9.7).',0],
+['Supply is likely to be most elastic when firms…',['Have no spare capacity','Have plenty of spare capacity','Cannot store output','Face fast-rising costs'],1,'Idle machines and workers allow a quick increase in output.',0],
+['Which product is likely to have the most elastic supply?',['Original Picasso paintings','Seats at a stadium','Downloads of a mobile app','Fresh tuna'],2,'An extra download costs almost nothing: PES ≈ ∞.',0],
+['Why is supply more elastic in the long run?',['Demand falls','All factors can be changed and new firms can enter','Prices are fixed','Costs always fall'],1,'Time allows capacity to grow.',0],
+['PES = 2 and price rises by 4%. Quantity supplied…',['Rises by 2%','Rises by 8%','Falls by 8%','Rises by 0.5%'],1,'%ΔQs = 2 × 4% = 8%.',0],
+['A straight-line supply curve that cuts the price axis is…',['Price elastic','Price inelastic','Unit elastic','Perfectly inelastic'],0,'The axis rule: cuts the price axis means elastic.',0],
+['Canned meat has more elastic supply than fresh fish mainly because it…',['Is cheaper','Can be stored','Is a necessity','Has no substitutes'],1,'Stocks can be released quickly when the price rises.',0],
+['(HL) Primary commodities often have low PES because…',['Factories are flexible','Production periods are long and output is perishable','Demand is elastic','They are luxury goods'],1,'Growing seasons, mine development and perishability slow the supply response.',1]];
+const QF=[['Write the PES formula.','PES = %ΔQs ÷ %ΔP.',0],['Price rises 20%, Qs rises 5%. PES and type?','0.25: price inelastic.',0],['Draw perfectly inelastic supply and give an example.','A vertical line; e.g. seats in a stadium or an original painting.',0],['What shape is a unit elastic supply curve?','Any straight line through the origin.',0],['Which axis does a relatively elastic linear supply curve cut?','The price (vertical) axis.',0],['What does TICCS stand for?','Time, Inventory (ability to store), Costs (how fast they rise), Capacity (spare), Substitution (mobility) of factors.',0],['Why is supply more elastic in the long run?','All factors become variable and new firms can enter the industry.',0],['Why does spare capacity raise PES?','Firms can raise output quickly using idle machines and workers without large cost increases.',0],['Why is canned meat supply more elastic than fresh fish supply?','Canned meat can be stored and released when the price rises; fresh fish is perishable.',0],['PES = 2 and price rises 4%. Change in Qs?','Rises by 8%.',0],['Why did Angry Birds’ price not rise with demand?','Supply was perfectly elastic: extra downloads cost almost nothing, so any quantity could be supplied at $0.99.',0],['(HL) Give two reasons why primary commodities have low PES.','Long production periods (growing seasons, mine development) and perishable output that is hard to store; also specialised land and capital.',1]];
+const MI=[['“Price elastic supply means price up, supply up”','That is the law of supply. Elastic means the % change in Qs is larger than the % change in price (p. 112).'],['“PES can be negative”','Because of the law of supply, PES is positive.'],['“Only a 45° line through the origin has PES = 1”','Any straight line through the origin is unit elastic (Fig 9.7).'],['“A straight-line supply curve has constant PES”','PES varies along most straight lines; calling a curve relatively elastic or inelastic is acceptable (p. 115).'],['“Supply is less elastic in a recession”','It is usually more elastic, because firms have spare capacity (p. 117).'],['“Perfectly elastic supply means Qs drops to zero when the price changes”','Hoang’s chapter summary (p. 120) gets this wrong. Correct definition: producers will supply any quantity at the given price (PES = ∞), as on p. 115.']];
+const EX=[['Paper 1 (a) · 10 marks','Explain three determinants of the price elasticity of supply.',['Define PES.','Explain three of time, inventory, costs, capacity and factor mobility, each with the mechanism (why Qs can or cannot respond quickly).','Use a diagram contrasting elastic and inelastic supply.','Real examples: cocoa, housing, soft drinks, face masks.']],
+['Paper 1 (a) · 10 marks (HL)','Explain why the price elasticity of supply of primary commodities is generally lower than that of manufactured products.',['Long production periods (crops, trees, mines) vs flexible factory lines.','Perishable output and limited storage vs stockpiling of manufactured goods.','Specialised land and capital and dependence on weather vs mobile factors.','Diagram: steep vs flat supply and the resulting price volatility.']],
+['Paper 2 · 2 marks','The price of beans rises from $2.00 to $2.20 and quantity supplied rises from 10,000 to 10,500. Calculate the PES.',['%ΔP = +10%; %ΔQs = +5%.','PES = 5 ÷ 10 = 0.5 (price inelastic).']],
+['Paper 2 · 4 marks','Using a diagram, explain why a rise in demand for downloads of a mobile app may have no effect on its price.',['A horizontal S (perfectly elastic) at the app price; D₁ → D₂ with Q₁ → Q₂ at the same price [2].','The marginal cost of an extra download is near zero and constant, so any quantity can be supplied at that price [2].']],
+['Paper 2 · 15 marks','Using information from the text and your knowledge of economics, evaluate policies that could increase the price elasticity of supply of housing.',['Explain why housing PES is low (time, land, planning, skills).','Policies: zoning reform, faster planning, training construction workers, prefabrication, government building.','Evaluation: time lags, local opposition, environmental costs, cost to government; short run vs long run.','A supported judgement.']]];
+
+/* ============================ CORE (do not edit per chapter) ============================ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const st={get(k,d){try{const v=localStorage.getItem(NS+'.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(NS+'.'+k,JSON.stringify(v))}catch(e){}}};
+const f0=v=>Math.round(v).toLocaleString(), f1=v=>(Math.round(v*10)/10).toLocaleString(), f2=v=>(Math.round(v*100)/100).toLocaleString(), money=v=>(v<0?'−$':'$')+Math.round(Math.abs(v)).toLocaleString();
+const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tween(from,to,ms,cb){if(RM||document.hidden){cb(to);return}const t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;cb(from+(to-from)*e);if(k<1)requestAnimationFrame(f)})(t0)}
+const LC={s:'ls',s2:'ls',d:'ld',d2:'ld2',sm:'lm'};
+/* Plot({xmax,ymax,xl,yl,w?,h?,L?}) : fn(f,cls,label,lx) pts(points,cls) poly(points,cls) seg(x0,y0,x1,y1,cls) rect(x,y,cls)
+   bar(xCentre,width,height,cls,label) dot(x,y,cls) guide(x,y,xLabel,yLabel) xt(x,t) yt(y,t) text(x,y,t,cls,anchor) arrow(...) gap(x0,x1,y) svg(aria)
+   classes: d d2 s s2 sm ghost guide arrow | areas: spend (blue) area (orange) dwl (gold) | bars: bar, bar dim */
+function Plot(o){const W=o.w||540,H=o.h||380,L=o.L||54,R=26,T=24,B=44;const sx=x=>L+x/o.xmax*(W-L-R),sy=y=>H-B-y/o.ymax*(H-T-B);const out=[];
+ return{sx,sy,
+  fn(f,cls,label,lx){let d='',pen=false;for(let i=0;i<=160;i++){const x=o.xmax*i/160,y=f(x);if(!isFinite(y)||y<0||y>o.ymax){pen=false;continue}d+=(pen?'L':'M')+sx(x).toFixed(1)+' '+sy(y).toFixed(1)+' ';pen=true}if(d)out.push(`<path class="${cls}" d="${d}"/>`);if(label){const x=lx!=null?lx:o.xmax*.86,y=f(x);if(isFinite(y)&&y>=0&&y<=o.ymax)out.push(`<text class="${LC[cls]||'lg'}" x="${sx(x)+6}" y="${sy(y)-6}">${label}</text>`)}},
+  pts(p,cls){out.push(`<path class="${cls}" d="${p.map((q,i)=>(i?'L':'M')+sx(q[0]).toFixed(1)+' '+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  poly(p,cls){out.push(`<polygon class="${cls}" points="${p.map(q=>sx(q[0]).toFixed(1)+','+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  rect(x,y,cls){out.push(`<rect class="${cls}" x="${sx(0)}" y="${sy(y)}" width="${sx(x)-sx(0)}" height="${sy(0)-sy(y)}"/>`)},
+  bar(x,w,h,cls,lab){out.push(`<rect class="bar ${cls||''}" x="${sx(x-w/2)}" y="${sy(h)}" width="${sx(w)-sx(0)}" height="${sy(0)-sy(h)}"/>`);if(lab!=null)out.push(`<text class="note" x="${sx(x)}" y="${sy(h)-6}" text-anchor="middle">${lab}</text>`)},
+  seg(x0,y0,x1,y1,cls){out.push(`<path class="${cls}" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  dot(x,y,c){out.push(`<circle class="${c||'dot'}" cx="${sx(x)}" cy="${sy(y)}" r="5"/>`)},
+  guide(x,y,xl,yl){out.push(`<path class="guide" d="M${sx(0)} ${sy(y)} L${sx(x)} ${sy(y)} L${sx(x)} ${sy(0)}"/>`);if(yl)out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${yl}</text>`);if(xl)out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${xl}</text>`)},
+  xt(x,t){out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${t}</text>`)},
+  yt(y,t){out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${t}</text>`)},
+  text(x,y,t,c,a){out.push(`<text class="${c||'note'}" x="${sx(x)}" y="${sy(y)}" text-anchor="${a||'start'}">${t}</text>`)},
+  arrow(x0,y0,x1,y1){out.push(`<path class="arrow" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  gap(x0,x1,y){out.push(`<path class="gap" d="M${sx(x0)} ${sy(y)} L${sx(x1)} ${sy(y)}"/>`)},
+  svg(aria){return `<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria||''}"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0 0 L10 5 L0 10z"/></marker></defs>${out.join('')}<path class="axis" d="M${sx(0)} ${sy(o.ymax)} L${sx(0)} ${sy(0)} L${sx(o.xmax)} ${sy(0)}"/><text class="axl" x="${sx(0)-8}" y="${T-8}">${o.yl}</text><text class="axl" x="${sx(o.xmax)}" y="${H-8}" text-anchor="end">${o.xl}</text><text class="tick" x="${sx(0)-6}" y="${sy(0)+17}" text-anchor="end">0</text></svg>`}}}
+/* sorter('pre', [[card text, answerKey, explanation]], {key: label}, 'data-attr')  — needs ids pre+n/q/fb/next/sc */
+function sorter(pre,cards,labels,attr){let i=st.get(pre+'i',0),sc=st.get(pre+'s',[0,0]);
+ const draw=()=>{i%=cards.length;$('#'+pre+'n').textContent=`Card ${i+1} of ${cards.length}`;$('#'+pre+'q').textContent=cards[i][0];$('#'+pre+'fb').textContent='';$('#'+pre+'next').hidden=true;$$(`[${attr}]`).forEach(b=>b.disabled=false);$('#'+pre+'sc').textContent=`Score ${sc[0]} / ${sc[1]}`};
+ $$(`[${attr}]`).forEach(b=>b.addEventListener('click',()=>{const c=cards[i],ok=b.getAttribute(attr)===c[1];sc[1]++;if(ok)sc[0]++;st.set(pre+'s',sc);const fb=$('#'+pre+'fb');fb.className='fb '+(ok?'ok':'no');fb.textContent=(ok?'✓ Correct. ':'✗ Answer: '+labels[c[1]]+'. ')+c[2];$$(`[${attr}]`).forEach(x=>x.disabled=true);$('#'+pre+'next').hidden=false;$('#'+pre+'sc').textContent=`Score ${sc[0]} / ${sc[1]}`}));
+ $('#'+pre+'next').addEventListener('click',()=>{i++;st.set(pre+'i',i);draw()});draw()}
+/* stepper('pre', steps[[title, html]], draw(stepIndex)) — needs ids pre+t/x/prev/next/dots */
+function stepper(pre,steps,draw){let k=0;const go=()=>{k=Math.max(0,Math.min(steps.length-1,k));draw(k);$('#'+pre+'t').textContent=`Step ${k+1}: ${steps[k][0]}`;$('#'+pre+'x').innerHTML=steps[k][1];$('#'+pre+'dots').innerHTML=steps.map((_,i)=>`<i class="${i<=k?'on':''}"></i>`).join('');$('#'+pre+'prev').disabled=k===0;$('#'+pre+'next').disabled=k===steps.length-1};
+ $('#'+pre+'next').addEventListener('click',()=>{k++;go()});$('#'+pre+'prev').addEventListener('click',()=>{k--;go()});go();return{reset(){k=0;go()}}}
+let LVL=st.get('lvl','HL');const HASLVL=!!$('.lvl');
+function renderGoals(){const d=st.get('goals',[]);$('#goals').innerHTML=GOALS.map((g,i)=>g[1]&&LVL==='SL'?'':`<li><input type="checkbox" id="g${i}" ${d.includes(i)?'checked':''}><label for="g${i}">${g[0]} ${g[1]&&HASLVL?'<span class="badge b-hl">HL</span>':''}</label></li>`).join('');$$('#goals input').forEach(c=>c.addEventListener('change',()=>{const i=+c.id.slice(1);let v=st.get('goals',[]);v=c.checked?[...new Set([...v,i])]:v.filter(x=>x!==i);st.set('goals',v)}))}
+function renderCards(){$('#cards').innerHTML=TERMS.filter(t=>!(t[2]&&LVL==='SL')).map(t=>`<button class="flip" aria-label="${t[0]}: show definition"><div class="in"><div class="f"><b>${t[0]}</b><span class="hint">${t[2]&&HASLVL?'<span class="badge b-hl">HL</span> ':''}Click to flip</span></div><div class="b">${t[1]}</div></div></button>`).join('');$$('#cards .flip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on')))}
+function renderMCQ(){const list=MCQ.map((q,i)=>[q,i]).filter(x=>!(x[0][4]&&LVL==='SL'));
+ $('#mcqs').innerHTML=list.map(([q,i],k)=>`<div class="mcq" data-i="${i}"><p><b>${k+1}.</b> ${q[0]}</p><div class="opts">${q[1].map((o,j)=>`<button class="btn opt" data-j="${j}">${String.fromCharCode(65+j)}. ${o}</button>`).join('')}</div><p class="why" hidden></p></div>`).join('');
+ const sc=()=>{const a=st.get('mcq',{});const done=list.filter(x=>a[x[1]]!=null);const ok=done.filter(x=>a[x[1]]===x[0][2]).length;$('#mcqscore').innerHTML=done.length?`Score: ${ok} / ${list.length} <button class="btn" id="mcqreset" style="margin-left:10px;padding:4px 10px">Try again</button>`:'';const r=$('#mcqreset');if(r)r.addEventListener('click',()=>{st.set('mcq',{});renderMCQ()})};
+ $$('.mcq').forEach(el=>{const i=+el.dataset.i,q=MCQ[i];const mark=j=>{el.querySelectorAll('.opt').forEach(b=>{const k=+b.dataset.j;b.disabled=true;if(k===q[2])b.classList.add('ok');else if(k===j)b.classList.add('no')});const w=el.querySelector('.why');w.hidden=false;w.textContent=(j===q[2]?'✓ ':'✗ ')+q[3]};
+  const a=st.get('mcq',{});if(a[i]!=null)mark(a[i]);el.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{const a=st.get('mcq',{});a[i]=+b.dataset.j;st.set('mcq',a);mark(+b.dataset.j);sc()}))});sc()}
+function renderQF(){$('#qf').innerHTML=QF.filter(q=>!(q[2]&&LVL==='SL')).map(q=>`<div class="qa"><p><b>${q[0]}</b></p><details><summary>Show answer</summary><p>${q[1]}</p></details></div>`).join('')}
+function renderStatic(){
+ $('#casebox').innerHTML=CASES.map(c=>`<article class="case"><h3>${c[0]}</h3><p>${c[1]}</p><ol>${c[2].map(q=>`<li>${q}</li>`).join('')}</ol><details><summary>Model answer</summary><ol>${c[3].map(a=>`<li>${a}</li>`).join('')}</ol></details></article>`).join('');
+ $('#mist').innerHTML=MI.map(m=>`<div><b>✗ ${m[0]}</b>${m[1]}</div>`).join('');
+ $('#exambox').innerHTML=EX.map(e=>{const hl=/HL|Paper 3/.test(e[0]);return `<article class="case ${hl&&HASLVL?'hlonly':''}"><span class="badge ${hl?'b-hl':'b-sl'}">${e[0]}</span><p style="font-family:var(--serif);font-size:17px">${e[1]}</p><details><summary>What a strong answer includes</summary><ol>${e[2].map(x=>`<li>${x}</li>`).join('')}</ol></details></article>`}).join('')}
+function setLvl(l){LVL=HASLVL?l:'HL';st.set('lvl',LVL);$$('.lvl button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lvl===LVL));$$('.hlonly').forEach(e=>e.hidden=LVL==='SL');renderCards();renderGoals();renderMCQ();renderQF()}
+$$('.lvl button').forEach(b=>b.addEventListener('click',()=>setLvl(b.dataset.lvl)));
+
+/* LAB CODE: chapter-specific interactive sections. Each section = a draw() function + event listeners. */
+
+/* supply line with point elasticity e through (q0,p0): P = p0 + (q − q0)·p0/(q0·e) */
+const Sline=(e,q0,p0)=>q=>p0+(q-q0)*p0/(q0*e);
+/* 02 compare */
+function drawCmp(){const pc=+$('#cmpp').value;$('#cmppo').textContent='+'+pc+'%';const P1=5,Q1=60,P2=P1*(1+pc/100);
+ const mk=(e,title)=>{const Q2=Q1*(1+e*pc/100);const g=Plot({xmax:160,ymax:10,xl:'Quantity supplied',yl:'Price ($)',w:420,h:320});g.fn(Sline(e,Q1,P1),'s','S',e>1?140:70);
+  g.dot(Q1,P1,'dot2');g.guide(Q1,P1,'Q₁','P₁');if(pc){g.dot(Q2,P2);g.guide(Q2,P2,'Q₂','P₂')}return [`<p class="eyebrow" style="margin-bottom:6px">${title}</p>`+g.svg(title),Q2]};
+ const a=mk(2.5,'Soft drinks (spare factory capacity)'),b=mk(0.25,'New housing (takes years to build)');$('#cmpa').innerHTML=a[0];$('#cmpb').innerHTML=b[0];
+ $('#cmpx').innerHTML=pc?`A <b>${pc}%</b> price rise makes soft-drink firms raise output by <b>${f0((a[1]-Q1)/Q1*100)}%</b> (PES = <b>2.5, price elastic</b>), because they can run extra shifts on idle lines. House builders manage only <b>${f1((b[1]-Q1)/Q1*100)}%</b> more homes (PES = <b>0.25, price inelastic</b>), because land, permits and construction take years.`:'Move the slider to raise both prices.'}
+$('#cmpp').addEventListener('input',drawCmp);
+
+/* 03 calculator */
+const PRE=[['Fig 9.2',10,11.5,100,250],['Fig 9.4',10,14,100,110],['Fig 9.3 (p. 113)',25,30,20000,50000],['Beans (9.3)',2,2.2,10000,10500],['Murtagh watches (9.4)',300,250,95,85]];
+$('#calcpre').innerHTML=PRE.map((p,i)=>`<button class="btn" data-pre="${i}">${p[0]}</button>`).join('');
+$$('[data-pre]').forEach(b=>b.addEventListener('click',()=>{const p=PRE[+b.dataset.pre];['cp1','cp2','cq1','cq2'].forEach((id,k)=>$('#'+id).value=p[k+1]);drawCalc()}));
+function drawCalc(){const p1=+$('#cp1').value,p2=+$('#cp2').value,q1=+$('#cq1').value,q2=+$('#cq2').value;if(!p1||!q1)return;
+ const dp=(p2-p1)/p1*100,dq=(q2-q1)/q1*100,e=dp?dq/dp:NaN;const pm=v=>(v>0?'+':v<0?'−':'')+f2(Math.abs(v));
+ const type=!isFinite(e)?'—':e<0?'check the data: PES should be positive':e>1.0001?'price elastic':e<0.9999?'price inelastic':'unit elastic';
+ $('#calcread').innerHTML=`<dt>%ΔP = (${f2(p2)} − ${f2(p1)}) ÷ ${f2(p1)} × 100</dt><dd>${pm(dp)}%</dd><dt>%ΔQs = (${f0(q2)} − ${f0(q1)}) ÷ ${f0(q1)} × 100</dt><dd>${pm(dq)}%</dd><dt>PES = %ΔQs ÷ %ΔP</dt><dd>${isFinite(e)?f2(e):'—'}</dd><dt>Classification</dt><dd>${type}</dd>`;
+ $('#calcx').innerHTML=isFinite(e)?`PES = <b>${f2(e)}</b>: supply is <b>${type}</b>. `+(e>1?'Producers can expand or cut output easily, for example with spare capacity or stocks.':e>=0?'Producers find it hard to change output quickly, for example because of time, fixed land or specialised skills.':''):'Enter two different prices.'}
+['cp1','cp2','cq1','cq2'].forEach(id=>$('#'+id).addEventListener('input',drawCalc));['cp1','cp2','cq1','cq2'].forEach((id,k)=>$('#'+id).value=PRE[0][k+1]);
+function drawRev(){const e=+$('#rp').value,p1=+$('#rp1').value,p2=+$('#rp2').value,q1=+$('#rq1').value;if(!p1)return;const dp=(p2-p1)/p1*100,dq=e*dp,q2=q1*(1+dq/100);
+ $('#rx').innerHTML=`%ΔP = (${f2(p2)} − ${f2(p1)}) ÷ ${f2(p1)} × 100 = <b>${f2(dp)}%</b>. %ΔQs = PES × %ΔP = ${f2(e)} × ${f2(dp)}% = <b>${f2(dq)}%</b>. New Qs = ${f0(q1)} × ${f2(1+dq/100)} = <b>${f0(q2)} units</b>.`}
+['rp','rp1','rp2','rq1'].forEach(id=>$('#'+id).addEventListener('input',drawRev));
+
+/* 04 degrees: PES at q for P = a + b·q is (a + b·q)/(b·q) */
+const DG=[['pi','Perfectly inelastic','0','Quantity is fixed: no extra can be supplied at any price.','Seats in a stadium, an original painting (Hoang Fig 9.5).'],['ri','Relatively inelastic','< 1','A straight line cutting the <b>quantity</b> axis: % change in Qs is smaller than % change in price.','Housing, cocoa, specialist surgeons.'],['ue','Unit elastic','= 1','<b>Any</b> straight line through the origin, whatever its slope (S₁, S₂ and S₃ all have PES = 1; Fig 9.7).','Theoretical case.'],['re','Relatively elastic','> 1','A straight line cutting the <b>price</b> axis: % change in Qs is greater than % change in price.','Soft drinks, T-shirts, canned food.'],['pe','Perfectly elastic','∞','Producers will supply <b>any quantity</b> at the given price (Fig 9.6). (The summary on Hoang p. 120 defines this wrongly.)','App downloads, e-books (Hoang p. 118).']];
+let dg='re';$('#degbtns').innerHTML=DG.map(d=>`<button class="btn" data-dg="${d[0]}">${d[1]}</button>`).join('');
+$$('[data-dg]').forEach(b=>b.addEventListener('click',()=>{dg=b.dataset.dg;drawDeg()}));
+function drawDeg(){const d=DG.find(x=>x[0]===dg);$$('[data-dg]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.dg===dg));const g=Plot({xmax:10,ymax:10,xl:'Quantity supplied',yl:'Price'});let at='—';
+ if(dg==='pi'){g.seg(5,0,5,9.5,'s');g.text(5.2,9,'S','ls')}else if(dg==='pe'){g.seg(0,5,10,5,'s');g.text(8.8,5.4,'S','ls')}
+ else if(dg==='ue'){[[2,'S₁'],[1,'S₂'],[.5,'S₃']].forEach(([m,l])=>g.fn(q=>m*q,'s',l,m===2?4.4:m===1?8.6:9.3));at='1 on every line'}
+ else if(dg==='ri'){g.fn(q=>2*q-6,'s','S',7.6);g.dot(5,4);at=f2((-6+2*5)/(2*5));g.text(3.1,.5,'cuts Q axis','note')}
+ else{g.fn(q=>3+.5*q,'s','S',9);g.dot(5,5.5);at=f2((3+.5*5)/(.5*5));g.text(.3,3.5,'cuts P axis','note')}
+ $('#degfig').innerHTML=g.svg(d[1]+' supply');$('#degread').innerHTML=`<dt>Type</dt><dd>${d[1]}</dd><dt>PES</dt><dd>${d[2]}</dd><dt>PES at the marked point</dt><dd>${at}</dd><dt>Example</dt><dd style="font-family:var(--sans);font-weight:500">${d[4]}</dd>`;$('#degx').innerHTML=d[3]}
+
+/* 05 TICCS builder: base PES 0.2 × factors; demand rises by 2 at every quantity */
+const TC=[['t','Long run: time to build capacity and for new firms to enter',3],['i','Output can be stored (inventory)',2],['c','Marginal cost rises slowly as output grows',1.8],['p','Spare capacity: idle machines and workers',2],['m','Factors are mobile: workers and machines can switch products',1.6]];
+let tcOn=st.get('tc',{});
+$('#tctog').innerHTML=TC.map(t=>`<label class="ctl" style="display:flex;gap:8px;align-items:flex-start" for="tc_${t[0]}"><input type="checkbox" id="tc_${t[0]}" style="width:18px;height:18px;margin-top:3px"><span style="color:var(--ink);font-weight:500">${t[1]}</span></label>`).join('');
+TC.forEach(t=>{const c=$('#tc_'+t[0]);c.checked=!!tcOn[t[0]];c.addEventListener('change',()=>{tcOn[t[0]]=c.checked;st.set('tc',tcOn);drawTc()})});
+function eqAfter(e){const k=.1/e;const q=(7+50*k)/(.1+k);return [q,12-.1*q]}
+function drawTc(){let e=.2;TC.forEach(t=>{if(tcOn[t[0]])e*=t[2]});e=Math.min(e,8);const [q2,p2]=eqAfter(e);
+ const g=Plot({xmax:120,ymax:14,xl:'Quantity',yl:'Price ($)'});g.fn(q=>10-.1*q,'ghost','D₁',100);g.fn(q=>12-.1*q,'d','D₂',110);g.fn(Sline(e,50,5),'s','S',Math.min(115,50+50*e*.9));
+ g.dot(50,5,'dot2');g.guide(50,5,'Q₁','P₁');g.dot(q2,p2);g.guide(q2,p2,'Q₂','P₂');$('#tcfig').innerHTML=g.svg('Supply with chosen determinants');
+ const n=Object.values(tcOn).filter(Boolean).length,dP=(p2-5)/5*100,dQ=(q2-50)/50*100;
+ $('#tcread').innerHTML=`<dt>Conditions switched on</dt><dd>${n} of 5</dd><dt>PES</dt><dd>${f2(e)}</dd><dt>Demand rises: change in price</dt><dd>+${f1(dP)}%</dd><dt>Change in quantity</dt><dd>+${f1(dQ)}%</dd>`;
+ $('#tcx').innerHTML=(e>=0.8&&e<=1.5)?`Supply is close to <b>unit elastic</b> (PES ${f2(e)}): the rise in demand is split roughly evenly between a <b>higher price</b> (+${f1(dP)}%) and <b>more output</b> (+${f1(dQ)}%). Switch on more conditions to make supply more elastic.`:e<1?`Supply is <b>price inelastic</b> (PES ${f2(e)}): the rise in demand shows up mostly as a <b>higher price</b> (+${f1(dP)}%) and little extra output. Think cocoa or housing.`:`Supply is <b>price elastic</b> (PES ${f2(e)}): producers expand output easily, so the rise in demand shows up mostly as <b>more output</b> (+${f1(dQ)}%) and only a small price rise (+${f1(dP)}%).`}
+
+/* 06 time periods */
+const TM=[[0,'Momentary'],[0.5,'Short run'],[3,'Long run']];let tm=1;
+$$('[data-tm]').forEach(b=>b.addEventListener('click',()=>{tm=+b.dataset.tm;drawTm()}));
+function drawTm(){$$('[data-tm]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.tm===tm));const g=Plot({xmax:120,ymax:14,xl:'Quantity of fresh fruit',yl:'Price ($)'});
+ g.fn(q=>10-.1*q,'ghost','D₁',100);g.fn(q=>12-.1*q,'d','D₂',110);TM.forEach(([e,l],k)=>{if(e===0)g.seg(50,0,50,13,k===tm?'s':'ghost');else g.fn(Sline(e,50,5),k===tm?'s':'ghost',null);});
+ g.text(51,13.2,'momentary','note');g.text(73,13.2,'short run','note','middle');g.text(116,7.3,'long run','note','end');
+ const e=TM[tm][0];const [q2,p2]=e===0?[50,7]:eqAfter(e);g.dot(50,5,'dot2');g.dot(q2,p2);g.guide(q2,p2,'Q₂','P₂');$('#tmfig').innerHTML=g.svg('Supply in different time periods');
+ $('#tmread').innerHTML=`<dt>Period</dt><dd>${TM[tm][1]}</dd><dt>PES</dt><dd>${e}</dd><dt>Price</dt><dd>$5 → $${f2(p2)} (+${f1((p2-5)/5*100)}%)</dd><dt>Quantity</dt><dd>50 → ${f1(q2)} (+${f1((q2-50)/50*100)}%)</dd>`;
+ $('#tmx').innerHTML=tm===0?'In the <b>momentary</b> period growers can sell only what is already picked: supply is vertical, so the whole demand increase becomes a <b>40% price rise</b>.':tm===1?'In the <b>short run</b> growers can hire pickers and pick earlier, but cannot plant new orchards: quantity rises a little, and price still rises a lot.':'In the <b>long run</b> new orchards are planted and new growers enter: supply is elastic, so quantity rises a lot and the price rise is small. This is why <b>time</b> is the most important determinant of PES.'}
+sorter('ss',[['Cola from a factory running one shift a day','el','Spare capacity: more shifts can be added quickly.'],['New homes in a city with strict zoning','in','Time and fixed land: building takes years.'],['Cocoa beans','in','Trees take 3–5 years to produce beans.'],['Mobile app downloads','el','Extra copies cost almost nothing: PES ≈ ∞.'],['Fresh fish','in','Cannot be stored for long, and catches depend on boats and seasons.'],['Canned soup','el','Can be stored and released when the price rises.'],['Original Van Gogh paintings','in','A fixed quantity: PES = 0 (Hoang p. 114).'],['Plain T-shirts','el','Mobile factors: sewing lines can switch from other clothes.'],['Heart surgeons','in','Training takes over a decade: occupational immobility.'],['Bread from a bakery with idle ovens','el','Spare capacity and fast production.']],{el:'Price elastic supply',in:'Price inelastic supply'},'data-ss');
+
+/* 07 primary vs manufactured (HL) */
+function drawPrim(){const x=+$('#prd').value;$('#prdo').textContent='+'+x+'%';const ped=.5,pc=[.1,2],pr=pc.map(e=>x/(e+ped)),qr=pc.map((e,k)=>e*pr[k]);
+ const g=Plot({xmax:4,ymax:80,xl:'',yl:'Change (%)',h:300,L:56});[0,20,40,60,80].forEach(v=>g.yt(v,v));
+ g.bar(.6,.5,Math.min(pr[0],79),'dim',f0(pr[0])+'%');g.bar(1.2,.5,qr[0],'',f0(qr[0])+'%');g.bar(2.6,.5,pr[1],'dim',f0(pr[1])+'%');g.bar(3.2,.5,Math.min(qr[1],79),'',f0(qr[1])+'%');
+ g.xt(.9,'Raw cocoa (PES 0.1)');g.xt(2.9,'Chocolate bars (PES 2)');g.text(.1,76,'■ price  ■ quantity','note');$('#prfig').innerHTML=g.svg('Price and quantity response');
+ $('#prread').innerHTML=`<dt>Cocoa: price / quantity</dt><dd>+${f0(pr[0])}% / +${f1(qr[0])}%</dd><dt>Chocolate bars: price / quantity</dt><dd>+${f0(pr[1])}% / +${f1(qr[1])}%</dd>`;
+ $('#prx').innerHTML=x?`The same ${x}% rise in demand pushes the cocoa price up about <b>${f0(pr[0])}%</b>, with almost no extra output. Chocolate makers raise output by <b>${f0(qr[1])}%</b> with only a ${f0(pr[1])}% price rise. <b>Why cocoa PES is low:</b> long growing periods (3–5 years for new trees), perishability and limited storage, specialised land and dependence on weather. Manufacturers have flexible lines, stocks and mobile factors (Hoang pp. 119–120). Low PES (and low PED) make commodity prices volatile.`:'Move the slider to raise demand.'}
+$('#prd').addEventListener('input',drawPrim);
+
+/* 08 draw builder: Fig 9.2 (+15% price → +150% Qs) and Fig 9.4 (+40% price → +10% Qs), both through (40, $10) */
+stepper('draw',[['Axes first','Price (P) on the vertical axis, Quantity supplied (Q) on the horizontal axis.'],['A relatively elastic supply curve','A fairly flat S that <b>cuts the price axis</b>. Mark P₁ = $10 and Q₁ = 40.'],['Raise the price by 15%','P₂ = $11.50. Quantity supplied rises by 150% to Q₂ = 100. PES = 150 ÷ 15 = <b>10</b> (Fig 9.2).'],['A relatively inelastic supply curve','Now a steep S through the same point that <b>cuts the quantity axis</b>.'],['Raise the price by 40%','P₂ = $14. Quantity supplied rises by only 10% to 44. PES = 10 ÷ 40 = <b>0.25</b> (Fig 9.4). Label each curve with its PES.']],k=>{
+ const g=Plot({xmax:120,ymax:16,xl:'Quantity supplied (Q)',yl:'Price (P)'});
+ if(k>=1){g.fn(q=>9+.025*q,'s','S (elastic, PES 10)',85);g.dot(40,10);g.guide(40,10,'Q₁','P₁')}
+ if(k>=2){g.dot(100,11.5);g.guide(100,11.5,'Q₂','')}
+ if(k>=3){g.fn(q=>q-30,'s2','S (inelastic, PES 0.25)',44.5)}
+ if(k>=4){g.dot(44,14);g.guide(44,14,'','$14')}
+ $('#drawfig').innerHTML=g.svg('Elastic and inelastic supply')});
+/* /LAB CODE */
+
+$$('section.step').forEach(sec=>{const n=sec.querySelector('.num');const list=[...$$('section.step')].filter(x=>x.id!=='guide');if(n&&sec.id!=='guide'&&!n.dataset.fixed)n.textContent=String(list.indexOf(sec)+1).padStart(2,'0')});
+renderStatic();setLvl(LVL);
+/* LAB INIT: call each section's first draw here */
+drawCmp();drawCalc();drawRev();drawDeg();drawTc();drawTm();drawPrim();
+/* /LAB INIT */
+})();
+</script>
+<script id="cg-js">
+(function(){
+const CG={"title": "Chapter 9 · Elasticity of supply (PES)", "intro": "Price elasticity of supply measures how quickly and how much producers can change their output when the price changes. It explains why a rise in demand sends some prices soaring (cocoa, housing, concert seats) while others hardly move (soft drinks, app downloads), and why time is the most important factor of all.", "groups": [{"name": "Measuring PES", "terms": [{"term": "Price elasticity of supply (PES)", "level": "SL/HL", "definition": "The responsiveness of quantity supplied to a change in the good's price: PES = %ΔQs ÷ %ΔP.", "explanation": "Because of the law of supply, price and quantity supplied move in the same direction, so PES is positive. A value above 1 means producers can respond strongly; below 1 means they struggle to change output. PES depends mainly on how easily firms can change production, which is why time is so important.", "example": "The price of beans rises from $2.00 to $2.20 (+10%) and quantity supplied from 10,000 to 10,500 (+5%), so PES = 0.5 (Hoang practice 9.3).", "exam_tip": "Show %ΔQs and %ΔP before dividing. %ΔQs goes on top.", "related": ["Price elastic supply", "Price inelastic supply"]}, {"term": "Price elastic supply", "level": "SL/HL", "definition": "PES > 1: the percentage change in quantity supplied is greater than the percentage change in price.", "explanation": "Producers can raise output quickly and cheaply, for example because they have spare capacity, stocks or flexible factors. A straight-line supply curve that cuts the price axis is price elastic.", "example": "Price rises 15% and quantity supplied rises 150%: PES = 10 (Hoang Fig 9.2). Soft-drink makers can add shifts on idle production lines.", "exam_tip": "Elastic supply does NOT just mean 'price up, supply up'; that is the law of supply.", "related": ["Price inelastic supply", "Unused (spare) capacity"]}, {"term": "Price inelastic supply", "level": "SL/HL", "definition": "0 < PES < 1: the percentage change in quantity supplied is smaller than the percentage change in price.", "explanation": "Producers find it hard to change output quickly: production takes a long time, inputs are specialised, or output cannot be stored. A straight-line supply curve that cuts the quantity axis is price inelastic. Rising demand then shows up mainly as higher prices.", "example": "Price rises 40% and quantity supplied rises 10%: PES = 0.25 (Hoang Fig 9.4). New apartment towers in Vancouver take three to five years to complete.", "exam_tip": "Link inelastic supply to price volatility and shortages.", "related": ["Price elastic supply", "Time period"]}]}, {"name": "Degrees of PES", "terms": [{"term": "Perfectly price inelastic supply", "level": "SL/HL", "definition": "PES = 0: quantity supplied is fixed whatever the price; shown by a vertical supply curve.", "explanation": "Nothing extra can be supplied, at least in the period considered, so any change in demand changes only the price. This links to the rationing function of price (Chapter 5).", "example": "Seats in a stadium for one match, or an original Van Gogh painting (Hoang p. 114).", "exam_tip": "Draw a vertical line labelled S (PES = 0).", "related": ["Perfectly price elastic supply"]}, {"term": "Perfectly price elastic supply", "level": "SL/HL", "definition": "PES = ∞: producers will supply any quantity at the given price, but none below it; shown by a horizontal supply curve.", "explanation": "This happens when extra units cost the same to produce however many are made, so a change in demand changes only the quantity, not the price. Hoang's chapter summary on p. 120 defines it wrongly as quantity falling to zero; use the definition on p. 115.", "example": "Rovio's Angry Birds at $0.99 a download: over 2 billion downloads, and the price never had to rise (Hoang p. 118).", "exam_tip": "Draw a horizontal line labelled S (PES = ∞).", "related": ["Perfectly price inelastic supply"]}, {"term": "Unit elastic supply", "level": "SL/HL", "definition": "PES = 1: the percentage change in quantity supplied equals the percentage change in price; any straight-line supply curve through the origin.", "explanation": "Every straight line from the origin has PES = 1 at every point, whatever its slope, because the ratio of quantity to price is constant along it.", "example": "Hoang Fig 9.7 shows three supply curves of different slopes, all starting at the origin and all unit elastic.", "exam_tip": "Not only the 45° line: any line through the origin.", "related": ["Price elasticity of supply (PES)"]}]}, {"name": "Determinants of PES (TICCS)", "terms": [{"term": "Time period", "level": "SL/HL", "definition": "Supply is more elastic in the long run, when all factors are variable and new firms can enter, than in the short run.", "explanation": "In the momentary period output is fixed; in the short run firms can add workers or shifts but not new capital; in the long run they can build capacity and new firms can enter. Time is the most important determinant of PES.", "example": "When cocoa prices quadrupled in 2023–24, farmers could not respond quickly because new cocoa trees take three to five years to bear fruit.", "exam_tip": "Always say whether you mean the short run or the long run.", "related": ["Primary commodities (supply)"]}, {"term": "Ability to store (inventory)", "level": "SL/HL", "definition": "Firms that can hold stocks of finished goods can release them quickly when the price rises, so their supply is more elastic.", "explanation": "Storable, non-perishable products can be stockpiled and sold when prices are high. Perishable goods must be sold quickly, so supply cannot respond to price changes.", "example": "Canned meat versus fresh fish (Hoang p. 117).", "exam_tip": "Link to perishability for agricultural goods.", "related": ["Time period"]}, {"term": "Rate at which costs increase", "level": "SL/HL", "definition": "If marginal cost rises slowly as output expands, firms can raise output without needing much higher prices, so supply is elastic; if marginal cost rises quickly, supply is inelastic.", "explanation": "When extra output needs overtime pay, scarce raw materials or less efficient machines, costs rise fast and firms need a large price rise to make extra output worthwhile.", "example": "A factory with plenty of cheap inputs can expand easily; a mine that must dig deeper for each extra tonne faces sharply rising costs.", "exam_tip": "Link to marginal cost (Chapter 4, HL).", "related": ["Unused (spare) capacity"]}, {"term": "Unused (spare) capacity", "level": "SL/HL", "definition": "Idle resources, such as unused machinery or workers; the more spare capacity, the more elastic supply is.", "explanation": "With idle machines and staff, firms can expand output quickly without large extra costs. Supply is usually more elastic in a recession, when many firms have spare capacity (Hoang Top tip, p. 117).", "example": "In early 2020 Chinese carmakers such as BYD used idle production lines to make face masks; daily mask output rose from about 20 million to over 100 million in roughly a month.", "exam_tip": "A recession usually raises PES; do not say it lowers it.", "related": ["Mobility of factors of production"]}, {"term": "Mobility of factors of production", "level": "SL/HL", "definition": "How easily and cheaply factors of production can be switched between uses or locations; greater mobility makes supply more elastic.", "explanation": "If workers and machines can switch products quickly, firms can respond to price changes. Geographical immobility (it is hard to move) and occupational immobility (it is hard to retrain) reduce PES.", "example": "A clothing factory can switch lines from shirts to T-shirts within days; heart surgeons take more than a decade to train.", "exam_tip": "Name the type of immobility (geographical or occupational).", "related": ["Geographical and occupational immobility"]}, {"term": "Geographical and occupational immobility", "level": "SL/HL", "definition": "Barriers to moving labour between regions (geographical) or between jobs and skills (occupational), which reduce PES.", "explanation": "Housing costs, family ties and language make it hard to move between regions; the need for long training or qualifications makes it hard to move between jobs. Both slow down the supply response.", "example": "Shortages of skilled construction workers slow new housing supply in many cities.", "exam_tip": "Policies such as training raise PES by improving occupational mobility.", "related": ["Mobility of factors of production"]}]}, {"name": "Why PES matters", "terms": [{"term": "PES and price volatility", "level": "SL/HL", "definition": "When supply is price inelastic, changes in demand or supply cause large changes in price; when supply is elastic, they cause mainly changes in quantity.", "explanation": "This explains booms and busts in housing and commodity prices, and why governments try to raise PES in key markets through planning reform, training or stockpiles.", "example": "Average Vancouver house prices roughly doubled between 2012 and 2022, partly because housing supply is very inelastic.", "exam_tip": "Use a diagram showing the same demand shift with steep and flat supply curves.", "related": ["Price inelastic supply", "Time period"]}, {"term": "Primary commodities (supply)", "level": "HL", "definition": "Agricultural and mined products whose supply is generally price inelastic, because of long production periods, perishability, specialised land and capital, and dependence on weather.", "explanation": "Crops take a season or several years to grow, and mines take years to develop. Many farm products cannot be stored for long, and land and machinery are specialised. Combined with inelastic demand, this makes commodity prices volatile.", "example": "Cocoa prices rose from about $2,500 a tonne in early 2023 to over $10,000 in April 2024 after poor harvests in Côte d'Ivoire and Ghana.", "exam_tip": "Give at least two reasons and compare with manufactured goods.", "related": ["Manufactured products (supply)", "Time period"]}, {"term": "Manufactured products (supply)", "level": "HL", "definition": "Goods made in factories with flexible capital, storable output and short production times, so their supply is generally more price elastic than that of primary commodities.", "explanation": "Factories can add shifts, run down stocks and switch production lines, so they respond to price changes faster than farms or mines.", "example": "Chocolate makers can use stored cocoa and adjust recipes, so the supply of chocolate bars responds faster than the supply of raw cocoa (Hoang pp. 119–120).", "exam_tip": "Pair this term with primary commodities in HL answers.", "related": ["Primary commodities (supply)"]}]}]};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const box=document.getElementById('cgbox'),q=document.getElementById('cgq'),cnt=document.getElementById('cgcount');
+const id=t=>'cg-'+t.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+box.innerHTML='<p style="max-width:72ch">'+esc(CG.intro)+'</p>'+CG.groups.map(g=>{const hl=g.terms.every(t=>t.level==='HL');return `<div class="cg-group ${hl?'hlonly cg-hl':''}"><h3>${esc(g.name)}</h3>`+g.terms.map(t=>`<details class="cg-item ${t.level==='HL'?'cg-hl':''}" id="${id(t.term)}" data-s="${esc((t.term+' '+t.definition+' '+t.explanation+' '+t.example).toLowerCase())}"><summary><b>${esc(t.term)}</b><span class="badge ${t.level==='HL'?'b-hl':'b-sl'}">${t.level}</span><span class="cg-def">${esc(t.definition)}</span></summary><div class="cg-body"><div><span class="lbl">Definition</span><p class="defn">${esc(t.definition)}</p></div><div><span class="lbl">Explanation</span><p>${esc(t.explanation)}</p></div><div class="cg-ex"><span class="lbl">Example</span><p>${esc(t.example)}</p></div><div class="cg-tip"><span class="lbl">Exam tip</span><p>${esc(t.exam_tip)}</p></div>${(t.related||[]).length?`<div><span class="lbl">Related terms</span><div class="cg-rel">${t.related.map(r=>`<button type="button" data-go="${id(r)}">${esc(r)}</button>`).join('')}</div></div>`:''}</div></details>`).join('')+'</div>'}).join('')+'<p class="cg-empty" id="cgnone" hidden>No terms match your search.</p>';
+function lvl(){let l='HL';try{l=JSON.parse(localStorage.getItem('supplyelasticitylab.lvl'))||'HL'}catch(e){}return l}
+function apply(){const sl=document.querySelector('.lvl [data-lvl="SL"][aria-pressed="true"]')||lvl()==='SL';const s=(q.value||'').trim().toLowerCase();let n=0;
+ box.querySelectorAll('.cg-item').forEach(d=>{const show=!(sl&&d.classList.contains('cg-hl'))&&(!s||d.dataset.s.includes(s));d.hidden=!show;if(show)n++;if(s&&show)d.open=true});
+ box.querySelectorAll('.cg-group').forEach(g=>{g.hidden=![...g.querySelectorAll('.cg-item')].some(d=>!d.hidden)});
+ cnt.textContent=n+' term'+(n===1?'':'s');document.getElementById('cgnone').hidden=n>0}
+q.addEventListener('input',apply);
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(apply,0)));
+document.getElementById('cgopen').addEventListener('click',()=>box.querySelectorAll('.cg-item:not([hidden])').forEach(d=>d.open=true));
+document.getElementById('cgclose').addEventListener('click',()=>box.querySelectorAll('.cg-item').forEach(d=>d.open=false));
+box.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const t=document.getElementById(b.dataset.go);if(t){q.value='';apply();t.open=true;t.scrollIntoView({block:'center'})}});
+apply();
+})();
+</script>
+<script id="sb-js">
+(function(){
+const secs=[...document.querySelectorAll('section.step[id]')];
+const sb=document.createElement('aside');sb.className='sb';sb.setAttribute('aria-label','Lesson contents');
+const title=document.querySelector('.brand')?document.querySelector('.brand').childNodes[0].textContent.trim():document.title;
+const sub=document.querySelector('.brand span')?document.querySelector('.brand span').textContent:'';
+sb.innerHTML=`<a class="home" href="index.html">IB Economics</a><div class="sub">${title} · ${sub}</div><p class="lbl">In this lab</p>`+
+ secs.map(s=>{const n=s.querySelector('.num'),h=s.querySelector('h2');const t=h?h.childNodes[0].textContent.replace(/[:·].*$/,'').trim():s.id;return `<a class="it" href="#${s.id}" data-id="${s.id}"><span>${n?n.textContent:''}</span><span>${t}</span></a>`}).join('')+
+ `<p class="lbl">More</p><div class="links"><a href="plan/ch09.html">Teacher plan for this chapter</a><a href="index.html">All chapters</a></div>`;
+document.body.appendChild(sb);
+const btn=document.createElement('button');btn.className='sbbtn';btn.type='button';btn.textContent='☰ Contents';btn.setAttribute('aria-expanded','false');
+const bar=document.querySelector('.topin');if(bar)bar.insertBefore(btn,bar.firstChild);
+btn.addEventListener('click',()=>{sb.classList.toggle('open');btn.setAttribute('aria-expanded',sb.classList.contains('open'))});
+sb.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+function sync(){secs.forEach(s=>{const a=sb.querySelector(`[data-id="${s.id}"]`);if(a)a.hidden=s.hidden})}
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(sync,0)));sync();
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){sb.querySelectorAll('a.it').forEach(a=>a.classList.toggle('act',a.dataset.id===e.target.id))}}),{rootMargin:'-20% 0px -70% 0px'});secs.forEach(s=>io.observe(s))}
+})();
+</script>
