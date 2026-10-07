@@ -1,0 +1,443 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gains from Trade Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#f4f5f1; --panel:#ffffff; --panel2:#f8f9f5; --ink:#1a2029; --muted:#5a636c; --rule:#d9ddd3; --grid:#e7eae2;
+  --supply:#c0441f; --supply2:#e8876a; --demand:#2451c4; --good:#12795f; --bad:#b3261e; --hl:#6f3aa8; --hlbg:#efe6f8; --slbg:#e2efe9; --sl:#0d6b5c;
+  --tint:#eaf0fc; --focus:#2451c4; --shade:rgba(192,68,31,.14); --shadeb:rgba(36,81,196,.14);
+  --serif:"Source Serif 4",Georgia,serif; --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:16px/1.6 var(--sans);margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:0 80px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--ground);border-bottom:1px solid var(--rule)}
+.topin{max-width:1120px;margin:0 auto;padding:10px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{font:650 18px var(--serif);margin-right:auto}
+.brand span{font:600 12px var(--sans);color:var(--muted);margin-left:8px}
+nav.jump{display:flex;gap:2px;flex-wrap:wrap}
+nav.jump a{font:600 12.5px var(--sans);color:var(--muted);text-decoration:none;padding:6px 9px;border-radius:6px}
+nav.jump a:hover{background:var(--panel);color:var(--ink)}
+.lvl{display:flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden}
+.lvl button{font:700 12px var(--sans);border:0;background:var(--panel);color:var(--muted);padding:6px 12px;cursor:pointer}
+.lvl button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+h1,h2,h3{font-family:var(--serif);font-weight:650;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h1{font-size:40px;line-height:1.1} h2{font-size:27px;line-height:1.2} h3{font-size:19px}
+p{margin:0} .muted{color:var(--muted)}
+.eyebrow{font:700 11.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--demand)}
+.badge{display:inline-block;font:700 10.5px var(--sans);letter-spacing:.06em;padding:2px 7px;border-radius:4px;vertical-align:3px}
+.b-hl{background:var(--hlbg);color:var(--hl)} .b-sl{background:var(--slbg);color:var(--sl)}
+button:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+section.step{padding-top:56px;scroll-margin-top:70px}
+.shead{display:grid;gap:8px;max-width:72ch;margin-bottom:20px}
+.shead .num{font:600 13px var(--mono);color:var(--muted)}
+.hero{padding-top:44px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:36px;align-items:center}
+.hero p.lead{font-size:18px;margin-top:14px;max-width:56ch}
+.goals{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px}
+.goals ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.goals li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:15px}
+.goals input{width:18px;height:18px;accent-color:var(--good);margin-top:3px}
+.lab{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:20px}
+.lab2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+svg.g{width:100%;height:auto;display:block;border-radius:8px;background:var(--panel2);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px}
+svg .axis{stroke:var(--ink);stroke-width:1.7;fill:none} svg .axl{fill:var(--ink);font:700 12.5px var(--sans)} svg .tick{fill:var(--muted);font:11.5px var(--mono)}
+svg .guide{stroke:var(--muted);stroke-dasharray:4 4;fill:none}
+svg .s{stroke:var(--supply);stroke-width:3;fill:none;stroke-linecap:round} svg .s2{stroke:var(--supply2);stroke-width:2.2;fill:none;stroke-dasharray:7 5}
+svg .sm{stroke:var(--ink);stroke-width:3;fill:none} svg .d{stroke:var(--demand);stroke-width:3;fill:none}
+svg .ghost{stroke:var(--muted);stroke-width:1.6;stroke-dasharray:3 4;fill:none}
+svg text.ls{fill:var(--supply);font:700 13px var(--sans)} svg text.ld{fill:var(--demand);font:700 13px var(--sans)} svg text.lm{fill:var(--ink);font:700 13px var(--sans)} svg text.lg{fill:var(--muted);font:700 12px var(--sans)}
+svg .dot{fill:var(--ink)} svg .dot2{fill:var(--panel);stroke:var(--ink);stroke-width:1.8}
+svg .arrow{stroke:var(--good);stroke-width:2.4;fill:none;marker-end:url(#ah)} svg .ahead{fill:var(--good)}
+svg .bar{fill:var(--demand);opacity:.7} svg .bar.dim{fill:var(--supply);opacity:.75}
+svg .note{fill:var(--muted);font:600 11.5px var(--sans)} svg .area{fill:var(--shade)}
+.ctl{display:grid;grid-template-columns:1fr 70px;gap:2px 10px;align-items:center;font-size:14px;margin-bottom:12px}
+.ctl span{grid-column:1/-1;font-weight:600;color:var(--muted)} .ctl input{width:100%;accent-color:var(--demand)} .ctl output{font:600 13px var(--mono);text-align:right}
+.read{display:grid;grid-template-columns:1fr auto;gap:6px 14px;font-size:14.5px;margin:6px 0 0}
+.read dt{color:var(--muted)} .read dd{margin:0;font:600 13.5px var(--mono);text-align:right}
+.explain{margin-top:14px;padding:12px 14px;border-left:3px solid var(--demand);background:var(--tint);border-radius:0 8px 8px 0;font-size:14.5px}
+.btn{font:600 14px var(--sans);border:1px solid var(--rule);background:var(--panel);color:var(--ink);padding:9px 13px;border-radius:8px;cursor:pointer;text-align:left}
+.btn:hover{border-color:var(--demand)} .btn.pri{background:var(--ink);color:var(--ground);border-color:var(--ink)} .btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.flip{perspective:900px;height:170px;border:0;background:none;padding:0;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:6px}
+.flip .f{background:var(--panel);justify-content:space-between} .flip .f b{font:650 19px var(--serif)}
+.flip .b{background:var(--tint);transform:rotateY(180deg);font-size:14.5px;overflow:auto}
+.flip .hint{font-size:12px;color:var(--muted)}
+.events{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;margin:14px 0}
+.ev{display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:start}
+.ev .l{font:700 14px var(--mono);color:var(--demand);background:var(--tint);border-radius:6px;text-align:center;padding:2px 0}
+.ev[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.predict{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.fb{font-weight:600} .fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+.sorter .card{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px;display:grid;gap:10px}
+.sorter .card p{font-size:16.5px;font-family:var(--serif)}
+.score{font:600 14px var(--mono)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--grid);text-align:right;font-variant-numeric:tabular-nums}
+th{font:700 11.5px var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule)}
+td:first-child,th:first-child{text-align:left} tr.cur td{background:var(--tint);font-weight:700} tr.dmr td:nth-child(3){color:var(--supply)}
+.tblwrap{overflow-x:auto}
+.case{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;display:grid;gap:10px}
+.case details{border-top:1px solid var(--grid);padding-top:10px}
+.case summary,.qa summary{cursor:pointer;font-weight:700;color:var(--demand)}
+.case ol{margin:8px 0 0;padding-left:20px}
+.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px}
+.mcq{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;display:grid;gap:8px}
+.mcq .opts{display:grid;gap:6px}
+.mcq .opt{font:500 14.5px var(--sans)} .mcq .opt.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--panel))} .mcq .opt.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--panel))}
+.mcq .why{font-size:14px;color:var(--muted)}
+.quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.qa{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 16px}
+.qa details p{margin-top:6px;padding:8px 10px;background:var(--panel2);border-radius:6px}
+.mist{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.mist div{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;font-size:14.5px}
+.mist b{display:block;color:var(--bad);font-size:13px;letter-spacing:.03em;margin-bottom:4px} .mist i{display:block;color:var(--good);font-style:normal;font-weight:600;margin-top:6px}
+.stepper{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.dots{display:flex;gap:5px} .dots i{width:9px;height:9px;border-radius:50%;background:var(--rule)} .dots i.on{background:var(--demand)}
+.pill{font:600 12.5px var(--mono);padding:3px 9px;border-radius:99px;background:var(--panel2);border:1px solid var(--rule)}
+footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+.hlonly[hidden]{display:none!important}
+@media (max-width:860px){.hero,.lab2{grid-template-columns:1fr} h1{font-size:32px} nav.jump{display:none}}
+@media (max-width:520px){.wrap,.topin{padding-inline:16px} .lab{padding:14px} h1{font-size:28px} h2{font-size:23px}}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}}
+svg .d2{stroke:var(--demand);stroke-width:2.2;fill:none;stroke-dasharray:7 5} svg text.ld2{fill:var(--demand);font:700 12px var(--sans)} svg .spend{fill:var(--shadeb)}
+svg .dwl{fill:rgba(214,151,0,.38)} svg .gap{stroke:var(--supply);stroke-width:5;opacity:.45}
+.sorter .btn[aria-pressed="true"],.lab .btn[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.flip .f span:not(.hint){font-size:14.5px;color:var(--muted)}
+.ctl input[type=number]{font:15px var(--mono);padding:7px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink);width:100%}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px} @media (max-width:860px){.two{grid-template-columns:1fr}}
+</style>
+<style id="sb-css">
+aside.sb{position:fixed;top:0;left:0;bottom:0;width:250px;overflow:auto;background:var(--panel);border-right:1px solid var(--rule);padding:16px 12px 40px;z-index:15;font-size:13.5px}
+aside.sb .home{display:block;font:700 15px var(--serif);color:var(--ink);text-decoration:none}
+aside.sb .sub{color:var(--muted);font-size:12px;margin:2px 0 14px}
+aside.sb .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:12px 4px 6px}
+aside.sb a.it{display:grid;grid-template-columns:30px 1fr;gap:2px;padding:6px 8px;border-radius:6px;color:var(--ink);text-decoration:none;line-height:1.3}
+aside.sb a.it span:first-child{font:600 11.5px var(--mono);color:var(--muted);padding-top:1px}
+aside.sb a.it:hover{background:var(--panel2)} aside.sb a.it.act{background:var(--tint);font-weight:700}
+aside.sb .links a{display:block;padding:4px 8px;color:var(--demand);font-weight:600;text-decoration:none}
+.sbbtn{display:none}
+@media (min-width:1100px){header.top,.wrap{margin-left:250px} nav.jump{display:none!important}}
+@media (max-width:1099px){aside.sb{transform:translateX(-105%);transition:transform .2s;box-shadow:0 0 30px rgba(0,0,0,.25);width:84%;max-width:300px}
+ aside.sb.open{transform:none} nav.jump{display:none!important}
+ .sbbtn{display:inline-block;font:700 13px var(--sans);padding:6px 10px;border-radius:8px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);cursor:pointer;order:-1}}
+@media (prefers-reduced-motion:reduce){aside.sb{transition:none}}
+</style>
+
+<style id="cg-css">
+.cg-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.cg-tools input{flex:1;min-width:220px;max-width:420px;font:15px var(--sans);padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink)}
+.cg-group{margin-top:22px} .cg-group h3{margin-bottom:10px}
+.cg-item{background:var(--panel);border:1px solid var(--rule);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.cg-item summary{cursor:pointer;list-style:none;padding:14px 18px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:baseline}
+.cg-item summary::-webkit-details-marker{display:none}
+.cg-item summary b{font:650 18px var(--serif)} .cg-item summary .cg-def{grid-column:1/-1;color:var(--muted);font-size:14.5px}
+.cg-item[open] summary .cg-def{display:none}
+.cg-body{padding:0 18px 16px;display:grid;gap:10px}
+.cg-body .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+.cg-body .defn{font-weight:600}
+.cg-ex{background:var(--tint);border-radius:8px;padding:10px 12px}
+.cg-tip{border-left:3px solid var(--good);padding:6px 12px;background:var(--panel2);border-radius:0 8px 8px 0}
+.cg-rel{display:flex;gap:6px;flex-wrap:wrap} .cg-rel button{font:600 12.5px var(--sans);border:1px solid var(--rule);background:var(--panel2);color:var(--ink);border-radius:99px;padding:3px 10px;cursor:pointer}
+.cg-empty{color:var(--muted)}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="top"><div class="topin">
+  <div class="brand">Gains from Trade Lab <span>IB Economics 4.1 · Hoang Ch 27</span></div>
+  <nav class="jump" aria-label="Sections"><a href="#terms">Terms</a><a href="#guide">Guide</a><a href="#benefits">Benefits</a><a href="#free">Free trade</a><a href="#ca">Comparative advantage</a><a href="#cases">Cases</a><a href="#quiz">Quiz</a><a href="#exam">Exam</a></nav>
+  <div class="lvl" role="group" aria-label="Level"><button data-lvl="HL">HL</button><button data-lvl="SL">SL</button></div>
+</div></header>
+
+<div class="wrap">
+<section class="hero">
+  <div><p class="eyebrow">Unit 4 · The global economy · Chapter 27</p><h1>Why does trade make countries richer, even when one is better at everything?</h1>
+  <p class="lead">See how a world price turns a country into an exporter or an importer, and who wins and loses. Then (HL) calculate opportunity costs, find comparative advantage and prove with linear PPCs that both countries can consume beyond their own production possibilities.</p>
+  <p class="muted" style="margin-top:12px;font-size:14px">Textbook: Hoang, Wray &amp; Chakraborty, pp. 420–435. HL material is marked <span class="badge b-hl">HL</span>; switch to SL at the top to hide it.</p></div>
+  <div class="goals"><p class="eyebrow" style="color:var(--muted)">By the end I can…</p><ul id="goals"></ul></div>
+</section>
+
+<section class="step" id="terms"><div class="shead"><span class="num">01</span><h2>Key terms: flip the cards</h2><p class="muted">Say the definition out loud first, then click to check.</p></div><div class="cards" id="cards"></div></section>
+<section class="step" id="guide"><div class="shead"><span class="num">01b</span><h2>Concept guide: every term explained</h2><p>A fuller explanation of each term in this chapter, with a worked real-world example and an exam tip. Open a term, read it, then close the page and explain it to a partner in your own words.</p></div>
+  <div class="cg-tools"><input id="cgq" type="search" placeholder="Search terms, examples…" aria-label="Search the concept guide"><button class="btn" id="cgopen">Open all</button><button class="btn" id="cgclose">Close all</button><span class="pill" id="cgcount"></span></div>
+  <div id="cgbox"></div></section>
+
+<!-- LAB SECTIONS: numbered 02, 03 … one <section class="step" id="…"> per interactive topic -->
+
+<section class="step" id="benefits"><div class="shead"><span class="num">02</span><h2>The nine benefits of international trade</h2><p>The syllabus lists nine benefits (Hoang pp. 420–424). Click each card for the reasoning and a real example.</p></div>
+  <div class="cards" id="bencards"></div>
+</section>
+
+<section class="step" id="free"><div class="shead"><span class="num">03</span><h2>Free trade: exporter or importer?</h2><p>A small country is a <b>price taker</b>, so the world price (Pw) is a horizontal line. If Pw is <b>above</b> the domestic no-trade price, the country <b>exports</b> (Fig 27.5); if it is <b>below</b>, it <b>imports</b> (Fig 27.6). Country Z’s plum-oil market: Qd = 500 − 50P, Qs = 50P − 100 (thousand litres).</p></div>
+  <div class="lab lab2"><div id="frfig"></div><div><label class="ctl" for="frp"><span>World price Pw ($ per litre)</span><input type="range" id="frp" min="2.5" max="9.5" step="0.5" value="7"><output id="frpo"></output></label><dl class="read" id="frread"></dl><dl class="read hlonly" id="frhl" style="margin-top:10px"></dl><p class="explain" id="frx"></p></div></div>
+</section>
+
+<section class="step" id="who"><div class="shead"><span class="num">04</span><h2>Winners and losers</h2><p>Trade raises social surplus overall, but not everyone gains. Decide whether each group <b>gains</b> or <b>loses</b>.</p></div>
+  <div class="lab sorter"><div class="card"><div class="row" style="justify-content:space-between"><span class="pill" id="wln"></span><span class="score" id="wlsc"></span></div><p id="wlq"></p>
+   <div class="row"><button class="btn" data-wl="g">Gains</button><button class="btn" data-wl="l">Loses</button></div><p class="fb" id="wlfb"></p><div class="row"><button class="btn pri" id="wlnext" hidden>Next card</button></div></div></div>
+</section>
+
+<section class="step hlonly" id="abs"><div class="shead"><span class="num">05</span><h2>Absolute advantage <span class="badge b-hl">HL</span></h2><p>Using the same resources, Australia can produce 6 timber <b>or</b> 12 cattle; Brazil 10 timber <b>or</b> 5 cattle (Hoang Tables 27.1–27.4). Each specialises in what it does best, then they swap timber for cattle one for one.</p></div>
+  <div class="lab lab2"><div id="abfig"></div><div><label class="ctl" for="abq"><span>Timber swapped for cattle (1 : 1)</span><input type="range" id="abq" min="0" max="10" step="1" value="6"><output id="abqo"></output></label><dl class="read" id="abread"></dl><p class="explain" id="abx"></p></div></div>
+</section>
+
+<section class="step hlonly" id="ca"><div class="shead"><span class="num">06</span><h2>Comparative advantage and gains from trade <span class="badge b-hl">HL</span></h2><p>Even if one country is better at <b>everything</b>, both gain by specialising in the good with the <b>lower opportunity cost</b> and trading at terms between their two opportunity costs (Fig 27.13). Load an example or type your own maximum outputs.</p></div>
+  <div class="lab lab2"><div id="cafig"></div><div><div class="row" id="capre" style="margin-bottom:10px"></div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <label class="ctl" for="cax1" style="grid-template-columns:1fr"><span id="cal1">A: max good X</span><input id="cax1" type="number" step="1"></label>
+    <label class="ctl" for="cay1" style="grid-template-columns:1fr"><span id="cal2">A: max good Y</span><input id="cay1" type="number" step="1"></label>
+    <label class="ctl" for="cax2" style="grid-template-columns:1fr"><span id="cal3">B: max good X</span><input id="cax2" type="number" step="1"></label>
+    <label class="ctl" for="cay2" style="grid-template-columns:1fr"><span id="cal4">B: max good Y</span><input id="cay2" type="number" step="1"></label></div>
+   <label class="ctl" for="catot" style="margin-top:8px"><span id="catotl">Terms of trade</span><input type="range" id="catot" min="0" max="100" step="1" value="50"><output id="catoto"></output></label>
+   <label class="ctl" for="caq"><span id="caql">Amount exported</span><input type="range" id="caq" min="5" max="95" step="5" value="50"><output id="caqo"></output></label><dl class="read" id="caread"></dl><p class="explain" id="cax"></p></div></div>
+</section>
+
+<section class="step hlonly" id="limits"><div class="shead"><span class="num">07</span><h2>Where does comparative advantage come from, and does it last? <span class="badge b-hl">HL</span></h2><p>Sources: <b>REFIT</b> = R&amp;D, Exchange rates, Factor endowments, Inflation (price stability), Technology. Comparative advantage is <b>dynamic</b>. Below, Country B’s productivity in wheat grows each year: when does comparative advantage switch?</p></div>
+  <div class="lab lab2"><div id="dyfig"></div><div><label class="ctl" for="dyg"><span>Growth of B’s wheat productivity (% a year)</span><input type="range" id="dyg" min="0" max="12" step="1" value="5"><output id="dygo"></output></label><dl class="read" id="dyread"></dl><p class="explain" id="dyx"></p><p class="muted" style="font-size:12.5px">Illustrative: A produces 40 wheat or 20 cloth; B starts at 30 wheat or 30 cloth.</p></div></div>
+  <div class="cards" id="limcards" style="margin-top:16px"></div>
+</section>
+
+<section class="step" id="draw"><div class="shead"><span class="num">08</span><h2>Draw it like an examiner wants</h2><p>Build the <b>free trade with exports</b> diagram (Hoang Fig 27.5) using Country Z’s plum oil at a world price of $7.</p></div>
+  <div class="lab lab2"><div id="drawfig"></div><div><h3 id="drawt"></h3><p id="drawx" style="margin-top:8px"></p><div class="stepper"><button class="btn" id="drawprev">← Back</button><button class="btn pri" id="drawnext">Next step →</button><div class="dots" id="drawdots"></div></div>
+  <div class="explain" style="margin-top:16px"><b>Label checklist:</b> Ddomestic, Sdomestic, Pe and Qe · Pw drawn horizontally · Qd and Qs at Pw · exports = Qs − Qd bracketed · for imports, Pw sits below Pe and imports = Qd − Qs.</div></div></div>
+</section>
+<!-- /LAB SECTIONS -->
+
+<section class="step" id="cases"><div class="shead"><span class="num"></span><h2>Real-world cases</h2><p>Answer in your notebook, sketch the diagram, then open the model answer.</p></div><div class="cases" id="casebox"></div></section>
+
+<section class="step" id="quiz"><div class="shead"><span class="num"></span><h2>Check yourself</h2><p>Auto-marked multiple choice first, then quick-fire questions with model answers.</p><p class="score" id="mcqscore"></p></div><div class="quiz" id="mcqs"></div>
+  <h3 style="margin:30px 0 12px">Quick-fire checklist</h3><div class="quiz" id="qf"></div></section>
+
+<section class="step" id="mistakes"><div class="shead"><span class="num"></span><h2>Common mistakes to avoid</h2></div><div class="mist" id="mist"></div></section>
+
+<section class="step" id="exam"><div class="shead"><span class="num"></span><h2>Exam practice</h2><p>Plan each answer before opening the guide.</p></div><div class="cases" id="exambox"></div></section>
+
+<footer>Gains from Trade Lab · based on the IB Economics guide (4.1 Benefits of international trade) and Hoang, Wray &amp; Chakraborty, <i>Economics for the IB Diploma</i> (Hodder 2020), Chapter 27. Figures used: 27.4–27.6, 27.11–27.13, 27.15; Tables 27.1–27.7. The plum-oil equations follow EPQ 27.2; the dynamic model is illustrative; case figures are approximate.</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+/* ============================ CONFIG ============================
+   NS     localStorage namespace, unique per lab (e.g. 'pedlab')
+   GOALS  [text, isHL]          TERMS [term, definition, isHL]
+   CASES  [title, context, [questions], [model answers]]
+   MCQ    [question, [4 options], correctIndex, explanation, isHL]
+   QF     [question, answer, isHL]          MI [mistake, correction]
+   EX     [paper label, question, [what a strong answer includes]]  (label containing 'HL' or 'Paper 3' = HL)
+================================================================== */
+const NS='gainsfromtradelab';
+const GOALS=[['Explain the nine benefits of international trade',0],['Draw free-trade diagrams for exports and imports',0],['Identify winners and losers from trade',0],['Calculate exports, imports, export revenue and import expenditure from a diagram',1],['Distinguish absolute and comparative advantage, and calculate opportunity costs',1],['Show the gains from trade with linear PPCs and explain the limitations of the theory',1]];
+const TERMS=[['International trade','The exchange of goods and services across borders: exports and imports.',0],['Exports','Domestic goods and services sold abroad; they bring in foreign currency.',0],['Imports','Foreign goods and services bought by domestic households, firms and government.',0],['Free trade','Trade without tariffs, quotas, subsidies or other barriers.',0],['World price (Pw)','The international price; a small economy is a price taker at Pw.',0],['Factor endowment','A country’s quantity and quality of land, labour, capital and enterprise.',0],['Economies of scale','Lower average costs from larger output; world markets make larger output possible.',0],['Export revenue / import expenditure','Pw × (Qs − Qd) / Pw × (Qd − Qs).',1],['Absolute advantage','Producing more of a good than another country with the same resources.',1],['Comparative advantage','Producing a good at a lower opportunity cost than another country.',1],['Opportunity cost (trade)','Units of the other good given up per unit; constant on a linear PPC.',1],['Terms of trade','The rate at which goods are swapped; both gain only if it lies between the two opportunity costs.',1],['REFIT','Sources of comparative advantage: R&D, Exchange rates, Factor endowments, Inflation, Technology.',1]];
+const CASES=[['Vietnam’s rice exporters at a high world price','Suppose Vietnam’s domestic equilibrium rice price is 9,000 dong/kg, but poor harvests elsewhere in Asia push the world price to 12,000 dong. Farmers raise output from 40 to 46 million tonnes a year, while domestic consumption falls from 40 to 37 million.',['How much does Vietnam export?','Who gains and who loses?','Why might the government restrict rice exports?'],['Exports = Qs − Qd = 46m − 37m = 9 million tonnes (Fig 27.5).','Farmers gain (more sold at a higher price, more foreign exchange); domestic consumers lose, especially poor households, because rice is a staple. Social surplus rises overall.','Food security and equity: some Asian governments have restricted rice exports when world prices spiked.']],
+['Norway imports tropical fruit','Norwegian greenhouses could supply pineapples at an autarky price of NOK 80 each, but the world price is NOK 25. At NOK 25 Norwegians buy 6 million pineapples a year and domestic growers supply only 0.5 million.',['Calculate imports and import spending.','What are the benefits for Norway?','Who loses?'],['Imports = 6m − 0.5m = 5.5m; import spending = NOK 25 × 5.5m = NOK 137.5m.','Lower prices, greater choice, and land and labour freed for goods such as seafood, where Norway has lower opportunity costs.','Greenhouse growers and their workers (structural unemployment) (Fig 27.6).']],
+['Ethiopia and Germany (HL)','With the same resources, Ethiopia can produce 100 tonnes of coffee or 10 machine tools; Germany 120 tonnes of coffee or 60 machine tools.',['Who has the absolute advantage in each good?','Calculate opportunity costs and comparative advantage.','Show that 1 tool = 5 tonnes of coffee benefits both.'],['Germany, in both goods.','1 tool costs Ethiopia 10t of coffee and Germany 2t, so Germany has the comparative advantage in tools and Ethiopia in coffee (0.1 vs 0.5 tools per tonne).','5 lies between 2 and 10. If Ethiopia swaps 45t of coffee for 9 tools it consumes 55 coffee + 9 tools, outside its PPC (it had 50 + 5). Load this preset in section 06.']],
+['Losing a comparative advantage: British steel (HL)','The UK was once a world leader in steel but lost its comparative advantage to lower-cost producers (Hoang p. 434). In 2019 China’s Jingye bought British Steel for about £50m, promising investment and around 4,000 jobs in Scunthorpe.',['Which assumptions of the model does this challenge?','Who bears the cost of adjustment?','Does the theory still help?'],['That comparative advantage is fixed (it is dynamic), that factors move freely, and that there are no transport costs.','Steelworkers and their towns: they cannot easily move into new industries (structural unemployment).','Yes: it explains why the UK imports most of its steel. But adjustment costs fall on particular communities, which is why governments intervene.']]];
+const MCQ=[['The world price is above the domestic no-trade price. The country will…',['Import the good','Export the good','Neither import nor export','Ban the good'],1,'Domestic firms can sell abroad at a higher price.',0],
+['A small open economy faces world supply that is…',['Perfectly price inelastic','Perfectly price elastic at Pw','Upward-sloping','The same as domestic supply'],1,'It is a price taker.',0],
+['When a country starts exporting a good, domestic consumers of that good…',['Gain','Lose, because they pay a higher price','Are unaffected','Always switch to imports'],1,'The domestic price rises to Pw.',0],
+['Which is one of the nine benefits of trade in the syllabus?',['Higher tariff revenue','Access to larger markets and economies of scale','Protection of infant industries','Lower exchange rates'],1,'Larger markets let firms lower average costs.',0],
+['Plum oil: Qd = 500 − 50P, Qs = 50P − 100. At Pw = $7, exports are…',['100,000 litres','150,000 litres','250,000 litres','0'],0,'Qs 250 − Qd 150 = 100 (thousand).',0],
+['(HL) Comparative advantage means producing a good…',['With fewer resources','At a lower opportunity cost','At a higher price','With more workers'],1,'Opportunity cost, not absolute productivity, matters.',1],
+['(HL) A makes 20 cars or 40 computers; B makes 10 cars or 30 computers. Who has the comparative advantage in cars?',['A','B','Neither','Both'],0,'A car costs A 2 computers but costs B 3.',1],
+['(HL) For both countries to gain, the terms of trade must…',['Equal 1:1','Lie between the two opportunity costs','Favour the larger country','Be above both opportunity costs'],1,'Otherwise one country would do better without trade.',1],
+['(HL) Australia: 30 timber or 15 cattle; Brazil: 40 timber or 80 cattle. The opportunity cost of 1 timber in Australia is…',['2 cattle','0.5 cattle','15 cattle','1 cattle'],1,'15 ÷ 30 = 0.5 cattle.',1],
+['(HL) Which is a limitation of comparative-advantage theory?',['It ignores transport costs and assumes factors move freely','It explains why trade happens','It uses opportunity cost','It shows gains from specialisation'],0,'Real-world frictions reduce the gains.',1]];
+const QF=[['Name four of the nine benefits of international trade.','Any four of: increased competition, lower prices, greater choice, acquisition of resources, foreign exchange earnings, access to larger markets, economies of scale, more efficient resource allocation, more efficient production.',0],['Why does a small economy face a horizontal world supply curve?','It is a price taker: its purchases are too small to affect the world price, so it can buy any quantity at Pw.',0],['On the exports diagram, how is the quantity of exports found?','Domestic quantity supplied minus domestic quantity demanded at the world price (Qs − Qd).',0],['Who loses when a country starts exporting a good at a world price above the domestic price?','Domestic consumers, who pay a higher price and buy less.',0],['Give one example of acquiring resources through trade from Hoang.','Lenovo importing cobalt from the DR Congo, or Singapore importing over 99% of its primary resources (p. 422).',0],['(HL) Pw = $5, Qd = 40,000, Qs = 10,000. Import expenditure?','Imports = 30,000; spending = $5 × 30,000 = $150,000.',1],['(HL) Define comparative advantage.','The ability to produce a good at a lower opportunity cost than another country.',1],['(HL) A makes 20 cars or 40 computers; B makes 10 cars or 30 computers. Who has the comparative advantage in cars?','A: 1 car costs A 2 computers but costs B 3.',1],['(HL) What condition must the terms of trade meet for both countries to gain?','It must lie between the two countries’ opportunity cost ratios.',1],['(HL) What does REFIT stand for?','R&D, Exchange rates, Factor endowments, Inflation (price stability), Technology.',1],['(HL) On a gains-from-trade PPC diagram, where are the post-trade consumption points?','Outside each country’s PPC: consumption that was impossible in autarky.',1],['(HL) Give two limitations of comparative advantage theory.','Any two of: transport costs, imperfect factor mobility, increasing costs, trade barriers, dynamic comparative advantage, risks of over-specialisation, it ignores who gains.',1]];
+const MI=[['“Benefits of trade = benefits of free trade”','Trade can happen with tariffs and quotas; free trade adds further efficiency gains (p. 422).'],['“Trade makes everyone better off”','Social surplus rises, but import-competing producers and their workers lose, and consumers of exported goods pay more (p. 425).'],['“A country better at everything cannot gain” (HL)','Gains depend on differences in opportunity cost, not absolute productivity.'],['“Comparative advantage is permanent” (HL)','It changes with technology, wages, exchange rates and investment (p. 430).'],['“Exports = all domestic output at Pw”','Exports are only the excess of domestic Qs over Qd.'],['“Any terms of trade benefit both” (HL)','The rate must lie between the two opportunity cost ratios.'],['Hoang slips to check','p. 420: the Assyrian trading colonies date from about 1900–1800 BCE, not “18BCE”. p. 432: the Delta–Gamma figures are outputs with resources split equally, not maximum outputs.']];
+const EX=[['Paper 1 (a) · 10 marks','Explain how international trade may lead to lower prices and greater choice for consumers.',['Define international trade.','Lower prices: competition and access to producers with lower costs; imports diagram (Fig 27.6), Pw below Pe.','Greater choice: access to foreign varieties (Chile’s fruit in China, IKEA India).','Real examples.']],
+['Paper 1 (b) · 15 marks','Using real-world examples, evaluate the view that all stakeholders in an economy benefit from international trade.',['Gains: consumers of imports, exporters, efficient firms (economies of scale).','Losers: import-competing firms and workers (structural unemployment), consumers of exported goods (Vietnamese rice).','Social surplus rises overall, but the distribution is uneven; adjustment costs and policy responses.','Judgement: “all” is too strong.']],
+['Paper 2 · 4 marks','Using a free-trade diagram, explain why the country exports the good when the world price is above the domestic price.',['Diagram: Pw above Pe; Qd falls and Qs rises; exports = Qs − Qd [2].','At the higher world price domestic firms can sell all they want abroad, so the excess supply is exported [2].']],
+['Paper 3 HL · 2 marks','Using the data, calculate the opportunity cost of producing one unit of good X in each country and identify which country has the comparative advantage.',['Opportunity cost of X = max Y ÷ max X for each country.','The country with the lower value has the comparative advantage (e.g. Country K: 1.25 vs P: 2, so K specialises in fruit).']],
+['Paper 3 HL · 4 marks','Using a linear PPC diagram, explain how both countries can gain from specialisation and trade.',['Two linear PPCs with autarky points.','Each specialises by comparative advantage; terms of trade between the opportunity costs.','Post-trade consumption points lie outside both PPCs.']],
+['Paper 3 HL · 2 marks','From the diagram, calculate the export revenue earned at the world price.',['Exports = Qs − Qd at Pw.','Revenue = Pw × exports (plum oil at $7: $7 × 100,000 = $700,000).']]];
+
+/* ============================ CORE (do not edit per chapter) ============================ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const st={get(k,d){try{const v=localStorage.getItem(NS+'.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(NS+'.'+k,JSON.stringify(v))}catch(e){}}};
+const f0=v=>Math.round(v).toLocaleString(), f1=v=>(Math.round(v*10)/10).toLocaleString(), f2=v=>(Math.round(v*100)/100).toLocaleString(), money=v=>(v<0?'−$':'$')+Math.round(Math.abs(v)).toLocaleString();
+const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tween(from,to,ms,cb){if(RM||document.hidden){cb(to);return}const t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;cb(from+(to-from)*e);if(k<1)requestAnimationFrame(f)})(t0)}
+const LC={s:'ls',s2:'ls',d:'ld',d2:'ld2',sm:'lm'};
+/* Plot({xmax,ymax,xl,yl,w?,h?,L?}) : fn(f,cls,label,lx) pts(points,cls) poly(points,cls) seg(x0,y0,x1,y1,cls) rect(x,y,cls)
+   bar(xCentre,width,height,cls,label) dot(x,y,cls) guide(x,y,xLabel,yLabel) xt(x,t) yt(y,t) text(x,y,t,cls,anchor) arrow(...) gap(x0,x1,y) svg(aria)
+   classes: d d2 s s2 sm ghost guide arrow | areas: spend (blue) area (orange) dwl (gold) | bars: bar, bar dim */
+function Plot(o){const W=o.w||540,H=o.h||380,L=o.L||54,R=26,T=24,B=44;const sx=x=>L+x/o.xmax*(W-L-R),sy=y=>H-B-y/o.ymax*(H-T-B);const out=[];
+ return{sx,sy,
+  fn(f,cls,label,lx){let d='',pen=false;for(let i=0;i<=160;i++){const x=o.xmax*i/160,y=f(x);if(!isFinite(y)||y<0||y>o.ymax){pen=false;continue}d+=(pen?'L':'M')+sx(x).toFixed(1)+' '+sy(y).toFixed(1)+' ';pen=true}if(d)out.push(`<path class="${cls}" d="${d}"/>`);if(label){const x=lx!=null?lx:o.xmax*.86,y=f(x);if(isFinite(y)&&y>=0&&y<=o.ymax)out.push(`<text class="${LC[cls]||'lg'}" x="${sx(x)+6}" y="${sy(y)-6}">${label}</text>`)}},
+  pts(p,cls){out.push(`<path class="${cls}" d="${p.map((q,i)=>(i?'L':'M')+sx(q[0]).toFixed(1)+' '+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  poly(p,cls){out.push(`<polygon class="${cls}" points="${p.map(q=>sx(q[0]).toFixed(1)+','+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  rect(x,y,cls){out.push(`<rect class="${cls}" x="${sx(0)}" y="${sy(y)}" width="${sx(x)-sx(0)}" height="${sy(0)-sy(y)}"/>`)},
+  bar(x,w,h,cls,lab){out.push(`<rect class="bar ${cls||''}" x="${sx(x-w/2)}" y="${sy(h)}" width="${sx(w)-sx(0)}" height="${sy(0)-sy(h)}"/>`);if(lab!=null)out.push(`<text class="note" x="${sx(x)}" y="${sy(h)-6}" text-anchor="middle">${lab}</text>`)},
+  seg(x0,y0,x1,y1,cls){out.push(`<path class="${cls}" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  dot(x,y,c){out.push(`<circle class="${c||'dot'}" cx="${sx(x)}" cy="${sy(y)}" r="5"/>`)},
+  guide(x,y,xl,yl){out.push(`<path class="guide" d="M${sx(0)} ${sy(y)} L${sx(x)} ${sy(y)} L${sx(x)} ${sy(0)}"/>`);if(yl)out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${yl}</text>`);if(xl)out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${xl}</text>`)},
+  xt(x,t){out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${t}</text>`)},
+  yt(y,t){out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${t}</text>`)},
+  text(x,y,t,c,a){out.push(`<text class="${c||'note'}" x="${sx(x)}" y="${sy(y)}" text-anchor="${a||'start'}">${t}</text>`)},
+  arrow(x0,y0,x1,y1){out.push(`<path class="arrow" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  gap(x0,x1,y){out.push(`<path class="gap" d="M${sx(x0)} ${sy(y)} L${sx(x1)} ${sy(y)}"/>`)},
+  svg(aria){return `<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria||''}"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0 0 L10 5 L0 10z"/></marker></defs>${out.join('')}<path class="axis" d="M${sx(0)} ${sy(o.ymax)} L${sx(0)} ${sy(0)} L${sx(o.xmax)} ${sy(0)}"/><text class="axl" x="${sx(0)-8}" y="${T-8}">${o.yl}</text><text class="axl" x="${sx(o.xmax)}" y="${H-8}" text-anchor="end">${o.xl}</text><text class="tick" x="${sx(0)-6}" y="${sy(0)+17}" text-anchor="end">0</text></svg>`}}}
+/* sorter('pre', [[card text, answerKey, explanation]], {key: label}, 'data-attr')  — needs ids pre+n/q/fb/next/sc */
+function sorter(pre,cards,labels,attr){let i=st.get(pre+'i',0),sc=st.get(pre+'s',[0,0]);
+ const draw=()=>{i%=cards.length;$('#'+pre+'n').textContent=`Card ${i+1} of ${cards.length}`;$('#'+pre+'q').textContent=cards[i][0];$('#'+pre+'fb').textContent='';$('#'+pre+'next').hidden=true;$$(`[${attr}]`).forEach(b=>b.disabled=false);$('#'+pre+'sc').textContent=`Score ${sc[0]} / ${sc[1]}`};
+ $$(`[${attr}]`).forEach(b=>b.addEventListener('click',()=>{const c=cards[i],ok=b.getAttribute(attr)===c[1];sc[1]++;if(ok)sc[0]++;st.set(pre+'s',sc);const fb=$('#'+pre+'fb');fb.className='fb '+(ok?'ok':'no');fb.textContent=(ok?'✓ Correct. ':'✗ Answer: '+labels[c[1]]+'. ')+c[2];$$(`[${attr}]`).forEach(x=>x.disabled=true);$('#'+pre+'next').hidden=false;$('#'+pre+'sc').textContent=`Score ${sc[0]} / ${sc[1]}`}));
+ $('#'+pre+'next').addEventListener('click',()=>{i++;st.set(pre+'i',i);draw()});draw()}
+/* stepper('pre', steps[[title, html]], draw(stepIndex)) — needs ids pre+t/x/prev/next/dots */
+function stepper(pre,steps,draw){let k=0;const go=()=>{k=Math.max(0,Math.min(steps.length-1,k));draw(k);$('#'+pre+'t').textContent=`Step ${k+1}: ${steps[k][0]}`;$('#'+pre+'x').innerHTML=steps[k][1];$('#'+pre+'dots').innerHTML=steps.map((_,i)=>`<i class="${i<=k?'on':''}"></i>`).join('');$('#'+pre+'prev').disabled=k===0;$('#'+pre+'next').disabled=k===steps.length-1};
+ $('#'+pre+'next').addEventListener('click',()=>{k++;go()});$('#'+pre+'prev').addEventListener('click',()=>{k--;go()});go();return{reset(){k=0;go()}}}
+let LVL=st.get('lvl','HL');const HASLVL=!!$('.lvl');
+function renderGoals(){const d=st.get('goals',[]);$('#goals').innerHTML=GOALS.map((g,i)=>g[1]&&LVL==='SL'?'':`<li><input type="checkbox" id="g${i}" ${d.includes(i)?'checked':''}><label for="g${i}">${g[0]} ${g[1]&&HASLVL?'<span class="badge b-hl">HL</span>':''}</label></li>`).join('');$$('#goals input').forEach(c=>c.addEventListener('change',()=>{const i=+c.id.slice(1);let v=st.get('goals',[]);v=c.checked?[...new Set([...v,i])]:v.filter(x=>x!==i);st.set('goals',v)}))}
+function renderCards(){$('#cards').innerHTML=TERMS.filter(t=>!(t[2]&&LVL==='SL')).map(t=>`<button class="flip" aria-label="${t[0]}: show definition"><div class="in"><div class="f"><b>${t[0]}</b><span class="hint">${t[2]&&HASLVL?'<span class="badge b-hl">HL</span> ':''}Click to flip</span></div><div class="b">${t[1]}</div></div></button>`).join('');$$('#cards .flip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on')))}
+function renderMCQ(){const list=MCQ.map((q,i)=>[q,i]).filter(x=>!(x[0][4]&&LVL==='SL'));
+ $('#mcqs').innerHTML=list.map(([q,i],k)=>`<div class="mcq" data-i="${i}"><p><b>${k+1}.</b> ${q[0]}</p><div class="opts">${q[1].map((o,j)=>`<button class="btn opt" data-j="${j}">${String.fromCharCode(65+j)}. ${o}</button>`).join('')}</div><p class="why" hidden></p></div>`).join('');
+ const sc=()=>{const a=st.get('mcq',{});const done=list.filter(x=>a[x[1]]!=null);const ok=done.filter(x=>a[x[1]]===x[0][2]).length;$('#mcqscore').innerHTML=done.length?`Score: ${ok} / ${list.length} <button class="btn" id="mcqreset" style="margin-left:10px;padding:4px 10px">Try again</button>`:'';const r=$('#mcqreset');if(r)r.addEventListener('click',()=>{st.set('mcq',{});renderMCQ()})};
+ $$('.mcq').forEach(el=>{const i=+el.dataset.i,q=MCQ[i];const mark=j=>{el.querySelectorAll('.opt').forEach(b=>{const k=+b.dataset.j;b.disabled=true;if(k===q[2])b.classList.add('ok');else if(k===j)b.classList.add('no')});const w=el.querySelector('.why');w.hidden=false;w.textContent=(j===q[2]?'✓ ':'✗ ')+q[3]};
+  const a=st.get('mcq',{});if(a[i]!=null)mark(a[i]);el.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{const a=st.get('mcq',{});a[i]=+b.dataset.j;st.set('mcq',a);mark(+b.dataset.j);sc()}))});sc()}
+function renderQF(){$('#qf').innerHTML=QF.filter(q=>!(q[2]&&LVL==='SL')).map(q=>`<div class="qa"><p><b>${q[0]}</b></p><details><summary>Show answer</summary><p>${q[1]}</p></details></div>`).join('')}
+function renderStatic(){
+ $('#casebox').innerHTML=CASES.map(c=>`<article class="case"><h3>${c[0]}</h3><p>${c[1]}</p><ol>${c[2].map(q=>`<li>${q}</li>`).join('')}</ol><details><summary>Model answer</summary><ol>${c[3].map(a=>`<li>${a}</li>`).join('')}</ol></details></article>`).join('');
+ $('#mist').innerHTML=MI.map(m=>`<div><b>✗ ${m[0]}</b>${m[1]}</div>`).join('');
+ $('#exambox').innerHTML=EX.map(e=>{const hl=/HL|Paper 3/.test(e[0]);return `<article class="case ${hl&&HASLVL?'hlonly':''}"><span class="badge ${hl?'b-hl':'b-sl'}">${e[0]}</span><p style="font-family:var(--serif);font-size:17px">${e[1]}</p><details><summary>What a strong answer includes</summary><ol>${e[2].map(x=>`<li>${x}</li>`).join('')}</ol></details></article>`}).join('')}
+function setLvl(l){LVL=HASLVL?l:'HL';st.set('lvl',LVL);$$('.lvl button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lvl===LVL));$$('.hlonly').forEach(e=>e.hidden=LVL==='SL');renderCards();renderGoals();renderMCQ();renderQF()}
+$$('.lvl button').forEach(b=>b.addEventListener('click',()=>setLvl(b.dataset.lvl)));
+
+/* LAB CODE: chapter-specific interactive sections. Each section = a draw() function + event listeners. */
+
+/* 02 benefits */
+const BEN=[['Increased competition','Domestic firms face foreign rivals, so they must cut costs and improve quality.','Foreign carmakers in a market force local makers to innovate.'],['Lower prices','Imports from lower-cost producers and stronger competition push prices down.','Cheaper electronics and clothing from Asian producers.'],['Greater choice','Consumers can buy goods that cannot be produced at home, or in more varieties.','Chilean fruit in Chinese supermarkets; IKEA India selling Swedish-designed, Turkish-made goods (p. 422).'],['Acquisition of resources','Countries obtain raw materials and inputs they lack.','Lenovo sources cobalt from the DR Congo; Singapore imports over 99% of its primary resources (p. 422).'],['Foreign exchange earnings','Exports earn foreign currency to pay for imports.','Iran’s oil exports pay for imports; trade restrictions in the 2010s caused a foreign-exchange shortage (p. 422).'],['Access to larger markets','Firms can sell to the whole world, not just the home market.','Small economies like Singapore and Switzerland rely on world markets.'],['Economies of scale','Larger output lowers average cost.','Aircraft makers such as Airbus could not cover their costs selling only at home.'],['More efficient resource allocation','Countries specialise by comparative advantage, so world output rises.','Australia exports minerals, Bangladesh garments.'],['More efficient production','Competition and technology transfer raise productivity.','Firms adopt better methods learned from foreign rivals and partners.']];
+$('#bencards').innerHTML=BEN.map(b=>`<button class="flip" style="height:200px" aria-label="${b[0]}"><div class="in"><div class="f"><b>${b[0]}</b><span>${b[1]}</span><span class="hint">Click for an example</span></div><div class="b"><b style="font-family:var(--serif)">Example</b>${b[2]}</div></div></button>`).join('');
+$$('#bencards .flip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on')));
+
+/* 03 free trade: Qd = 500 − 50P, Qs = 50P − 100 ('000 litres); D: P = 10 − Q/50, S: P = 2 + Q/50; autarky $6, 200 */
+const Qd=p=>500-50*p,Qs=p=>50*p-100,Dp=q=>10-q/50,Sp=q=>2+q/50,K=1000;
+function drawFr(){const pw=+$('#frp').value;$('#frpo').textContent='$'+f2(pw);const qd=Math.max(0,Qd(pw)),qs=Math.max(0,Qs(pw));const g=Plot({xmax:450,ymax:11,xl:'Plum oil (thousand litres)',yl:'Price ($)'});
+ const exp=pw>6;g.poly([[0,10],[0,pw],[qd,pw]],'spend');g.poly([[0,2],[0,pw],[qs,pw]],'area');
+ g.fn(Dp,'d','Ddomestic',400);g.fn(Sp,'s','Sdomestic',380);g.seg(0,pw,450,pw,'sm');g.text(445,pw+.3,'Pw','lm','end');g.dot(200,6,'dot2');g.text(204,6.4,'no-trade Pe = $6','note');
+ if(pw!==6){g.gap(Math.min(qd,qs),Math.max(qd,qs),pw);g.dot(qd,pw);g.dot(qs,pw);g.guide(qd,pw,'Qd','');g.guide(qs,pw,'Qs','');g.text((qd+qs)/2,pw+(exp?.45:-.75),exp?'exports':'imports','note','middle')}
+ $('#frfig').innerHTML=g.svg('Free trade diagram');const tr=Math.abs(qs-qd);const cs=.5*qd*(10-pw)*K,ps=.5*qs*(pw-2)*K;
+ $('#frread').innerHTML=`<dt>Domestic consumption (Qd)</dt><dd>${f0(qd*K)} litres</dd><dt>Domestic production (Qs)</dt><dd>${f0(qs*K)} litres</dd><dt>${exp?'Exports (Qs − Qd)':'Imports (Qd − Qs)'}</dt><dd>${f0(tr*K)} litres</dd>`;
+ $('#frhl').innerHTML=`<dt>${exp?'Export revenue = Pw × exports':'Import expenditure = Pw × imports'}</dt><dd>${money(pw*tr*K)}</dd><dt>Spending by domestic consumers</dt><dd>${money(pw*qd*K)}</dd><dt>Consumer surplus (blue) / producer surplus (orange)</dt><dd>${money(cs)} / ${money(ps)}</dd><dt>Social surplus vs no trade ($800,000)</dt><dd>${money(cs+ps)} (+${money(cs+ps-800000)})</dd>`;
+ $('#frx').innerHTML=pw===6?'At $6 the world price equals the domestic price: no trade.':exp?`Pw ($${f2(pw)}) is above the no-trade price, so domestic firms expand output and <b>export</b> the surplus. <b>Producers gain</b> and consumers lose (they pay more and buy less), but producers gain more, so social surplus rises.`:`Pw is below the no-trade price, so consumers buy more at the lower price and the gap is <b>imported</b>. <b>Consumers gain</b>; domestic producers lose and some may leave the industry. Social surplus still rises.`}
+$('#frp').addEventListener('input',drawFr);
+
+/* 04 winners and losers */
+sorter('wl',[['Vietnamese rice farmers when the world price rises above Vietnam’s domestic price','g','They sell more at a higher price.'],['Vietnamese households buying rice in that case','l','They pay the higher world price and buy less.'],['Norwegian consumers of pineapples','g','Imports at NOK 25 instead of NOK 80.'],['Norwegian greenhouse pineapple growers','l','They cannot compete with cheaper imports.'],['Workers in an import-competing textile factory','l','Their jobs are at risk: structural unemployment.'],['A small software firm that can now sell worldwide','g','Access to larger markets and economies of scale.'],['The government, through foreign exchange earned by exports','g','It can pay for imported oil and machinery.'],['A mining town whose mine closes because imports are cheaper','l','Regional decline: the costs of adjustment fall on specific communities.']],{g:'Gains',l:'Loses'},'data-wl');
+
+/* 05 absolute advantage */
+function drawAb(){const sw=+$('#abq').value;$('#abqo').textContent=sw;const aus=[sw,12-sw],bra=[10-sw,sw],aA=[3,6],aB=[4,3];
+ const g=Plot({xmax:4,ymax:13,xl:'',yl:'Units consumed',h:300});[0,4,8,12].forEach(v=>g.yt(v,v));
+ g.bar(.35,.3,aA[0],'dim',aA[0]+'T');g.bar(.7,.3,aus[0],'',aus[0]+'T');g.bar(1.25,.3,aA[1],'dim',aA[1]+'C');g.bar(1.6,.3,aus[1],'',aus[1]+'C');
+ g.bar(2.35,.3,aB[0],'dim',aB[0]+'T');g.bar(2.7,.3,bra[0],'',bra[0]+'T');g.bar(3.25,.3,aB[1],'dim',aB[1]+'C');g.bar(3.6,.3,bra[1],'',bra[1]+'C');
+ g.xt(.98,'Australia');g.xt(2.98,'Brazil');g.text(.1,12.4,'■ autarky  ■ after trade','note');$('#abfig').innerHTML=g.svg('Consumption before and after trade');
+ const ga=aus[0]>=aA[0]&&aus[1]>=aA[1]&&(aus[0]>aA[0]||aus[1]>aA[1]),gb=bra[0]>=aB[0]&&bra[1]>=aB[1]&&(bra[0]>aB[0]||bra[1]>aB[1]);
+ $('#abread').innerHTML=`<dt>Absolute advantage</dt><dd style="font-family:var(--sans);font-weight:500">Australia: cattle (12 > 5) · Brazil: timber (10 > 6)</dd><dt>World output: autarky → specialised</dt><dd>7T + 9C → 10T + 12C</dd><dt>Australia consumes</dt><dd>${aus[0]}T + ${aus[1]}C (was 3T + 6C)</dd><dt>Brazil consumes</dt><dd>${bra[0]}T + ${bra[1]}C (was 4T + 3C)</dd>`;
+ $('#abx').innerHTML=ga&&gb?`<b>Both gain.</b> Specialising adds 3 timber and 3 cattle to world output, and a swap of ${sw} for ${sw} shares the gain. Hoang’s 6-for-6 swap gives Australia 6T + 6C and Brazil 4T + 6C.`:`At a swap of ${sw}, ${!ga?'Australia':''}${!ga&&!gb?' and ':''}${!gb?'Brazil':''} would be worse off than in autarky in one good. Both gain with swaps from 3 to 6.`}
+$('#abq').addEventListener('input',drawAb);
+
+/* 06 comparative advantage studio */
+const CP=[['Australia / Brazil (Tables 27.5–27.7)','Australia','Brazil','timber','cattle',30,15,40,80],['Country K / P (EPQ 27.3)','K','P','fruit','vegetables',8000,10000,4000,8000],['Lucland / Mayland (p. 433)','Lucland','Mayland','Walkers','Aris',600,1500,500,2000],['Ethiopia / Germany','Ethiopia','Germany','machine tools','coffee (t)',10,100,60,120]];
+let cnames=CP[0];$('#capre').innerHTML=CP.map((p,i)=>`<button class="btn" data-cp="${i}">${p[0]}</button>`).join('');
+$$('[data-cp]').forEach(b=>b.addEventListener('click',()=>{cnames=CP[+b.dataset.cp];['cax1','cay1','cax2','cay2'].forEach((id,k)=>$('#'+id).value=cnames[5+k]);$('#catot').value=50;$('#caq').value=50;drawCa()}));
+function drawCa(){const [nm,A,B,X,Y]=cnames;['cal1','cal2','cal3','cal4'].forEach((id,k)=>$('#'+id).textContent=`${k<2?A:B}: max ${k%2?Y:X}`);
+ const xa=+$('#cax1').value,ya=+$('#cay1').value,xb=+$('#cax2').value,yb=+$('#cay2').value;if(!(xa&&ya&&xb&&yb))return;const oa=ya/xa,ob=yb/xb;
+ const lo=Math.min(oa,ob),hi=Math.max(oa,ob),tot=lo+(hi-lo)*(+$('#catot').value)/100,share=+$('#caq').value/100;$('#catotl').textContent=`Terms of trade: 1 ${X} for … ${Y}`;$('#catoto').textContent=f2(tot);
+ const aX=oa<ob,sx=aX?xa:xb,oY=aX?yb:ya,qWant=sx*share,q=Math.min(qWant,.5*oY/tot),capped=q<qWant-1e-9;$('#caql').textContent=`${X} exported by ${aX?A:B} (% of its output)`;$('#caqo').textContent=capped?'capped':Math.round(share*100)+'%';
+ const cXspec=[sx-q,q*tot],cOther=[q,(aX?yb:ya)-q*tot];const consA=aX?cXspec:cOther,consB=aX?cOther:cXspec,autA=[xa/2,ya/2],autB=[xb/2,yb/2];
+ const beyond=(c,mx,my)=>c[0]/mx+c[1]/my>1.0001;const gA=beyond(consA,xa,ya)&&consA[1]>=0,gB=beyond(consB,xb,yb)&&consB[1]>=0;
+ const mX=Math.max(xa,xb,consA[0],consB[0])*1.15,mY=Math.max(ya,yb,consA[1],consB[1])*1.15;const g=Plot({xmax:mX,ymax:mY,xl:X,yl:Y,L:62});
+ g.seg(0,ya,xa,0,'d');g.text(xa*.55,ya*.45+mY*.03,A+' PPC','ld');g.seg(0,yb,xb,0,'s');g.text(xb*.5,yb*.5+mY*.03,B+' PPC','ls');
+ [[autA,'dot2',A],[autB,'dot2',B]].forEach(([p,c])=>g.dot(p[0],p[1],c));g.text(autA[0]+mX*.012,autA[1]-mY*.045,'autarky','note');g.text(autB[0]+mX*.012,autB[1]-mY*.045,'autarky','note');[ya,yb].forEach(v=>g.yt(v,f0(v)));[xa,xb].forEach(v=>g.xt(v,f0(v)));g.dot(consA[0],Math.max(0,consA[1]));g.dot(consB[0],Math.max(0,consB[1]));
+ g.text(consA[0]+mX*.015,Math.max(0,consA[1])+mY*.02,A+' after trade','ld');g.text(consB[0]+mX*.015,Math.max(0,consB[1])+mY*.02,B+' after trade','ls');
+ $('#cafig').innerHTML=g.svg('Linear PPCs and consumption after trade');
+ $('#caread').innerHTML=`<dt>Opportunity cost of 1 ${X}</dt><dd>${A} ${f2(oa)} · ${B} ${f2(ob)} ${Y}</dd><dt>Opportunity cost of 1 ${Y}</dt><dd>${A} ${f2(1/oa)} · ${B} ${f2(1/ob)} ${X}</dd><dt>Absolute advantage in ${X} / ${Y}</dt><dd>${xa>xb?A:xb>xa?B:'neither'} / ${ya>yb?A:yb>ya?B:'neither'}</dd><dt>Comparative advantage in ${X}</dt><dd>${Math.abs(oa-ob)<1e-9?'none':aX?A:B}</dd><dt>Mutually beneficial terms</dt><dd>1 ${X} for ${f2(lo)}–${f2(hi)} ${Y}</dd><dt>${X} exported by ${aX?A:B}</dt><dd>${f1(q)}${capped?' (capped: partner pays at most half its '+Y+')':''}</dd><dt>${A} consumes (autarky ${f0(autA[0])} + ${f0(autA[1])})</dt><dd>${f1(consA[0])} ${X} + ${f1(consA[1])} ${Y}</dd><dt>${B} consumes (autarky ${f0(autB[0])} + ${f0(autB[1])})</dt><dd>${f1(consB[0])} ${X} + ${f1(consB[1])} ${Y}</dd>`;
+ $('#cax').innerHTML=Math.abs(oa-ob)<1e-9?'Identical opportunity costs: there is nothing to gain from specialising.':`${aX?A:B} specialises in <b>${X}</b> (lower opportunity cost) and ${aX?B:A} in <b>${Y}</b>. At ${f2(tot)} ${Y} per ${X}: ${A} ${gA?'consumes <b>beyond its PPC</b>':'does not gain'}, ${B} ${gB?'consumes <b>beyond its PPC</b>':'does not gain'}. `+(gA&&gB?'Both gain from trade, even though '+(xa>xb&&ya>yb?A:xb>xa&&yb>ya?B:'one country')+(xa>xb&&ya>yb||xb>xa&&yb>ya?' has the absolute advantage in both goods.':' is not better at everything.'):'Move the terms towards the middle of the range or change the amount traded.')}
+['cax1','cay1','cax2','cay2','catot','caq'].forEach(id=>$('#'+id).addEventListener('input',drawCa));['cax1','cay1','cax2','cay2'].forEach((id,k)=>$('#'+id).value=CP[0][5+k]);
+
+/* 07 dynamic comparative advantage */
+function drawDy(){const gr=+$('#dyg').value/100;$('#dygo').textContent=(gr*100).toFixed(0)+'%';const oa=20/40,ob=t=>30/(30*Math.pow(1+gr,t));const sw=gr>0?Math.log(2)/Math.log(1+gr):Infinity;
+ const g=Plot({xmax:20,ymax:1.2,xl:'Years',yl:'Opportunity cost of 1 wheat (cloth)'});[0,.5,1].forEach(v=>g.yt(v,v));[0,5,10,15,20].forEach(v=>g.xt(v,v));
+ g.seg(0,oa,20,oa,'d');g.text(19.8,oa+.04,'A: 0.5','ld','end');g.fn(t=>ob(t),'s','B',15);if(sw<=20){g.dot(sw,oa);g.text(sw+.3,oa-.08,'switch','note')}
+ $('#dyfig').innerHTML=g.svg('Dynamic comparative advantage');
+ $('#dyread').innerHTML=`<dt>B’s opportunity cost of wheat today</dt><dd>1.00 cloth</dd><dt>B’s opportunity cost in year 10</dt><dd>${f2(ob(10))} cloth</dd><dt>Comparative advantage in wheat switches to B</dt><dd>${sw<=20?'year '+f1(sw):'not within 20 years'}</dd>`;
+ $('#dyx').innerHTML=gr?`As B’s wheat productivity grows ${(gr*100).toFixed(0)}% a year, its opportunity cost of wheat falls. ${sw<=20?`After about ${f1(sw)} years it is below A’s 0.5, so <b>B gains the comparative advantage in wheat</b>.`:'It stays above A’s within 20 years.'} Investment, technology and skills (REFIT) <b>change</b> comparative advantage, as Britain found with steel.`:'With no productivity growth, comparative advantage never changes in this model.'}
+$('#dyg').addEventListener('input',drawDy);
+const LIM=[['Transport costs','The model ignores them; heavy or perishable goods may cost more to ship than the saving.'],['Factor immobility','Workers and capital cannot move instantly between industries, so specialising creates structural unemployment.'],['Increasing costs','PPCs are rarely straight; opportunity costs rise as a country specialises.'],['Trade barriers','Tariffs and quotas prevent full specialisation.'],['Dynamic comparative advantage','Today’s pattern may not last (British steel).'],['Over-specialisation','Dependence on one export is risky (commodity price swings).'],['Distribution','It shows that total output rises, not who gains or loses.']];
+$('#limcards').innerHTML=LIM.map(l=>`<button class="flip" style="height:150px"><div class="in"><div class="f"><b>${l[0]}</b><span class="hint">Click: why it matters</span></div><div class="b">${l[1]}</div></div></button>`).join('');$$('#limcards .flip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on')));
+
+/* 08 draw builder */
+stepper('draw',[['Domestic market','Draw Ddomestic and Sdomestic. Without trade, Pe = $6 and Qe = 200 (thousand litres).'],['Add the world price','Pw = $7 is above Pe: draw it as a horizontal line.'],['Read Qd and Qs at Pw','Consumers buy Qd = 150; producers supply Qs = 250.'],['Exports','The excess Qs − Qd = 100 is exported. Bracket it. (HL: export revenue = $7 × 100,000 = $700,000.)'],['Winners and losers','Producers gain (more output at a higher price); consumers lose (higher price, less bought). Social surplus rises from $800k to $850k.']],k=>{
+ const g=Plot({xmax:450,ymax:11,xl:'Plum oil (thousand litres)',yl:'Price ($)'});if(k>=4){g.poly([[0,10],[0,7],[150,7]],'spend');g.poly([[0,2],[0,7],[250,7]],'area')}g.fn(Dp,'d','Ddomestic',400);g.fn(Sp,'s','Sdomestic',380);g.dot(200,6,k?'dot2':'dot');g.guide(200,6,'Qe','Pe');
+ if(k>=1){g.seg(0,7,450,7,'sm');g.text(445,7.3,'Pw','lm','end')}if(k>=2){g.dot(150,7);g.dot(250,7);g.guide(150,7,'Qd','');g.guide(250,7,'Qs','')}if(k>=3){g.gap(150,250,7);g.text(200,7.45,'exports','note','middle')}
+ $('#drawfig').innerHTML=g.svg('Exports diagram build')});
+/* /LAB CODE */
+
+$$('section.step').forEach(sec=>{const n=sec.querySelector('.num');const list=[...$$('section.step')].filter(x=>x.id!=='guide');if(n&&sec.id!=='guide'&&!n.dataset.fixed)n.textContent=String(list.indexOf(sec)+1).padStart(2,'0')});
+renderStatic();setLvl(LVL);
+/* LAB INIT: call each section's first draw here */
+drawFr();drawAb();drawCa();drawDy();
+/* /LAB INIT */
+})();
+</script>
+<script id="cg-js">
+(function(){
+const CG={"title": "Chapter 27 · Benefits of international trade", "intro": "Countries trade because they gain from it: lower prices, more choice, resources they lack, bigger markets and more efficient use of what they have. Chapter 27 shows on diagrams how a world price makes a country an exporter or an importer, who wins and who loses, and (at HL) why specialising by comparative advantage raises the output of every trading partner.", "groups": [{"name": "Trade and its benefits", "terms": [{"term": "International trade", "level": "SL/HL", "definition": "The exchange of goods and services across national borders, made up of exports and imports.", "explanation": "Trade lets countries consume goods they cannot produce cheaply and sell what they produce well to a much larger market. It has existed for thousands of years, from Assyrian trading colonies around 1900–1800 BCE to today's global supply chains.", "example": "Saudi Arabia and Kuwait export oil; Thailand and Vietnam export rice; South Africa supplies around two-thirds of the world's platinum (Hoang p. 420).", "exam_tip": "Distinguish international trade (which may include barriers) from free trade.", "related": ["Free trade", "Exports and imports"]}, {"term": "Exports and imports", "level": "SL/HL", "definition": "Exports are domestic goods and services sold to buyers abroad (an inflow of foreign currency); imports are foreign goods and services bought by domestic households, firms and government (an outflow).", "explanation": "Exports earn foreign exchange, which pays for imports. Both appear in the balance of payments (Chapter 32).", "example": "Chile exports cherries and other fruit to China; Singapore imports over 99% of its primary resources (p. 422).", "exam_tip": "Exports = X and imports = M in the AD formula (Chapter 17).", "related": ["Foreign exchange earnings"]}, {"term": "Free trade", "level": "SL/HL", "definition": "International trade without government-imposed barriers such as tariffs, quotas or subsidies.", "explanation": "Free trade allows full specialisation by comparative advantage. Trade in general can still occur with barriers, but with smaller gains.", "example": "Most trade within the EU single market is free of tariffs and quotas.", "exam_tip": "Hoang's tip (p. 422): benefits of trade are not identical to benefits of free trade.", "related": ["International trade"]}, {"term": "Benefits of international trade", "level": "SL/HL", "definition": "The nine syllabus benefits: increased competition, lower prices, greater choice, acquisition of resources, foreign exchange earnings, access to larger markets, economies of scale, more efficient resource allocation and more efficient production.", "explanation": "Competition from abroad forces firms to cut costs and innovate; consumers gain from lower prices and more variety; firms reach larger markets and lower average costs; countries specialise in what they do relatively best.", "example": "Lenovo sources cobalt from the DR Congo; IKEA India sells Swedish-designed, Turkish-made products (p. 422); Airbus needs world sales to cover its development costs.", "exam_tip": "For a 10-mark answer, explain two or three benefits in depth with examples rather than listing all nine.", "related": ["Economies of scale", "Foreign exchange earnings"]}, {"term": "Foreign exchange earnings", "level": "SL/HL", "definition": "Foreign currency received from selling exports, which can be used to pay for imports.", "explanation": "Countries need foreign currency to buy imported capital goods, energy and food. Limits on exports can cause a shortage of foreign exchange.", "example": "Iran's oil exports pay for its imports; trade restrictions in the 2010s caused a shortage of foreign exchange (p. 422).", "exam_tip": "Link to the balance of payments and exchange rates (Chapters 31–32).", "related": ["Exports and imports"]}, {"term": "Economies of scale", "level": "SL/HL", "definition": "Falls in long-run average cost as a firm increases its scale of output; access to world markets allows firms to reach these larger outputs.", "explanation": "Selling to the world lets firms spread fixed costs (research, design, machinery) over many more units, lowering average costs and prices.", "example": "Aircraft and smartphone makers could not cover their development costs selling only in their home market.", "exam_tip": "Link economies of scale to lower prices for consumers.", "related": ["Benefits of international trade"]}, {"term": "Factor endowment", "level": "SL/HL", "definition": "The quantity and quality of a country's factors of production (land, labour, capital and enterprise), which affects which goods it can produce at relatively low cost.", "explanation": "Countries rich in particular resources (oil, fertile land, skilled labour) have lower opportunity costs in goods that use them intensively. This is a key source of comparative advantage.", "example": "Australia's minerals; Bangladesh's large low-cost workforce in garments.", "exam_tip": "Factor endowments are the F in REFIT.", "related": ["Sources of comparative advantage (REFIT)"]}]}, {"name": "Free-trade diagrams", "terms": [{"term": "World price (Pw)", "level": "SL/HL", "definition": "The price at which a good is traded internationally. A small open economy is a price taker, so world supply (or demand) is perfectly elastic at Pw.", "explanation": "If Pw is above the domestic no-trade price, domestic firms supply more than domestic buyers want and the difference is exported. If Pw is below, domestic buyers want more than domestic firms supply and the difference is imported.", "example": "Country Z's plum oil: Qd = 500 − 50P and Qs = 50P − 100, so the no-trade price is $6. At Pw = $7, Qd = 150 and Qs = 250 (thousand litres), so 100,000 litres are exported.", "exam_tip": "Draw Pw as a horizontal line and bracket the exports or imports (Figs 27.5 and 27.6).", "related": ["Export revenue and import expenditure"]}, {"term": "Export revenue and import expenditure", "level": "HL", "definition": "Export revenue = Pw × (Qs − Qd); import expenditure = Pw × (Qd − Qs), read from the free-trade diagram.", "explanation": "Paper 3 often asks for these values, and for the change in consumer and producer surplus when a country opens to trade.", "example": "Plum oil at $7: export revenue = $7 × 100,000 = $700,000; social surplus rises from $800,000 to $850,000. At Pw = $3, imports = 300,000 litres and import spending = $900,000.", "exam_tip": "Exports are only the excess of Qs over Qd, not the whole of domestic output.", "related": ["World price (Pw)"]}, {"term": "Winners and losers from trade", "level": "SL/HL", "definition": "Opening to trade raises social surplus overall, but consumers of exported goods and producers facing import competition lose.", "explanation": "When a country exports, domestic producers gain more than domestic consumers lose. When it imports, consumers gain more than producers lose. The losses are often concentrated in particular industries and regions, which is why trade remains politically controversial.", "example": "When world rice prices rose, Vietnamese farmers gained but Vietnamese households paid more for a staple food.", "exam_tip": "Evaluation: total gains vs distribution (equity).", "related": ["World price (Pw)"]}]}, {"name": "Absolute and comparative advantage (HL)", "terms": [{"term": "Absolute advantage", "level": "HL", "definition": "A country has an absolute advantage in a good if it can produce more of it than another country using the same resources, or the same output using fewer resources.", "explanation": "If each country has an absolute advantage in a different good, both gain by specialising and trading. But absolute advantage alone cannot explain trade when one country is better at everything.", "example": "Australia can produce 6 timber or 12 cattle; Brazil 10 timber or 5 cattle. Specialising raises world output from 7T + 9C to 10T + 12C (Hoang Tables 27.1–27.4).", "exam_tip": "Show the before and after totals of world output.", "related": ["Comparative advantage"]}, {"term": "Comparative advantage", "level": "HL", "definition": "A country has a comparative advantage in a good if it can produce it at a lower opportunity cost than another country.", "explanation": "David Ricardo showed that even a country that is better at producing everything gains by specialising in the good where its advantage is greatest (lowest opportunity cost) and importing the rest. World output rises, and trade at suitable terms lets both countries consume beyond their own production possibilities.", "example": "Australia: 30 timber or 15 cattle; Brazil: 40 timber or 80 cattle. Brazil is better at both, but 1 timber costs Australia 0.5 cattle and Brazil 2 cattle, so Australia specialises in timber and Brazil in cattle (Tables 27.5–27.7).", "exam_tip": "Always compare opportunity costs, never absolute outputs.", "related": ["Opportunity cost (in trade)", "Terms of trade (rate of exchange of goods)"]}, {"term": "Opportunity cost (in trade)", "level": "HL", "definition": "The quantity of the other good that must be given up to produce one more unit of a good; on a linear PPC it equals the ratio of the two maximum outputs.", "explanation": "Opportunity cost of 1 X = maximum Y ÷ maximum X. It is the slope of the linear PPC.", "example": "Country K makes 8,000 fruit or 10,000 vegetables, so 1 fruit costs 1.25 vegetables; Country P (4,000 or 8,000) gives up 2 vegetables per fruit. K specialises in fruit (Hoang EPQ 27.3).", "exam_tip": "Common error: dividing the wrong way. It is the OTHER good divided by THIS good.", "related": ["Comparative advantage"]}, {"term": "Terms of trade (rate of exchange of goods)", "level": "HL", "definition": "In the comparative-advantage model, the rate at which one good is swapped for another; both countries gain only if it lies between their two opportunity cost ratios.", "explanation": "If the rate is outside that range, one country would do better producing the good itself. Within the range, both consume beyond their PPCs.", "example": "Lucland (2.5 Aris per Walker) and Mayland (4 Aris per Walker): any rate between 2.5 and 4 Aris per Walker benefits both (p. 433).", "exam_tip": "State the range explicitly in Paper 3 answers.", "related": ["Gains from trade"]}, {"term": "Gains from trade", "level": "HL", "definition": "The extra output and consumption made possible when countries specialise according to comparative advantage and trade, shown by consumption points beyond each country's PPC.", "explanation": "On a linear-PPC diagram (Fig 27.13), each country's post-trade consumption point lies outside its own PPC: consumption that was impossible in autarky.", "example": "Trading 25 timber for 25 cattle lets Australia consume 5T + 25C and Brazil 25T + 55C, both outside their PPCs.", "exam_tip": "Draw both PPCs on one diagram, with autarky and post-trade points.", "related": ["Linear PPC"]}, {"term": "Linear PPC", "level": "HL", "definition": "A straight-line production possibilities curve, drawn on the assumption of constant opportunity cost, used to show gains from specialisation and trade.", "explanation": "The slope is the opportunity cost. The country with the flatter PPC (relative to the axes) has a lower opportunity cost in the good on the horizontal axis.", "example": "Hoang Figs 27.12–27.13 and 27.15.", "exam_tip": "Label axes with the two goods and the intercepts with maximum outputs.", "related": ["Gains from trade"]}, {"term": "Sources of comparative advantage (REFIT)", "level": "HL", "definition": "Research and development, Exchange rates, Factor endowments, Inflation (price stability) and Technology: the factors that give a country relatively low opportunity costs.", "explanation": "These factors change over time, so comparative advantage is dynamic.", "example": "South Korea's R&D and technology turned it into a leading exporter of semiconductors and ships.", "exam_tip": "Use REFIT to explain why opportunity costs differ.", "related": ["Dynamic comparative advantage"]}, {"term": "Dynamic comparative advantage", "level": "HL", "definition": "The idea that comparative advantage changes over time as technology, skills, investment and costs change, so today's pattern of specialisation may not last.", "explanation": "Countries can gain or lose comparative advantage. Those losing it face painful adjustment, such as structural unemployment in declining industries.", "example": "The UK lost its comparative advantage in steel; China's Jingye bought British Steel in 2019 promising investment and around 4,000 jobs (p. 434).", "exam_tip": "Use as a limitation of the static Ricardian model.", "related": ["Limitations of comparative advantage"]}, {"term": "Limitations of comparative advantage", "level": "HL", "definition": "The theory assumes constant costs, perfect factor mobility, no transport costs and free trade, and says nothing about who gains; real-world conditions reduce or redistribute the gains.", "explanation": "Transport costs, trade barriers, rising opportunity costs, immobile workers and changing comparative advantage all limit the gains. Over-specialisation also increases vulnerability to price shocks.", "example": "Heavy goods such as steel carry high transport costs; mining communities struggle when comparative advantage moves elsewhere.", "exam_tip": "Give two or three limitations with examples for AO3.", "related": ["Dynamic comparative advantage"]}]}]};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const box=document.getElementById('cgbox'),q=document.getElementById('cgq'),cnt=document.getElementById('cgcount');
+const id=t=>'cg-'+t.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+box.innerHTML='<p style="max-width:72ch">'+esc(CG.intro)+'</p>'+CG.groups.map(g=>{const hl=g.terms.every(t=>t.level==='HL');return `<div class="cg-group ${hl?'hlonly cg-hl':''}"><h3>${esc(g.name)}</h3>`+g.terms.map(t=>`<details class="cg-item ${t.level==='HL'?'cg-hl':''}" id="${id(t.term)}" data-s="${esc((t.term+' '+t.definition+' '+t.explanation+' '+t.example).toLowerCase())}"><summary><b>${esc(t.term)}</b><span class="badge ${t.level==='HL'?'b-hl':'b-sl'}">${t.level}</span><span class="cg-def">${esc(t.definition)}</span></summary><div class="cg-body"><div><span class="lbl">Definition</span><p class="defn">${esc(t.definition)}</p></div><div><span class="lbl">Explanation</span><p>${esc(t.explanation)}</p></div><div class="cg-ex"><span class="lbl">Example</span><p>${esc(t.example)}</p></div><div class="cg-tip"><span class="lbl">Exam tip</span><p>${esc(t.exam_tip)}</p></div>${(t.related||[]).length?`<div><span class="lbl">Related terms</span><div class="cg-rel">${t.related.map(r=>`<button type="button" data-go="${id(r)}">${esc(r)}</button>`).join('')}</div></div>`:''}</div></details>`).join('')+'</div>'}).join('')+'<p class="cg-empty" id="cgnone" hidden>No terms match your search.</p>';
+function lvl(){let l='HL';try{l=JSON.parse(localStorage.getItem('gainsfromtradelab.lvl'))||'HL'}catch(e){}return l}
+function apply(){const sl=document.querySelector('.lvl [data-lvl="SL"][aria-pressed="true"]')||lvl()==='SL';const s=(q.value||'').trim().toLowerCase();let n=0;
+ box.querySelectorAll('.cg-item').forEach(d=>{const show=!(sl&&d.classList.contains('cg-hl'))&&(!s||d.dataset.s.includes(s));d.hidden=!show;if(show)n++;if(s&&show)d.open=true});
+ box.querySelectorAll('.cg-group').forEach(g=>{g.hidden=![...g.querySelectorAll('.cg-item')].some(d=>!d.hidden)});
+ cnt.textContent=n+' term'+(n===1?'':'s');document.getElementById('cgnone').hidden=n>0}
+q.addEventListener('input',apply);
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(apply,0)));
+document.getElementById('cgopen').addEventListener('click',()=>box.querySelectorAll('.cg-item:not([hidden])').forEach(d=>d.open=true));
+document.getElementById('cgclose').addEventListener('click',()=>box.querySelectorAll('.cg-item').forEach(d=>d.open=false));
+box.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const t=document.getElementById(b.dataset.go);if(t){q.value='';apply();t.open=true;t.scrollIntoView({block:'center'})}});
+apply();
+})();
+</script>
+<script id="sb-js">
+(function(){
+const secs=[...document.querySelectorAll('section.step[id]')];
+const sb=document.createElement('aside');sb.className='sb';sb.setAttribute('aria-label','Lesson contents');
+const title=document.querySelector('.brand')?document.querySelector('.brand').childNodes[0].textContent.trim():document.title;
+const sub=document.querySelector('.brand span')?document.querySelector('.brand span').textContent:'';
+sb.innerHTML=`<a class="home" href="index.html">IB Economics</a><div class="sub">${title} · ${sub}</div><p class="lbl">In this lab</p>`+
+ secs.map(s=>{const n=s.querySelector('.num'),h=s.querySelector('h2');const t=h?h.childNodes[0].textContent.replace(/[:·].*$/,'').trim():s.id;return `<a class="it" href="#${s.id}" data-id="${s.id}"><span>${n?n.textContent:''}</span><span>${t}</span></a>`}).join('')+
+ `<p class="lbl">More</p><div class="links"><a href="plan/ch27.html">Teacher plan for this chapter</a><a href="index.html">All chapters</a></div>`;
+document.body.appendChild(sb);
+const btn=document.createElement('button');btn.className='sbbtn';btn.type='button';btn.textContent='☰ Contents';btn.setAttribute('aria-expanded','false');
+const bar=document.querySelector('.topin');if(bar)bar.insertBefore(btn,bar.firstChild);
+btn.addEventListener('click',()=>{sb.classList.toggle('open');btn.setAttribute('aria-expanded',sb.classList.contains('open'))});
+sb.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+function sync(){secs.forEach(s=>{const a=sb.querySelector(`[data-id="${s.id}"]`);if(a)a.hidden=s.hidden})}
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(sync,0)));sync();
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){sb.querySelectorAll('a.it').forEach(a=>a.classList.toggle('act',a.dataset.id===e.target.id))}}),{rootMargin:'-20% 0px -70% 0px'});secs.forEach(s=>io.observe(s))}
+})();
+</script>
