@@ -25,6 +25,7 @@ aligned to the IB Economics guide.
   - [Chapter 28: Types of trade protection](https://sevketgunduz.github.io/ib-economics/ch28-trade-protection-lab.html)
   - [Chapter 29: Arguments for and against trade control/protection](https://sevketgunduz.github.io/ib-economics/ch29-protection-debate-lab.html)
   - [Chapter 27: Benefits of international trade](https://sevketgunduz.github.io/ib-economics/ch27-gains-from-trade-lab.html)
+  - [Chapter 30: Economic integration](https://sevketgunduz.github.io/ib-economics/ch30-integration-lab.html)
 
 The [site's front page](https://sevketgunduz.github.io/ib-economics/) shows the whole course
 map, so the labs already written and those still to come are both visible.

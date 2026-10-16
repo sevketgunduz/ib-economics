@@ -1,0 +1,514 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Economic Integration Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#f4f5f1; --panel:#ffffff; --panel2:#f8f9f5; --ink:#1a2029; --muted:#5a636c; --rule:#d9ddd3; --grid:#e7eae2;
+  --supply:#c0441f; --supply2:#e8876a; --demand:#2451c4; --good:#12795f; --bad:#b3261e; --hl:#6f3aa8; --hlbg:#efe6f8; --slbg:#e2efe9; --sl:#0d6b5c;
+  --tint:#eaf0fc; --focus:#2451c4; --shade:rgba(192,68,31,.14); --shadeb:rgba(36,81,196,.14);
+  --serif:"Source Serif 4",Georgia,serif; --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:16px/1.6 var(--sans);margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:0 80px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--ground);border-bottom:1px solid var(--rule)}
+.topin{max-width:1120px;margin:0 auto;padding:10px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{font:650 18px var(--serif);margin-right:auto}
+.brand span{font:600 12px var(--sans);color:var(--muted);margin-left:8px}
+nav.jump{display:flex;gap:2px;flex-wrap:wrap}
+nav.jump a{font:600 12.5px var(--sans);color:var(--muted);text-decoration:none;padding:6px 9px;border-radius:6px}
+nav.jump a:hover{background:var(--panel);color:var(--ink)}
+.lvl{display:flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden}
+.lvl button{font:700 12px var(--sans);border:0;background:var(--panel);color:var(--muted);padding:6px 12px;cursor:pointer}
+.lvl button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+h1,h2,h3{font-family:var(--serif);font-weight:650;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h1{font-size:40px;line-height:1.1} h2{font-size:27px;line-height:1.2} h3{font-size:19px}
+p{margin:0} .muted{color:var(--muted)}
+.eyebrow{font:700 11.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--demand)}
+.badge{display:inline-block;font:700 10.5px var(--sans);letter-spacing:.06em;padding:2px 7px;border-radius:4px;vertical-align:3px}
+.b-hl{background:var(--hlbg);color:var(--hl)} .b-sl{background:var(--slbg);color:var(--sl)}
+button:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+section.step{padding-top:56px;scroll-margin-top:70px}
+.shead{display:grid;gap:8px;max-width:72ch;margin-bottom:20px}
+.shead .num{font:600 13px var(--mono);color:var(--muted)}
+.hero{padding-top:44px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:36px;align-items:center}
+.hero p.lead{font-size:18px;margin-top:14px;max-width:56ch}
+.goals{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px}
+.goals ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.goals li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:15px}
+.goals input{width:18px;height:18px;accent-color:var(--good);margin-top:3px}
+.lab{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:20px}
+.lab2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+svg.g{width:100%;height:auto;display:block;border-radius:8px;background:var(--panel2);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px}
+svg .axis{stroke:var(--ink);stroke-width:1.7;fill:none} svg .axl{fill:var(--ink);font:700 12.5px var(--sans)} svg .tick{fill:var(--muted);font:11.5px var(--mono)}
+svg .guide{stroke:var(--muted);stroke-dasharray:4 4;fill:none}
+svg .s{stroke:var(--supply);stroke-width:3;fill:none;stroke-linecap:round} svg .s2{stroke:var(--supply2);stroke-width:2.2;fill:none;stroke-dasharray:7 5}
+svg .sm{stroke:var(--ink);stroke-width:3;fill:none} svg .d{stroke:var(--demand);stroke-width:3;fill:none}
+svg .ghost{stroke:var(--muted);stroke-width:1.6;stroke-dasharray:3 4;fill:none}
+svg text.ls{fill:var(--supply);font:700 13px var(--sans)} svg text.ld{fill:var(--demand);font:700 13px var(--sans)} svg text.lm{fill:var(--ink);font:700 13px var(--sans)} svg text.lg{fill:var(--muted);font:700 12px var(--sans)}
+svg .dot{fill:var(--ink)} svg .dot2{fill:var(--panel);stroke:var(--ink);stroke-width:1.8}
+svg .arrow{stroke:var(--good);stroke-width:2.4;fill:none;marker-end:url(#ah)} svg .ahead{fill:var(--good)}
+svg .bar{fill:var(--demand);opacity:.7} svg .bar.dim{fill:var(--supply);opacity:.75}
+svg .note{fill:var(--muted);font:600 11.5px var(--sans)} svg .area{fill:var(--shade)}
+.ctl{display:grid;grid-template-columns:1fr 70px;gap:2px 10px;align-items:center;font-size:14px;margin-bottom:12px}
+.ctl span{grid-column:1/-1;font-weight:600;color:var(--muted)} .ctl input{width:100%;accent-color:var(--demand)} .ctl output{font:600 13px var(--mono);text-align:right}
+.read{display:grid;grid-template-columns:1fr auto;gap:6px 14px;font-size:14.5px;margin:6px 0 0}
+.read dt{color:var(--muted)} .read dd{margin:0;font:600 13.5px var(--mono);text-align:right}
+.explain{margin-top:14px;padding:12px 14px;border-left:3px solid var(--demand);background:var(--tint);border-radius:0 8px 8px 0;font-size:14.5px}
+.btn{font:600 14px var(--sans);border:1px solid var(--rule);background:var(--panel);color:var(--ink);padding:9px 13px;border-radius:8px;cursor:pointer;text-align:left}
+.btn:hover{border-color:var(--demand)} .btn.pri{background:var(--ink);color:var(--ground);border-color:var(--ink)} .btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.flip{perspective:900px;height:170px;border:0;background:none;padding:0;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:6px}
+.flip .f{background:var(--panel);justify-content:space-between} .flip .f b{font:650 19px var(--serif)}
+.flip .b{background:var(--tint);transform:rotateY(180deg);font-size:14.5px;overflow:auto}
+.flip .hint{font-size:12px;color:var(--muted)}
+.events{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;margin:14px 0}
+.ev{display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:start}
+.ev .l{font:700 14px var(--mono);color:var(--demand);background:var(--tint);border-radius:6px;text-align:center;padding:2px 0}
+.ev[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.predict{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.fb{font-weight:600} .fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+.sorter .card{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px;display:grid;gap:10px}
+.sorter .card p{font-size:16.5px;font-family:var(--serif)}
+.score{font:600 14px var(--mono)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--grid);text-align:right;font-variant-numeric:tabular-nums}
+th{font:700 11.5px var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule)}
+td:first-child,th:first-child{text-align:left} tr.cur td{background:var(--tint);font-weight:700} tr.dmr td:nth-child(3){color:var(--supply)}
+.tblwrap{overflow-x:auto}
+.case{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;display:grid;gap:10px}
+.case details{border-top:1px solid var(--grid);padding-top:10px}
+.case summary,.qa summary{cursor:pointer;font-weight:700;color:var(--demand)}
+.case ol{margin:8px 0 0;padding-left:20px}
+.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px}
+.mcq{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;display:grid;gap:8px}
+.mcq .opts{display:grid;gap:6px}
+.mcq .opt{font:500 14.5px var(--sans)} .mcq .opt.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--panel))} .mcq .opt.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--panel))}
+.mcq .why{font-size:14px;color:var(--muted)}
+.quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.qa{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 16px}
+.qa details p{margin-top:6px;padding:8px 10px;background:var(--panel2);border-radius:6px}
+.mist{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.mist div{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;font-size:14.5px}
+.mist b{display:block;color:var(--bad);font-size:13px;letter-spacing:.03em;margin-bottom:4px} .mist i{display:block;color:var(--good);font-style:normal;font-weight:600;margin-top:6px}
+.stepper{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.dots{display:flex;gap:5px} .dots i{width:9px;height:9px;border-radius:50%;background:var(--rule)} .dots i.on{background:var(--demand)}
+.pill{font:600 12.5px var(--mono);padding:3px 9px;border-radius:99px;background:var(--panel2);border:1px solid var(--rule)}
+footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+.hlonly[hidden]{display:none!important}
+@media (max-width:860px){.hero,.lab2{grid-template-columns:1fr} h1{font-size:32px} nav.jump{display:none}}
+@media (max-width:520px){.wrap,.topin{padding-inline:16px} .lab{padding:14px} h1{font-size:28px} h2{font-size:23px}}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}}
+svg .d2{stroke:var(--demand);stroke-width:2.2;fill:none;stroke-dasharray:7 5} svg text.ld2{fill:var(--demand);font:700 12px var(--sans)} svg .spend{fill:var(--shadeb)}
+svg .dwl{fill:rgba(214,151,0,.38)} svg .gap{stroke:var(--supply);stroke-width:5;opacity:.45}
+.sorter .btn[aria-pressed="true"],.lab .btn[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.flip .f span:not(.hint){font-size:14.5px;color:var(--muted)}
+.ctl input[type=number]{font:15px var(--mono);padding:7px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink);width:100%}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px} @media (max-width:860px){.two{grid-template-columns:1fr}}
+</style>
+<style id="sb-css">
+aside.sb{position:fixed;top:0;left:0;bottom:0;width:250px;overflow:auto;background:var(--panel);border-right:1px solid var(--rule);padding:16px 12px 40px;z-index:15;font-size:13.5px}
+aside.sb .home{display:block;font:700 15px var(--serif);color:var(--ink);text-decoration:none}
+aside.sb .sub{color:var(--muted);font-size:12px;margin:2px 0 14px}
+aside.sb .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:12px 4px 6px}
+aside.sb a.it{display:grid;grid-template-columns:30px 1fr;gap:2px;padding:6px 8px;border-radius:6px;color:var(--ink);text-decoration:none;line-height:1.3}
+aside.sb a.it span:first-child{font:600 11.5px var(--mono);color:var(--muted);padding-top:1px}
+aside.sb a.it:hover{background:var(--panel2)} aside.sb a.it.act{background:var(--tint);font-weight:700}
+aside.sb .links a{display:block;padding:4px 8px;color:var(--demand);font-weight:600;text-decoration:none}
+.sbbtn{display:none}
+@media (min-width:1100px){header.top,.wrap{margin-left:250px} nav.jump{display:none!important}}
+@media (max-width:1099px){aside.sb{transform:translateX(-105%);transition:transform .2s;box-shadow:0 0 30px rgba(0,0,0,.25);width:84%;max-width:300px}
+ aside.sb.open{transform:none} nav.jump{display:none!important}
+ .sbbtn{display:inline-block;font:700 13px var(--sans);padding:6px 10px;border-radius:8px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);cursor:pointer;order:-1}}
+@media (prefers-reduced-motion:reduce){aside.sb{transition:none}}
+</style>
+
+<style id="cg-css">
+.cg-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.cg-tools input{flex:1;min-width:220px;max-width:420px;font:15px var(--sans);padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink)}
+.cg-group{margin-top:22px} .cg-group h3{margin-bottom:10px}
+.cg-item{background:var(--panel);border:1px solid var(--rule);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.cg-item summary{cursor:pointer;list-style:none;padding:14px 18px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:baseline}
+.cg-item summary::-webkit-details-marker{display:none}
+.cg-item summary b{font:650 18px var(--serif)} .cg-item summary .cg-def{grid-column:1/-1;color:var(--muted);font-size:14.5px}
+.cg-item[open] summary .cg-def{display:none}
+.cg-body{padding:0 18px 16px;display:grid;gap:10px}
+.cg-body .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+.cg-body .defn{font-weight:600}
+.cg-ex{background:var(--tint);border-radius:8px;padding:10px 12px}
+.cg-tip{border-left:3px solid var(--good);padding:6px 12px;background:var(--panel2);border-radius:0 8px 8px 0}
+.cg-rel{display:flex;gap:6px;flex-wrap:wrap} .cg-rel button{font:600 12.5px var(--sans);border:1px solid var(--rule);background:var(--panel2);color:var(--ink);border-radius:99px;padding:3px 10px;cursor:pointer}
+.cg-empty{color:var(--muted)}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="top"><div class="topin">
+  <div class="brand">Economic Integration Lab <span>IB Economics 4.4 · Hoang Ch 30</span></div>
+  <nav class="jump" aria-label="Sections"><a href="#terms">Terms</a><a href="#guide">Guide</a><a href="#cases">Cases</a><a href="#quiz">Quiz</a><a href="#exam">Exam</a></nav>
+  <div class="lvl" role="group" aria-label="Level"><button data-lvl="HL">HL</button><button data-lvl="SL">SL</button></div>
+</div></header>
+
+<div class="wrap">
+<section class="hero">
+  <div><p class="eyebrow">Unit 4 · The global economy · Chapter 30</p><h1>Why would a country give up control of its tariffs, or even its own currency?</h1>
+  <p class="lead">Climb the ladder of integration from a free trade area to a monetary union, and see what a country gains and gives up at each step. Run the trade creation and diversion calculator, set one interest rate for two very different economies, and try to get six WTO delegations to agree.</p>
+  <p class="muted" style="margin-top:12px;font-size:14px">Textbook: Hoang, Wray &amp; Chakraborty, pp. 469–484. HL material is marked <span class="badge b-hl">HL</span>; switch to SL at the top to hide it.</p></div>
+  <div class="goals"><p class="eyebrow" style="color:var(--muted)">By the end I can…</p><ul id="goals"></ul></div>
+</section>
+
+<section class="step" id="terms"><div class="shead"><span class="num">01</span><h2>Key terms: flip the cards</h2><p class="muted">Say the definition out loud first, then click to check.</p></div><div class="cards" id="cards"></div></section>
+<section class="step" id="guide"><div class="shead"><span class="num">01b</span><h2>Concept guide: every term explained</h2><p>A fuller explanation of each term in this chapter, with a worked real-world example and an exam tip. Open a term, read it, then close the page and explain it to a partner in your own words.</p></div>
+  <div class="cg-tools"><input id="cgq" type="search" placeholder="Search terms, examples…" aria-label="Search the concept guide"><button class="btn" id="cgopen">Open all</button><button class="btn" id="cgclose">Close all</button><span class="pill" id="cgcount"></span></div>
+  <div id="cgbox"></div></section>
+
+<!-- LAB SECTIONS: numbered 02, 03 … one <section class="step" id="…"> per interactive topic -->
+
+<section class="step" id="ptas"><div class="shead"><span class="num">02</span><h2>Preferential trade agreements: two, a region, or (almost) everyone</h2><p>A <b>preferential trade agreement (PTA)</b> gives its members better access to each other’s markets than outsiders get (Hoang pp. 469–471). Agreements are grouped by how many countries sign. Click each card for examples and the main trade-off.</p></div>
+  <div class="cards" id="ptacards"></div>
+</section>
+
+<section class="step" id="ladder"><div class="shead"><span class="num">03</span><h2>Build the ladder of integration (Table 30.1)</h2><p>Every trading bloc is a stage on one ladder, and each stage adds <b>one feature</b> to the stage below (Hoang p. 477). No analytical diagram is required for this chapter, but examiners expect you to set out this table from memory. Build it one step at a time.</p></div>
+  <div class="lab lab2"><div id="ladfig"></div><div><h3 id="ladt"></h3><p id="ladx" style="margin-top:8px"></p><div class="stepper"><button class="btn" id="ladprev">← Back</button><button class="btn pri" id="ladnext">Next step →</button><div class="dots" id="laddots"></div></div>
+  <div class="explain" style="margin-top:16px"><b>Label checklist:</b> four stages in order from the bottom (FTA, customs union, common market, monetary union) · four feature columns · ticks forming a staircase · one real example per stage · note that every stage is a trading bloc.</div></div></div>
+</section>
+
+<section class="step" id="deflect"><div class="shead"><span class="num">04</span><h2>Free trade area or customs union? Follow the cheapest route</h2><p>In a <b>free trade area</b> each member keeps its own tariff on outsiders. In a <b>customs union</b> all members charge one <b>common external tariff</b> (Hoang top tip, p. 473). An exporter outside the bloc wants to sell a $100 good in member A. Can it dodge A’s tariff by shipping through low-tariff member B first?</p></div>
+  <div class="lab lab2"><div id="dffig"></div><div><div class="row" id="dfmode" style="margin-bottom:12px"><button class="btn" data-df="fta">FTA, no rules of origin</button><button class="btn" data-df="roo">FTA with rules of origin</button><button class="btn" data-df="cu">Customs union</button></div>
+   <label class="ctl" for="dfa"><span>A’s tariff on outsiders</span><input type="range" id="dfa" min="0" max="40" step="1" value="25"><output id="dfao"></output></label>
+   <label class="ctl" for="dfb"><span>B’s tariff on outsiders</span><input type="range" id="dfb" min="0" max="40" step="1" value="5"><output id="dfbo"></output></label>
+   <label class="ctl" for="dfc"><span>Common external tariff (customs union only)</span><input type="range" id="dfc" min="0" max="40" step="1" value="15"><output id="dfco"></output></label>
+   <label class="ctl" for="dfs"><span>Extra shipping cost via B ($)</span><input type="range" id="dfs" min="0" max="15" step="1" value="3"><output id="dfso"></output></label>
+   <dl class="read" id="dfread"></dl><p class="explain" id="dfx"></p><p class="muted" style="font-size:12.5px">Illustrative model: one unit, world price $100, constant costs. Sending goods through the lowest-tariff member to avoid a higher tariff is called <b>trade deflection</b>.</p></div></div>
+</section>
+
+<section class="step hlonly" id="tcd"><div class="shead"><span class="num">05</span><h2>Trade creation or trade diversion? <span class="badge b-hl">HL</span></h2><p>Country H buys a good from whoever sells it cheapest after tariffs. It then forms a customs union with a partner: tariffs on the partner disappear, but the common external tariff still applies to the rest of the world. Change the costs and the tariff and see which supplier wins, before and after (Hoang pp. 474–476).</p></div>
+  <div class="row" id="tcpre" style="margin-bottom:14px"></div>
+  <div class="two"><div id="tcfig1"></div><div id="tcfig2"></div></div>
+  <div class="lab lab2" style="margin-top:14px"><div>
+   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+    <label class="ctl" for="tch" style="grid-template-columns:1fr"><span>Cost at home ($)</span><input id="tch" type="number" step="100" min="0"></label>
+    <label class="ctl" for="tcp" style="grid-template-columns:1fr"><span>Cost in partner ($)</span><input id="tcp" type="number" step="100" min="0"></label>
+    <label class="ctl" for="tcr" style="grid-template-columns:1fr"><span>Cost in rest of world ($)</span><input id="tcr" type="number" step="100" min="0"></label></div>
+   <label class="ctl" for="tct"><span>Tariff before / common external tariff after</span><input type="range" id="tct" min="0" max="50" step="5" value="20"><output id="tcto"></output></label>
+   <p class="muted" style="font-size:12.5px">Illustrative model: each country produces at a constant cost, and H buys a fixed number of units. The welfare change shown is per unit and leaves out extra units bought at the lower price.</p></div>
+   <div><dl class="read" id="tcread"></dl><p class="explain" id="tcx"></p></div></div>
+</section>
+
+<section class="step" id="pros"><div class="shead"><span class="num">06</span><h2>Advantages or disadvantages of a trading bloc?</h2><p>The syllabus lists five advantages and three disadvantages (Hoang pp. 474–475). Sort each statement, then use the feedback to name the argument. Cards marked (HL) refer to trade creation and diversion.</p></div>
+  <div class="lab sorter"><div class="card"><div class="row" style="justify-content:space-between"><span class="pill" id="adn"></span><span class="score" id="adsc"></span></div><p id="adq"></p>
+   <div class="row"><button class="btn" data-ad="adv">Advantage of joining</button><button class="btn" data-ad="dis">Disadvantage of joining</button></div><p class="fb" id="adfb"></p><div class="row"><button class="btn pri" id="adnext" hidden>Next card</button></div></div></div>
+</section>
+
+<section class="step hlonly" id="emu"><div class="shead"><span class="num">07</span><h2>One interest rate, two economies <span class="badge b-hl">HL</span></h2><p>In a monetary union one central bank (the ECB for the eurozone) sets one interest rate for every member. Set the inflation rate and output gap in a large “North” and a small “South” and compare the rate each would choose alone with the single rate (Hoang pp. 477–479).</p></div>
+  <div class="row" id="empre" style="margin-bottom:14px"></div>
+  <div class="lab lab2"><div id="emfig"></div><div>
+   <label class="ctl" for="emnp"><span>North inflation</span><input type="range" id="emnp" min="-2" max="8" step="0.5" value="2"><output id="emnpo"></output></label>
+   <label class="ctl" for="emng"><span>North output gap (% of GDP)</span><input type="range" id="emng" min="-10" max="6" step="0.5" value="0.5"><output id="emngo"></output></label>
+   <label class="ctl" for="emsp"><span>South inflation</span><input type="range" id="emsp" min="-2" max="8" step="0.5" value="1"><output id="emspo"></output></label>
+   <label class="ctl" for="emsg"><span>South output gap (% of GDP)</span><input type="range" id="emsg" min="-10" max="6" step="0.5" value="-8"><output id="emsgo"></output></label>
+   <label class="ctl" for="emw"><span>North’s share of union GDP</span><input type="range" id="emw" min="50" max="95" step="5" value="80"><output id="emwo"></output></label>
+   <dl class="read" id="emread"></dl><p class="explain" id="emx"></p><p class="muted" style="font-size:12.5px">Illustrative model: each economy’s preferred rate follows a simple Taylor-type rule, 1% + inflation + ½(inflation − 2%) + ½(output gap). The union rate uses GDP-weighted averages. The rule shows the direction of the problem, not the ECB’s actual decisions.</p></div></div>
+</section>
+
+<section class="step" id="wto"><div class="shead"><span class="num">08</span><h2>The WTO: one rule for all, and agreement by everyone</h2><p>The WTO (1995, replacing GATT) works on <b>non-discrimination</b>: under the <b>most favoured nation</b> principle, a tariff cut offered to one member must be offered to all (Hoang pp. 479–480). Bilateral agreements and regional blocs are the two exceptions (p. 483). Decisions need <b>consensus</b>, which is why the Doha Round, launched in 2001, stalled.</p></div>
+  <div class="lab lab2"><div><h3>A. Most favoured nation</h3><p class="muted" style="margin:6px 0 10px">Your country charges 20% on imported machinery. You offer Japan a lower tariff.</p>
+    <label class="ctl" for="wtcut"><span>Tariff offered to Japan</span><input type="range" id="wtcut" min="0" max="20" step="1" value="10"><output id="wtcuto"></output></label>
+    <label class="ctl" style="display:flex;gap:8px;align-items:center" for="wtfta"><input type="checkbox" id="wtfta" style="width:18px;height:18px"><span style="color:var(--ink);font-weight:500">Your country also forms a free trade area with Kenya</span></label>
+    <div class="tblwrap"><table><thead><tr><th>Exporter</th><th>Tariff it faces</th><th>Why</th></tr></thead><tbody id="wtmfn"></tbody></table></div></div>
+   <div><h3>B. Mini-Doha: can all six agree?</h3><p class="muted" style="margin:6px 0 10px">Choose a package. A deal needs every delegation to accept it.</p>
+    <label class="ctl" for="wtfa"><span>Cut in rich-country farm subsidies and tariffs</span><input type="range" id="wtfa" min="0" max="75" step="25" value="25"><output id="wtfao"></output></label>
+    <label class="ctl" for="wtin"><span>Cut in tariffs on manufactures</span><input type="range" id="wtin" min="0" max="75" step="25" value="50"><output id="wtino"></output></label>
+    <label class="ctl" for="wtse"><span>Opening of services markets</span><input type="range" id="wtse" min="0" max="75" step="25" value="50"><output id="wtseo"></output></label>
+    <label class="ctl" style="display:flex;gap:8px;align-items:center" for="wtaid"><input type="checkbox" id="wtaid" style="width:18px;height:18px"><span style="color:var(--ink);font-weight:500">Add an Aid for Trade package for the poorest members</span></label></div></div>
+  <div class="lab lab2" style="margin-top:14px"><div><p class="explain" id="wtmx"></p></div><div><div class="tblwrap"><table><thead><tr><th>Delegation</th><th>Accepts?</th><th>Red line</th></tr></thead><tbody id="wtdel"></tbody></table></div><dl class="read" id="wtread" style="margin-top:10px"></dl><p class="explain" id="wtx"></p><p class="muted" style="font-size:12.5px">Illustrative red lines, loosely based on members’ positions in the Doha Round. In 2005 average US and EU tariffs on farm goods were about 60%, compared with about 5% on manufactures (Hoang p. 483).</p></div></div>
+</section>
+
+<section class="step" id="blocsort"><div class="shead"><span class="num">09</span><h2>Which stage of integration?</h2><p>Place each real bloc on the ladder. Hoang’s examples come first; the rest are checks on current membership (2026).</p></div>
+  <div class="lab sorter"><div class="card"><div class="row" style="justify-content:space-between"><span class="pill" id="btn"></span><span class="score" id="btsc"></span></div><p id="btq"></p>
+   <div class="row"><button class="btn" data-bt="fta">Free trade area</button><button class="btn" data-bt="cu">Customs union</button><button class="btn" data-bt="cm">Common market</button><button class="btn" data-bt="mu">Monetary union</button></div><p class="fb" id="btfb"></p><div class="row"><button class="btn pri" id="btnext" hidden>Next card</button></div></div></div>
+</section>
+<!-- /LAB SECTIONS -->
+
+<section class="step" id="cases"><div class="shead"><span class="num"></span><h2>Real-world cases</h2><p>Answer in your notebook, sketch the diagram, then open the model answer.</p></div><div class="cases" id="casebox"></div></section>
+
+<section class="step" id="quiz"><div class="shead"><span class="num"></span><h2>Check yourself</h2><p>Auto-marked multiple choice first, then quick-fire questions with model answers.</p><p class="score" id="mcqscore"></p></div><div class="quiz" id="mcqs"></div>
+  <h3 style="margin:30px 0 12px">Quick-fire checklist</h3><div class="quiz" id="qf"></div></section>
+
+<section class="step" id="mistakes"><div class="shead"><span class="num"></span><h2>Common mistakes to avoid</h2></div><div class="mist" id="mist"></div></section>
+
+<section class="step" id="exam"><div class="shead"><span class="num"></span><h2>Exam practice</h2><p>Plan each answer before opening the guide.</p></div><div class="cases" id="exambox"></div></section>
+
+<footer>Economic Integration Lab · based on the IB Economics guide (4.4 Economic integration) and Hoang, Wray &amp; Chakraborty, <i>Economics for the IB Diploma</i> (Hodder 2020), Chapter 30. Table 30.1 (stages of economic integration); Figs 30.4–30.7. The deflection, trade creation/diversion, interest-rate and negotiation models are illustrative. Membership counts are updated to 2026 (eurozone 21 with Bulgaria from 1 January 2026; WTO 166; EU 27). Brexit and Appellate Body figures are approximate; sources: Office for Budget Responsibility, WTO.</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+/* ============================ CONFIG ============================
+   NS     localStorage namespace, unique per lab (e.g. 'pedlab')
+   GOALS  [text, isHL]          TERMS [term, definition, isHL]
+   CASES  [title, context, [questions], [model answers]]
+   MCQ    [question, [4 options], correctIndex, explanation, isHL]
+   QF     [question, answer, isHL]          MI [mistake, correction]
+   EX     [paper label, question, [what a strong answer includes]]  (label containing 'HL' or 'Paper 3' = HL)
+================================================================== */
+const NS='integrationlab';
+const GOALS=[['Distinguish bilateral, regional and multilateral trade agreements',0],['Tell apart a free trade area, customs union, common market and monetary union (Table 30.1)',0],['Evaluate the advantages and disadvantages of trading blocs',0],['Distinguish trade creation from trade diversion with numbers',1],['Evaluate the costs and benefits of monetary union',1],['Explain the objectives and functions of the WTO and the limits on its influence',0]];
+const TERMS=[['Economic integration','Countries becoming more interdependent by reducing trade barriers and, at higher stages, sharing policies and a currency.',0],['Preferential trade agreement (PTA)','A treaty giving members better access to each other’s markets than non-members get.',0],['Bilateral trade agreement','A PTA between two countries, e.g. China–Hong Kong CEPA (2004).',0],['Regional trade agreement','A PTA between two or more countries, usually in the same region, e.g. Mercosur.',0],['Multilateral trade agreement','An agreement among many countries, usually through the WTO, on a non-discriminatory basis.',0],['Trading bloc','Countries that cut barriers between themselves but keep barriers against non-members.',0],['Free trade area (FTA)','No barriers between members; each member sets its own barriers against outsiders.',0],['Customs union','A free trade area plus a common external tariff.',0],['Common external tariff (CET)','The same tariff charged by every customs-union member on imports from outside.',0],['Common market','A customs union plus free movement of labour and capital.',0],['Monetary union','A common market with one monetary policy, one central bank and (usually) one currency.',0],['Trade creation','Trade switches from a higher-cost producer to a lower-cost producer inside the bloc.',1],['Trade diversion','Trade switches from a lower-cost outside producer to a higher-cost producer inside the bloc.',1],['Asymmetric shock','A shock that hits union members differently, so one interest rate cannot suit them all.',1],['Most favoured nation (MFN)','A trade concession given to one WTO member must be given to all members.',0],['World Trade Organization (WTO)','Set up in 1995 to replace GATT: runs trade negotiations, settles disputes and monitors trade policy.',0]];
+const CASES=[['The African Continental Free Trade Area (AfCFTA)','AfCFTA began trading in January 2021 and has been signed by 54 of the African Union’s 55 members. Only about 15% of African countries’ trade is with other African countries, compared with roughly 60% of EU members’ trade with each other (approximate). Kenya exports tea and manufactures; Nigeria has a large but highly protected market.',['What type of trading bloc is AfCFTA, and why?','Explain two potential advantages for members.','Why might the gains be smaller than hoped?'],['A free trade area: internal tariffs are being phased out, but each member keeps its own tariffs on non-members (no common external tariff).','Access to a much larger market gives economies of scale (e.g. Kenyan manufacturers selling across East and West Africa); more competition lowers prices; acting as a group strengthens bargaining power with the EU or China.','Non-tariff barriers (border delays, different standards), poor roads and ports, and rules of origin keep costs high. Members that export similar primary products have little to trade with each other, and protected firms may close, causing structural unemployment. Supply-side investment is needed alongside the FTA.']],
+['Brexit: leaving a customs union and a single market','The UK was in the EU from 1973 to 2020 (Hoang ATL 30.2, p. 473). Since January 2021 the EU–UK Trade and Cooperation Agreement keeps zero tariffs on goods that meet rules of origin, but the UK is outside the customs union and the single market. The Office for Budget Responsibility assumes UK trade intensity will be about 15% lower in the long run than if it had stayed (approximate).',['Why do UK firms now fill in customs forms even though tariffs are zero?','Which stage(s) of integration did the UK leave?','Evaluate one gain and one cost of leaving.'],['Without a customs union, goods must prove where they were made (rules of origin) and meet EU standards checks at the border. These non-tariff costs did not exist inside the single market.','The customs union (common external tariff) and the common market (free movement of labour and capital). The UK was never in the monetary union.','Gain: regained sovereignty to set its own tariffs and sign its own trade deals (e.g. the UK–Australia FTA, joining the CPTPP in 2024). Cost: higher trade costs with its largest partner, labour shortages after free movement ended, and lower expected productivity. Most estimates suggest the costs are larger in the short to medium run.']],
+['Greece and Germany in the eurozone (HL)','After the 2008 financial crisis, Greek unemployment rose above 27% (2013), while German unemployment fell to about 5%. Both used the euro and faced the same ECB interest rate. Greece could not devalue its currency, and bailout conditions limited its fiscal policy (Hoang pp. 478–479).',['Why was one interest rate a problem for Greece?','How could Greece regain competitiveness without its own currency?','Evaluate whether euro membership benefited Greece.'],['The ECB sets a rate for the average of the union, which Germany dominates. Greece needed much lower rates and a weaker currency: an asymmetric shock.','Only through “internal devaluation”: cutting wages and prices relative to other members, which is slow and raises unemployment.','Benefits: no transaction costs or exchange-rate risk with its main partners, price transparency, lower borrowing costs before 2008 and easy access for tourists. Costs: the loss of monetary and exchange-rate policy in the crisis was very large. Greece chose to stay, which suggests it valued the long-run benefits; the union works best with similar cycles, flexible labour markets and fiscal transfers.']],
+['The WTO without an Appellate Body','Since December 2019 the WTO Appellate Body has been unable to hear appeals because the USA blocked new judges. A losing country can appeal “into the void”, so the ruling never takes effect. About 50 members, including the EU and China, set up a temporary alternative (the MPIA) in 2020. The Doha Round, launched in 2001, has not reached agreement on agriculture and services (Hoang p. 483).',['Explain two functions of the WTO.','Why are agriculture and services so hard to agree on?','What does the Appellate Body crisis show about the WTO’s influence?'],['Any two of: running negotiations to cut trade barriers; settling disputes through panels and appeals; monitoring members’ trade policies; supporting developing countries (Aid for Trade, p. 482).','Farm support is politically sensitive in rich countries, while poorer exporters want it cut. Services involve regulation (banking, health, education) that governments want to control. All 166 members must agree, so one veto is enough to block a deal.','The WTO cannot force members to obey; its power depends on large members accepting its rules. Unequal bargaining power means the biggest economies can weaken the system, and smaller members, which gain most from rules-based trade, lose most.']]];
+const MCQ=[['Which feature distinguishes a customs union from a free trade area?',['No tariffs between members','A common external tariff','Free movement of labour','A single currency'],1,'FTA members set their own external tariffs; customs-union members charge one CET.',0],
+['Which is an example of a bilateral trade agreement?',['The China–Hong Kong CEPA','The WTO','Mercosur','The eurozone'],0,'A PTA between two parties (Hoang p. 470).',0],
+['A common market adds which feature to a customs union?',['A common currency','A common central bank','Free movement of factors of production','Zero internal tariffs'],2,'Labour and capital can move freely between members.',0],
+['Which is the correct order of integration, from least to most integrated?',['Customs union → FTA → monetary union → common market','FTA → customs union → common market → monetary union','FTA → common market → customs union → monetary union','Common market → FTA → customs union → monetary union'],1,'Each stage adds one feature (Table 30.1).',0],
+['Rules of origin are needed in a free trade area because…',['Members share one external tariff','Outside goods could otherwise enter through the member with the lowest tariff','The WTO forbids free trade areas','Members use a common currency'],1,'This avoids trade deflection.',0],
+['Trade diversion occurs when a customs union causes a country to…',['Switch from a high-cost home producer to a lower-cost partner','Switch from a low-cost outside producer to a higher-cost partner','Stop all imports','Export more to non-members'],1,'The CET makes the efficient outsider look dearer.',1],
+['A customs union raises welfare overall when…',['Trade diversion exceeds trade creation','Trade creation exceeds trade diversion','Tariff revenue rises','All members use the euro'],1,'Hoang top tip, p. 476.',1],
+['Which is a disadvantage of monetary union?',['No exchange-rate risk between members','Loss of independent monetary policy','Price transparency','Lower transaction costs'],1,'One interest rate for all; no devaluation option.',1],
+['The most favoured nation principle means…',['Rich countries get lower tariffs','A concession to one member must be extended to all members','Each country chooses one favourite partner','Developing countries pay no tariffs'],1,'The core of WTO non-discrimination.',0],
+['Which factor limits the WTO’s influence?',['All members agree easily','Unequal bargaining power between members','It has no members','It sets interest rates'],1,'Large economies have more resources and market power; agriculture and services are also hard to agree on.',0]];
+const QF=[['What is a preferential trade agreement?','A treaty giving members better market access than non-members get, e.g. lower tariffs.',0],['Give an example of a bilateral trade agreement.','China–Hong Kong CEPA (2004) (p. 470), or the UK–Australia FTA (2023).',0],['What distinguishes a customs union from a free trade area?','A customs union has a common external tariff; FTA members set their own external tariffs.',0],['What does a common market add to a customs union?','Free movement of factors of production, such as labour and capital.',0],['Name the four stages of integration in order.','Free trade area, customs union, common market, monetary union.',0],['Give two advantages of joining a trading bloc.','Any two of: access to larger markets and economies of scale, more employment opportunities, stronger bargaining power, greater political stability and cooperation, (HL) trade creation.',0],['Define trade diversion.','A switch from lower-cost producers outside a bloc to higher-cost producers inside it, because of the common external tariff.',1],['When does a customs union improve welfare overall?','When trade creation outweighs trade diversion.',1],['Give two disadvantages of monetary union.','Any two of: loss of independent monetary policy, no exchange-rate adjustment, asymmetric shocks, changeover costs, fiscal constraints.',1],['Give two advantages of monetary union.','Any two of: no transaction costs, no exchange-rate risk within the union, price transparency, lower interest rates and credibility, more trade and FDI.',1],['What is the MFN principle?','A trade concession given to one WTO member must be extended to all members.',0],['State two functions of the WTO.','Any two of: running trade negotiations, settling disputes, monitoring trade policies, supporting developing countries (Aid for Trade).',0],['Give two factors that limit the WTO’s influence.','Difficulty reaching agreement on services and primary products, and the unequal bargaining power of members.',0]];
+const MI=[['“All free trade areas have a common external tariff”','Only customs unions (and higher stages) do. FTA members set their own external tariffs, which is why FTAs need rules of origin (p. 473).'],['“The EU and the eurozone are the same thing”','The EU has 27 members, but only 21 use the euro (2026). Denmark, Sweden, Poland, Hungary, Czechia and Romania do not.'],['“Trade creation means any increase in trade inside the bloc” (HL)','It means a switch to a lower-cost supplier. A switch to a higher-cost partner is trade diversion, even though trade with the partner rises.'],['“Trading blocs are a step towards global free trade”','They discriminate against non-members and can slow WTO talks; they are one of the two exceptions to non-discrimination.'],['“The WTO can force countries to trade freely”','It works by consensus and relies on members accepting rulings. Since 2019 a losing country can block a ruling by appealing to the inactive Appellate Body.'],['Hoang p. 474: CAFTA-DR gives five Central American countries bargaining power “with the USA”','CAFTA-DR includes the Dominican Republic and the USA itself. The point is that small economies negotiated with the USA together, not that a bloc bargained against the USA from outside.']];
+const EX=[['Paper 1 (a) · 10 marks','Explain the differences between a free trade area and a customs union.',['Definitions of both.','The common external tariff as the key difference; FTA members set their own tariffs.','Trade deflection and rules of origin in an FTA.','Examples: USMCA or EFTA; SACU or the EU customs union.']],
+['Paper 1 (b) · 15 marks','Using real-world examples, evaluate the view that membership of a trading bloc benefits all member countries.',['Advantages: market access and economies of scale, employment, bargaining power, political stability.','Disadvantages: loss of sovereignty, challenges to multilateral talks, structural unemployment in uncompetitive industries.','Winners and losers differ by member size, level of development and industry (AfCFTA, Brexit).','A supported judgement: “all” is too strong.']],
+['Paper 1 (a) · 10 marks (HL)','Explain the difference between trade creation and trade diversion.',['Definitions with the role of the common external tariff.','A numerical example: home, partner and rest-of-world costs before and after the union.','Efficiency effects: creation saves resources, diversion wastes them.','Welfare improves only if creation exceeds diversion.']],
+['Paper 1 (b) · 15 marks (HL)','Using real-world examples, evaluate the advantages and disadvantages for a country of joining a monetary union.',['Advantages: no transaction costs or exchange-rate risk, price transparency, credibility and lower interest rates, more trade and FDI.','Disadvantages: one interest rate, no devaluation, asymmetric shocks, changeover costs, fiscal rules.','Examples: Greece vs Germany; Bulgaria joining in 2026; Sweden and Denmark staying out.','A judgement based on how similar the economy’s cycle is to the union’s.']],
+['Paper 2 · 15 marks','Using information from the text/data and your knowledge of economics, evaluate the likely impact of the country’s decision to join the regional free trade agreement.',['Use the data: trade shares, tariffs, industries.','Stakeholders: consumers, exporters, import-competing firms, workers, government revenue.','Short run vs long run; FTA vs deeper integration; non-tariff barriers.','A judgement.']],
+['Paper 1 (b) · 15 marks','Using real-world examples, discuss the factors that limit the influence of the World Trade Organization.',['Objectives and functions of the WTO.','Difficulty agreeing on agriculture and services (Doha Round since 2001).','Unequal bargaining power; the Appellate Body blocked since 2019.','The growth of bilateral and regional agreements as an alternative; a judgement.']]];
+
+/* ============================ CORE (do not edit per chapter) ============================ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const st={get(k,d){try{const v=localStorage.getItem(NS+'.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(NS+'.'+k,JSON.stringify(v))}catch(e){}}};
+const f0=v=>Math.round(v).toLocaleString(), f1=v=>(Math.round(v*10)/10).toLocaleString(), f2=v=>(Math.round(v*100)/100).toLocaleString(), money=v=>(v<0?'−$':'$')+Math.round(Math.abs(v)).toLocaleString();
+const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tween(from,to,ms,cb){if(RM||document.hidden){cb(to);return}const t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;cb(from+(to-from)*e);if(k<1)requestAnimationFrame(f)})(t0)}
+const LC={s:'ls',s2:'ls',d:'ld',d2:'ld2',sm:'lm'};
+/* Plot({xmax,ymax,xl,yl,w?,h?,L?}) : fn(f,cls,label,lx) pts(points,cls) poly(points,cls) seg(x0,y0,x1,y1,cls) rect(x,y,cls)
+   bar(xCentre,width,height,cls,label) dot(x,y,cls) guide(x,y,xLabel,yLabel) xt(x,t) yt(y,t) text(x,y,t,cls,anchor) arrow(...) gap(x0,x1,y) svg(aria)
+   classes: d d2 s s2 sm ghost guide arrow | areas: spend (blue) area (orange) dwl (gold) | bars: bar, bar dim */
+function Plot(o){const W=o.w||540,H=o.h||380,L=o.L||54,R=26,T=24,B=44;const sx=x=>L+x/o.xmax*(W-L-R),sy=y=>H-B-y/o.ymax*(H-T-B);const out=[];
+ return{sx,sy,
+  fn(f,cls,label,lx){let d='',pen=false;for(let i=0;i<=160;i++){const x=o.xmax*i/160,y=f(x);if(!isFinite(y)||y<0||y>o.ymax){pen=false;continue}d+=(pen?'L':'M')+sx(x).toFixed(1)+' '+sy(y).toFixed(1)+' ';pen=true}if(d)out.push(`<path class="${cls}" d="${d}"/>`);if(label){const x=lx!=null?lx:o.xmax*.86,y=f(x);if(isFinite(y)&&y>=0&&y<=o.ymax)out.push(`<text class="${LC[cls]||'lg'}" x="${sx(x)+6}" y="${sy(y)-6}">${label}</text>`)}},
+  pts(p,cls){out.push(`<path class="${cls}" d="${p.map((q,i)=>(i?'L':'M')+sx(q[0]).toFixed(1)+' '+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  poly(p,cls){out.push(`<polygon class="${cls}" points="${p.map(q=>sx(q[0]).toFixed(1)+','+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  rect(x,y,cls){out.push(`<rect class="${cls}" x="${sx(0)}" y="${sy(y)}" width="${sx(x)-sx(0)}" height="${sy(0)-sy(y)}"/>`)},
+  bar(x,w,h,cls,lab){out.push(`<rect class="bar ${cls||''}" x="${sx(x-w/2)}" y="${sy(h)}" width="${sx(w)-sx(0)}" height="${sy(0)-sy(h)}"/>`);if(lab!=null)out.push(`<text class="note" x="${sx(x)}" y="${sy(h)-6}" text-anchor="middle">${lab}</text>`)},
+  seg(x0,y0,x1,y1,cls){out.push(`<path class="${cls}" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  dot(x,y,c){out.push(`<circle class="${c||'dot'}" cx="${sx(x)}" cy="${sy(y)}" r="5"/>`)},
+  guide(x,y,xl,yl){out.push(`<path class="guide" d="M${sx(0)} ${sy(y)} L${sx(x)} ${sy(y)} L${sx(x)} ${sy(0)}"/>`);if(yl)out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${yl}</text>`);if(xl)out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${xl}</text>`)},
+  xt(x,t){out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${t}</text>`)},
+  yt(y,t){out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${t}</text>`)},
+  text(x,y,t,c,a){out.push(`<text class="${c||'note'}" x="${sx(x)}" y="${sy(y)}" text-anchor="${a||'start'}">${t}</text>`)},
+  arrow(x0,y0,x1,y1){out.push(`<path class="arrow" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  gap(x0,x1,y){out.push(`<path class="gap" d="M${sx(x0)} ${sy(y)} L${sx(x1)} ${sy(y)}"/>`)},
+  svg(aria){return `<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria||''}"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0 0 L10 5 L0 10z"/></marker></defs>${out.join('')}<path class="axis" d="M${sx(0)} ${sy(o.ymax)} L${sx(0)} ${sy(0)} L${sx(o.xmax)} ${sy(0)}"/><text class="axl" x="${sx(0)-8}" y="${T-8}">${o.yl}</text><text class="axl" x="${sx(o.xmax)}" y="${H-8}" text-anchor="end">${o.xl}</text><text class="tick" x="${sx(0)-6}" y="${sy(0)+17}" text-anchor="end">0</text></svg>`}}}
+/* sorter('pre', [[card text, answerKey, explanation]], {key: label}, 'data-attr')  — needs ids pre+n/q/fb/next/sc */
+function sorter(pre,cards,labels,attr){let i=st.get(pre+'i',0),sc=st.get(pre+'s',[0,0]);
+ const draw=()=>{i%=cards.length;$('#'+pre+'n').textContent=`Card ${i+1} of ${cards.length}`;$('#'+pre+'q').textContent=cards[i][0];$('#'+pre+'fb').textContent='';$('#'+pre+'next').hidden=true;$$(`[${attr}]`).forEach(b=>b.disabled=false);$('#'+pre+'sc').textContent=`Score ${sc[0]} / ${sc[1]}`};
+ $$(`[${attr}]`).forEach(b=>b.addEventListener('click',()=>{const c=cards[i],ok=b.getAttribute(attr)===c[1];sc[1]++;if(ok)sc[0]++;st.set(pre+'s',sc);const fb=$('#'+pre+'fb');fb.className='fb '+(ok?'ok':'no');fb.textContent=(ok?'✓ Correct. ':'✗ Answer: '+labels[c[1]]+'. ')+c[2];$$(`[${attr}]`).forEach(x=>x.disabled=true);$('#'+pre+'next').hidden=false;$('#'+pre+'sc').textContent=`Score ${sc[0]} / ${sc[1]}`}));
+ $('#'+pre+'next').addEventListener('click',()=>{i++;st.set(pre+'i',i);draw()});draw()}
+/* stepper('pre', steps[[title, html]], draw(stepIndex)) — needs ids pre+t/x/prev/next/dots */
+function stepper(pre,steps,draw){let k=0;const go=()=>{k=Math.max(0,Math.min(steps.length-1,k));draw(k);$('#'+pre+'t').textContent=`Step ${k+1}: ${steps[k][0]}`;$('#'+pre+'x').innerHTML=steps[k][1];$('#'+pre+'dots').innerHTML=steps.map((_,i)=>`<i class="${i<=k?'on':''}"></i>`).join('');$('#'+pre+'prev').disabled=k===0;$('#'+pre+'next').disabled=k===steps.length-1};
+ $('#'+pre+'next').addEventListener('click',()=>{k++;go()});$('#'+pre+'prev').addEventListener('click',()=>{k--;go()});go();return{reset(){k=0;go()}}}
+let LVL=st.get('lvl','HL');const HASLVL=!!$('.lvl');
+function renderGoals(){const d=st.get('goals',[]);$('#goals').innerHTML=GOALS.map((g,i)=>g[1]&&LVL==='SL'?'':`<li><input type="checkbox" id="g${i}" ${d.includes(i)?'checked':''}><label for="g${i}">${g[0]} ${g[1]&&HASLVL?'<span class="badge b-hl">HL</span>':''}</label></li>`).join('');$$('#goals input').forEach(c=>c.addEventListener('change',()=>{const i=+c.id.slice(1);let v=st.get('goals',[]);v=c.checked?[...new Set([...v,i])]:v.filter(x=>x!==i);st.set('goals',v)}))}
+function renderCards(){$('#cards').innerHTML=TERMS.filter(t=>!(t[2]&&LVL==='SL')).map(t=>`<button class="flip" aria-label="${t[0]}: show definition"><div class="in"><div class="f"><b>${t[0]}</b><span class="hint">${t[2]&&HASLVL?'<span class="badge b-hl">HL</span> ':''}Click to flip</span></div><div class="b">${t[1]}</div></div></button>`).join('');$$('#cards .flip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on')))}
+function renderMCQ(){const list=MCQ.map((q,i)=>[q,i]).filter(x=>!(x[0][4]&&LVL==='SL'));
+ $('#mcqs').innerHTML=list.map(([q,i],k)=>`<div class="mcq" data-i="${i}"><p><b>${k+1}.</b> ${q[0]}</p><div class="opts">${q[1].map((o,j)=>`<button class="btn opt" data-j="${j}">${String.fromCharCode(65+j)}. ${o}</button>`).join('')}</div><p class="why" hidden></p></div>`).join('');
+ const sc=()=>{const a=st.get('mcq',{});const done=list.filter(x=>a[x[1]]!=null);const ok=done.filter(x=>a[x[1]]===x[0][2]).length;$('#mcqscore').innerHTML=done.length?`Score: ${ok} / ${list.length} <button class="btn" id="mcqreset" style="margin-left:10px;padding:4px 10px">Try again</button>`:'';const r=$('#mcqreset');if(r)r.addEventListener('click',()=>{st.set('mcq',{});renderMCQ()})};
+ $$('.mcq').forEach(el=>{const i=+el.dataset.i,q=MCQ[i];const mark=j=>{el.querySelectorAll('.opt').forEach(b=>{const k=+b.dataset.j;b.disabled=true;if(k===q[2])b.classList.add('ok');else if(k===j)b.classList.add('no')});const w=el.querySelector('.why');w.hidden=false;w.textContent=(j===q[2]?'✓ ':'✗ ')+q[3]};
+  const a=st.get('mcq',{});if(a[i]!=null)mark(a[i]);el.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{const a=st.get('mcq',{});a[i]=+b.dataset.j;st.set('mcq',a);mark(+b.dataset.j);sc()}))});sc()}
+function renderQF(){$('#qf').innerHTML=QF.filter(q=>!(q[2]&&LVL==='SL')).map(q=>`<div class="qa"><p><b>${q[0]}</b></p><details><summary>Show answer</summary><p>${q[1]}</p></details></div>`).join('')}
+function renderStatic(){
+ $('#casebox').innerHTML=CASES.map(c=>`<article class="case"><h3>${c[0]}</h3><p>${c[1]}</p><ol>${c[2].map(q=>`<li>${q}</li>`).join('')}</ol><details><summary>Model answer</summary><ol>${c[3].map(a=>`<li>${a}</li>`).join('')}</ol></details></article>`).join('');
+ $('#mist').innerHTML=MI.map(m=>`<div><b>✗ ${m[0]}</b>${m[1]}</div>`).join('');
+ $('#exambox').innerHTML=EX.map(e=>{const hl=/HL|Paper 3/.test(e[0]);return `<article class="case ${hl&&HASLVL?'hlonly':''}"><span class="badge ${hl?'b-hl':'b-sl'}">${e[0]}</span><p style="font-family:var(--serif);font-size:17px">${e[1]}</p><details><summary>What a strong answer includes</summary><ol>${e[2].map(x=>`<li>${x}</li>`).join('')}</ol></details></article>`}).join('')}
+function setLvl(l){LVL=HASLVL?l:'HL';st.set('lvl',LVL);$$('.lvl button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lvl===LVL));$$('.hlonly').forEach(e=>e.hidden=LVL==='SL');renderCards();renderGoals();renderMCQ();renderQF()}
+$$('.lvl button').forEach(b=>b.addEventListener('click',()=>setLvl(b.dataset.lvl)));
+
+/* LAB CODE: chapter-specific interactive sections. Each section = a draw() function + event listeners. */
+
+/* 02 PTA cards */
+const PTA=[['Bilateral','2 countries','China–Hong Kong CEPA (2004, p. 470); the UK–Australia FTA (2023).','Quick to negotiate and tailored to two economies, but it creates a “spaghetti bowl” of overlapping rules, and the bigger partner has more bargaining power.'],
+['Regional','2+ countries, usually neighbours','The EU (27), APEC (21), Mercosur, CAFTA-DR, AfCFTA (pp. 470–471). The WTO has been notified of more than 300 regional agreements in force.','Deeper integration among neighbours is easier than a global deal, but outsiders face discrimination. Note: CAFTA-DR includes the USA and the Dominican Republic (Hoang p. 474 leaves them out).'],
+['Multilateral','Many countries, through the WTO','WTO agreements such as the 2017 Trade Facilitation Agreement (p. 471).','Non-discriminatory (MFN), so it gives the largest gains from trade, but every member must agree, which makes deals slow and rare.'],
+['PTA or trading bloc?','Two related ideas','Every trading bloc (FTA, customs union, common market, monetary union) rests on preferential agreements, but a one-off tariff concession between two countries is a PTA, not a bloc.','Exam tip: Hoang warns that students often mix up PTAs, FTAs, customs unions, common markets and monetary unions (p. 473). Learn all five.']];
+$('#ptacards').innerHTML=PTA.map(p=>`<button class="flip" style="height:280px" aria-label="${p[0]} agreements"><div class="in"><div class="f"><b>${p[0]}</b><span><span class="badge b-sl">${p[1]}</span></span><span>${p[2]}</span><span class="hint">Click for the trade-off</span></div><div class="b">${p[3]}</div></div></button>`).join('');
+$$('#ptacards .flip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on')));
+
+/* 03 integration ladder (Table 30.1) */
+const LST=[['Free trade area','USMCA · EFTA · AfCFTA'],['Customs union','SACU · EU–Turkey'],['Common market','EU single market · CARICOM'],['Monetary union','Eurozone (21 members)']];
+const LFT=[['No internal','barriers'],['Common','external tariff'],['Free movement','of factors'],['Common currency','& central bank']];
+const LSTEPS=[['Set up the table','Draw four columns, one for each feature a bloc can have. The stages go in rows, from the least integrated at the bottom to the most integrated at the top.'],
+['Free trade area','Members remove tariffs and quotas on trade with each other. Each member <b>keeps its own</b> barriers against outsiders. Example: USMCA, which replaced NAFTA in 2020 (p. 471).'],
+['Customs union','Add a <b>common external tariff</b>: every member charges the same tariff on outsiders and negotiates trade deals as one. Example: SACU, the oldest customs union (1910) (p. 472).'],
+['Common market','Add <b>free movement of labour and capital</b>. A Spanish engineer can work in Germany; a German carmaker can build a plant in Spain (Volkswagen, pp. 473–474).'],
+['Monetary union','Add <b>one monetary policy, one central bank and one currency</b>: the ECB in Frankfurt and the euro, in notes and coins since 1 January 2002 (p. 476).'],
+['Add examples and check','Each stage keeps every feature of the stage below, so the ticks form a staircase. All four stages are trading blocs. Not all EU members are in the top stage: 21 of 27 use the euro (2026).']];
+const LTX='font:500 12px var(--sans);fill:var(--muted)';
+function drawLad(k){const W=600,H=320,x0=196,cw=98,rh=52,top=72;let s='';
+ LFT.forEach((f,j)=>{const cx=x0+j*cw+cw/2;s+=`<text x="${cx}" y="30" text-anchor="middle" style="${LTX}">${f[0]}</text><text x="${cx}" y="45" text-anchor="middle" style="${LTX}">${f[1]}</text>`});
+ s+=`<path class="guide" d="M${x0} 56 L${x0+4*cw} 56"/>`;
+ for(let i=0;i<4;i++){const y=top+(3-i)*(rh+6),on=i<k;
+  s+=`<rect x="8" y="${y}" width="${x0-16}" height="${rh}" rx="6" fill="${on?'var(--tint)':'var(--panel2)'}" stroke="var(--rule)"/>`;
+  if(on){s+=`<text x="18" y="${y+(k>=5?22:31)}" style="font:600 14px var(--sans);fill:var(--ink)">${LST[i][0]}</text>`;if(k>=5)s+=`<text x="18" y="${y+40}" style="${LTX}">${LST[i][1]}</text>`;}
+  for(let j=0;j<4;j++){const cx=x0+j*cw,yes=j<=i;s+=`<rect x="${cx+4}" y="${y}" width="${cw-8}" height="${rh}" rx="6" fill="${on&&yes?'var(--shadeb)':'var(--panel)'}" stroke="var(--rule)"/>`;
+   if(on)s+=`<text x="${cx+cw/2}" y="${y+rh/2+8}" text-anchor="middle" style="font:700 22px var(--sans);fill:${yes?'var(--demand)':'var(--muted)'}">${yes?'✓':'–'}</text>`}}
+ if(k>=5)s+=`<text class="note" x="${W-8}" y="${H-6}" text-anchor="end">↑ more integration, more loss of sovereignty</text>`;
+ $('#ladfig').innerHTML=`<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="Stages of economic integration table">${s}</svg>`}
+
+/* 04 FTA vs customs union: trade deflection */
+let dfMode=st.get('dfm','fta');
+function drawDf(){const ta=+$('#dfa').value,tb=+$('#dfb').value,c=+$('#dfc').value,sh=+$('#dfs').value,PW=100;
+ $('#dfao').textContent=ta+'%';$('#dfbo').textContent=tb+'%';$('#dfco').textContent=c+'%';$('#dfso').textContent='$'+sh;
+ $$('[data-df]').forEach(b=>b.classList.toggle('pri',b.dataset.df===dfMode));
+ $('#dfa').disabled=$('#dfb').disabled=dfMode==='cu';$('#dfc').disabled=dfMode!=='cu';
+ let dir,via,revA_dir,revB_via,revA_via;
+ if(dfMode==='cu'){dir=PW*(1+c/100);via=PW*(1+c/100)+sh;revA_dir=PW*c/100;revB_via=PW*c/100;revA_via=0}
+ else{dir=PW*(1+ta/100);revA_dir=PW*ta/100;revB_via=PW*tb/100;revA_via=dfMode==='roo'?PW*ta/100:0;via=PW*(1+tb/100)+sh+revA_via}
+ const viaWins=via<dir,price=Math.min(dir,via),rA=viaWins?revA_via:revA_dir,rB=viaWins?revB_via:0,eff=(price-PW-(viaWins?sh:0))/PW*100;
+ const g=Plot({xmax:2,ymax:Math.max(dir,via)*1.22,xl:'',yl:'$ per unit in A',h:300,L:60});[0,50,100,150].filter(v=>v<Math.max(dir,via)*1.22).forEach(v=>g.yt(v,'$'+v));
+ g.bar(.55,.6,dir,viaWins?'dim':'',money(dir));g.bar(1.45,.6,via,viaWins?'':'dim',money(via));g.seg(0,PW,2,PW,'guide');g.text(1.98,PW+3,'world price $100','note','end');
+ g.xt(.55,'Direct to A');g.xt(1.45,'Via B, then into A');$('#dffig').innerHTML=g.svg('Cost of each route into member A');
+ $('#dfread').innerHTML=`<dt>Cheapest route</dt><dd>${viaWins?'via B':'direct to A'}</dd><dt>Price in A</dt><dd>${money(price)}</dd><dt>Tariff revenue to A</dt><dd>${money(rA)}</dd><dt>Tariff revenue to B</dt><dd>${money(rB)}</dd><dt>Tariff A actually applies</dt><dd>${f1(eff)}%</dd>`;
+ $('#dfx').innerHTML=dfMode==='cu'?`With a common external tariff of ${c}%, the good pays the same duty whichever member it enters through, so routing via B only adds $${sh} of shipping. Members need no rules of origin, but no member can set its own tariff: a <b>loss of sovereignty</b> in exchange for simpler borders.`
+ :dfMode==='roo'?`Rules of origin say only goods <b>made</b> inside the bloc cross internal borders duty-free. Goods from outside that pass through B still pay A’s ${ta}% tariff, so ${viaWins?'routing via B is still cheaper only because A’s own tariff is unchanged':'there is no gain from routing via B'}. A keeps control of its tariff, but firms face the paperwork of proving where goods were made (Brexit lorries at Dover).`
+ :viaWins?`<b>Trade deflection:</b> the exporter pays B’s ${tb}% tariff plus $${sh} shipping, then enters A tariff-free. A’s ${ta}% tariff is bypassed: A charges only about ${f1(eff)}% in effect and collects no revenue. This is why FTAs such as USMCA have rules of origin.`:`Routing via B costs more than paying A’s tariff directly (the tariff gap is smaller than the extra shipping cost), so no deflection happens.`}
+$$('[data-df]').forEach(b=>b.addEventListener('click',()=>{dfMode=b.dataset.df;st.set('dfm',dfMode);drawDf()}));['dfa','dfb','dfc','dfs'].forEach(id=>$('#'+id).addEventListener('input',drawDf));
+
+/* 05 trade creation vs diversion (HL) */
+const TCP=[['Cars: trade diversion (scenario)',11000,10000,9000,20],['Cars: trade creation',11000,10000,10000,20],['Low tariff: no switch',11000,10000,9000,5],['Your own numbers',500,450,400,30]];
+$('#tcpre').innerHTML=TCP.map((p,i)=>`<button class="btn" data-tc="${i}">${p[0]}</button>`).join('');
+$$('[data-tc]').forEach(b=>b.addEventListener('click',()=>{const p=TCP[+b.dataset.tc];$('#tch').value=p[1];$('#tcp').value=p[2];$('#tcr').value=p[3];$('#tct').value=p[4];drawTc()}));
+const TCN={H:'home producers',P:'the partner',R:'the rest of the world'};
+function tcBest(pr){return ['H','P','R'].reduce((a,k)=>pr[k]<pr[a]?k:a,'H')}
+function tcFig(id,pr,cost,best,ttl){const ym=Math.max(pr.H,pr.P,pr.R)*1.25;const g=Plot({xmax:3,ymax:ym,xl:'',yl:'Price in H ($)',h:280,L:66,w:420});
+ [['H','Home'],['P','Partner'],['R','Rest of world']].forEach((s,i)=>{g.bar(i+.5,.55,pr[s[0]],s[0]===best?'':'dim',money(pr[s[0]]));g.xt(i+.5,s[1])});
+ g.text(.05,ym*.95,ttl,'lm');$('#'+id).innerHTML=g.svg(ttl)}
+function drawTc(){const H=Math.max(0,+$('#tch').value),P=Math.max(0,+$('#tcp').value),R=Math.max(0,+$('#tcr').value),t=+$('#tct').value/100;$('#tcto').textContent=Math.round(t*100)+'%';
+ const cost={H,P,R},b={H,P:P*(1+t),R:R*(1+t)},a={H,P,R:R*(1+t)},sb=tcBest(b),sa=tcBest(a);
+ const revB=sb==='H'?0:cost[sb]*t,revA=sa==='R'?R*t:0,cs=b[sb]-a[sa],gov=revA-revB,net=cs+gov,res=cost[sb]-cost[sa];
+ tcFig('tcfig1',b,cost,sb,'Before: tariff on all imports');tcFig('tcfig2',a,cost,sa,'After: customs union with partner');
+ const type=sb===sa?'No change of supplier':sb==='H'&&sa==='P'?'Trade creation':sb==='R'&&sa==='P'?'Trade diversion':'Other switch';
+ $('#tcread').innerHTML=`<dt>Supplier before → after</dt><dd>${TCN[sb]} → ${TCN[sa]}</dd><dt>Price paid in H</dt><dd>${money(b[sb])} → ${money(a[sa])}</dd><dt>Consumers gain per unit</dt><dd>${money(cs)}</dd><dt>Tariff revenue change per unit</dt><dd>${money(gov)}</dd><dt>Real resource cost per unit</dt><dd>${money(cost[sb])} → ${money(cost[sa])}</dd><dt><b>Net welfare change per unit</b></dt><dd><b>${money(net)}</b></dd><dt><b>Result</b></dt><dd><b>${type}</b></dd>`;
+ const lo=R,hi=R*(1+t);
+ $('#tcx').innerHTML=(type==='Trade diversion'?`H switches from the cheapest producer in the world (${money(R)}) to a dearer partner (${money(P)}), only because the partner no longer pays the tariff. Consumers save ${money(cs)}, but the government loses ${money(-gov)} of revenue, so H is ${money(-net)} worse off per unit. That loss equals the extra real resources used: ${money(P)} − ${money(R)}.`
+ :type==='Trade creation'?`Before the union, imports with the tariff cost more than home production, so H made the good itself at ${money(H)}. Now the partner sells at ${money(P)}: production moves to a <b>lower-cost</b> producer and H gains ${money(net)} per unit, equal to the resources saved.`
+ :type==='No change of supplier'?(sb==='P'?`The partner already supplied H. Consumers gain ${money(cs)} and the government loses the same amount, so the net change per unit is zero; the gain comes from extra units bought at the lower price.`:`The supplier does not change, so there is no trade creation or diversion. ${sb==='R'?'The tariff is low enough that the outsider stays cheapest even after the partner’s tariff is removed.':''}`)
+ :`The supplier changes from ${TCN[sb]} to ${TCN[sa]}.`)+(R*(1+t)<H&&t>0?` <span class="muted">With these home and rest-of-world costs and this tariff, any partner cost above ${money(lo)} and below ${money(hi)} would cause trade diversion.</span>`:'')+' A customs union raises welfare only if trade creation outweighs trade diversion (p. 476).'}
+['tch','tcp','tcr','tct'].forEach(id=>$('#'+id).addEventListener('input',drawTc));$('#tch').value=TCP[0][1];$('#tcp').value=TCP[0][2];$('#tcr').value=TCP[0][3];
+
+/* 06 advantages / disadvantages sorter */
+sorter('ad',[['“Our carmakers can now sell to 450 million consumers and build bigger plants.”','adv','Greater market access gives economies of scale.'],['“We can no longer set our own tariffs on Chinese steel.”','dis','Loss of sovereignty: the bloc sets the common external tariff.'],['“Our unemployed engineers can take jobs in other member countries.”','adv','Free movement of labour creates employment opportunities.'],['“As one bloc, we negotiate with the USA as equals.”','adv','Stronger bargaining power in multilateral negotiations.'],['“Members that once fought wars now settle disputes in Brussels.”','adv','Greater political stability and cooperation (Europe after 1945).'],['“We now buy dearer cars from a partner instead of cheaper ones from Japan.” (HL)','dis','Trade diversion: a switch to a higher-cost producer inside the bloc.'],['“We now import from a low-cost partner instead of making the good ourselves at high cost.” (HL)','adv','Trade creation: a switch to a lower-cost producer.'],['“Countries focus on regional deals, and global WTO talks stall.”','dis','A challenge to multilateral trading negotiations.'],['“Brussels rules decide our food standards.”','dis','Loss of sovereignty over regulation.'],['“More competition from partner firms pushes our firms to cut costs.”','adv','Competition and efficiency gains from market access. (Hoang p. 475 links this to diversion; it is really a result of trade creation.)']],{adv:'Advantage',dis:'Disadvantage'},'data-ad');
+
+/* 07 monetary union: one interest rate (HL) */
+const EMP=[['Crisis: 2010–13 style',2,0.5,1,-8,80],['Boom: 2003–07 style',1,-1,4,3,80],['Similar cycles',2,0,2,0,80]];
+$('#empre').innerHTML=EMP.map((p,i)=>`<button class="btn" data-em="${i}">${p[0]}</button>`).join('');
+$$('[data-em]').forEach(b=>b.addEventListener('click',()=>{const p=EMP[+b.dataset.em];['emnp','emng','emsp','emsg','emw'].forEach((id,k)=>$('#'+id).value=p[k+1]);drawEm()}));
+const rule=(pi,gap)=>1+pi+.5*(pi-2)+.5*gap;
+function drawEm(){const np=+$('#emnp').value,ng=+$('#emng').value,sp=+$('#emsp').value,sg=+$('#emsg').value,w=+$('#emw').value/100;
+ $('#emnpo').textContent=f1(np)+'%';$('#emngo').textContent=(ng>0?'+':'')+f1(ng)+'%';$('#emspo').textContent=f1(sp)+'%';$('#emsgo').textContent=(sg>0?'+':'')+f1(sg)+'%';$('#emwo').textContent=Math.round(w*100)+'%';
+ const iN=rule(np,ng),iS=rule(sp,sg),iU=rule(w*np+(1-w)*sp,w*ng+(1-w)*sg),gS=iU-iS,gN=iU-iN;
+ const W=540,H=250,lo=-8,hi=14,x=v=>150+(Math.max(lo,Math.min(hi,v))-lo)/(hi-lo)*(W-210);let s='';
+ [-5,0,5,10].forEach(v=>{s+=`<path class="${v===0?'axis':'guide'}" d="M${x(v)} 30 L${x(v)} 200"/><text class="tick" x="${x(v)}" y="218" text-anchor="middle">${v}%</text>`});
+ [['North wants',iN,'d'],['South wants',iS,'s'],['Single union rate',iU,'sm']].forEach((r,i)=>{const y=44+i*54,c=r[2]==='d'?'var(--demand)':r[2]==='s'?'var(--supply)':'var(--ink)';
+  s+=`<text x="10" y="${y+20}" style="font:600 13px var(--sans);fill:var(--ink)">${r[0]}</text><rect x="${Math.min(x(0),x(r[1]))}" y="${y}" width="${Math.max(2,Math.abs(x(r[1])-x(0)))}" height="30" rx="4" fill="${c}" opacity="${i===2?.85:.7}"/><text class="tick" x="${r[1]>=0?x(r[1])+6:Math.max(x(r[1])-6,154)}" y="${y+20}" text-anchor="${r[1]>=0?'start':'end'}">${f1(r[1])}%</text>`});
+ s+=`<text class="note" x="${W-6}" y="${H-8}" text-anchor="end">Interest rate (% a year)</text>`;
+ $('#emfig').innerHTML=`<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="Preferred and single interest rates">${s}</svg>`;
+ $('#emread').innerHTML=`<dt>North would choose</dt><dd>${f1(iN)}%</dd><dt>South would choose</dt><dd>${f1(iS)}%${iS<0?' (below zero: rates cannot fall much below 0%)':''}</dd><dt>Single union rate</dt><dd>${f1(iU)}%</dd><dt>Rate is wrong for South by</dt><dd>${(gS>0?'+':'')+f1(gS)} pp (${Math.abs(gS)<.75?'about right':gS>0?'too tight':'too loose'})</dd><dt>Rate is wrong for North by</dt><dd>${(gN>0?'+':'')+f1(gN)} pp</dd>`;
+ $('#emx').innerHTML=Math.abs(gS)<.75&&Math.abs(gN)<.75?'When members have <b>similar economic cycles</b>, one rate suits everyone, and the union gives its benefits at little cost: no transaction costs, no exchange-rate risk, price transparency and more trade and FDI.'
+ :gS>0?`<b>Asymmetric shock:</b> the single rate is ${f1(gS)} points too high for the South, because the larger North dominates the average. A country with its own currency would cut rates and let its exchange rate fall. Inside the union the South can only cut wages and prices (“internal devaluation”), which is slow and raises unemployment, as in Greece after 2010.`
+ :`The single rate is ${f1(-gS)} points too low for the South: cheap borrowing fuels a boom, inflation and asset bubbles, as in Spain’s and Ireland’s housing markets before 2008. The South cannot raise its own interest rate, so only fiscal policy is left, and EU fiscal rules limit that too.`}
+['emnp','emng','emsp','emsg','emw'].forEach(id=>$('#'+id).addEventListener('input',drawEm));
+
+/* 08 WTO: MFN and consensus */
+function drawMfn(){const cut=+$('#wtcut').value,fta=$('#wtfta').checked;$('#wtcuto').textContent=cut+'%';
+ const rows=[['Japan',cut,'The concession you offered'],['Brazil',cut,'MFN: the same concession must go to every WTO member'],['Vietnam',cut,'MFN: the same concession must go to every WTO member'],['Kenya',fta?0:cut,fta?'Exception: members of a regional trade agreement may get better terms':'MFN: the same concession must go to every WTO member']];
+ $('#wtmfn').innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}%</td><td>${r[2]}</td></tr>`).join('');
+ $('#wtmx').innerHTML=`Cutting the tariff for Japan from 20% to ${cut}% cuts it for <b>every</b> WTO member. This is non-discrimination: it stops the tariff war of favourites that hurt trade in the 1930s.`+(fta?' The FTA with Kenya is allowed as an exception, but it discriminates against Brazil and Vietnam, which is why blocs can be a challenge to multilateral trade.':' Tick the box to see the regional-agreement exception.')}
+const DEL=[['USA',(f,i,s)=>i>=50&&s>=50&&f<=50,'cut manufactures tariffs ≥ 50%, open services ≥ 50%, farm cut ≤ 50%'],['EU',(f,i,s)=>f<=25&&i>=25&&s>=25,'farm cut ≤ 25% (protects its farmers)'],['China',(f,i,s)=>i>=25&&s<=50,'manufactures cut ≥ 25%, services opening ≤ 50%'],['India',(f,i,s)=>f>=25&&i<=50&&s<=50,'farm cut ≥ 25%, manufactures and services ≤ 50%'],['Brazil',(f,i,s)=>f>=50,'farm cut ≥ 50% (a big farm exporter)'],['ELDC group',(f,i,s,aid)=>f>=25&&i<=(aid?50:25),'farm cut ≥ 25%, manufactures cut ≤ 25% (≤ 50% with Aid for Trade)']];
+function drawWto(){const f=+$('#wtfa').value,i=+$('#wtin').value,s=+$('#wtse').value,aid=$('#wtaid').checked;['wtfa','wtin','wtse'].forEach(id=>$('#'+id+'o').textContent=$('#'+id).value+'%');
+ const ok=DEL.map(d=>d[1](f,i,s,aid)),yes=ok.filter(Boolean).length;let feas=0,tot=0;const L=[0,25,50,75];L.forEach(a=>L.forEach(b=>L.forEach(c=>{tot++;if(DEL.every(d=>d[1](a,b,c,aid)))feas++})));
+ $('#wtdel').innerHTML=DEL.map((d,k)=>`<tr><td>${d[0]}</td><td style="color:${ok[k]?'var(--good)':'var(--bad)'};font-weight:600">${ok[k]?'✓ yes':'✗ veto'}</td><td>${d[2]}</td></tr>`).join('');
+ $('#wtread').innerHTML=`<dt>Delegations that accept</dt><dd>${yes} of ${DEL.length}</dd><dt>Packages (of ${tot}) all six accept</dt><dd>${feas}</dd>`;
+ $('#wtx').innerHTML=(yes===DEL.length?'<b>Deal!</b> ':`<b>No deal:</b> ${DEL.filter((d,k)=>!ok[k]).map(d=>d[0]).join(', ')} ${yes===DEL.length-1?'blocks':'block'} it. `)+(feas===0?`Try every combination: none of the ${tot} packages satisfies all six, because the EU’s red line on farm support and Brazil’s demand for deep farm cuts cannot both be met. This is the <b>difficulty of agreeing on primary products</b> that stalled the Doha Round. ${aid?'Aid for Trade wins over the ELDC group, but it cannot solve the farm conflict.':'Aid for Trade may win over some poorer members.'}`:'')+' Larger members also have more negotiators and market power: <b>unequal bargaining power</b>.'}
+$('#wtcut').addEventListener('input',drawMfn);$('#wtfta').addEventListener('change',drawMfn);['wtfa','wtin','wtse'].forEach(id=>$('#'+id).addEventListener('input',drawWto));$('#wtaid').addEventListener('change',drawWto);
+
+/* 09 bloc-type sorter */
+sorter('bt',[['USMCA (USA, Mexico, Canada; replaced NAFTA in 2020)','fta','Each member keeps its own tariffs on outsiders (p. 471).'],['SACU (Botswana, Eswatini, Lesotho, Namibia, South Africa; since 1910)','cu','The oldest customs union, with a common external tariff (p. 472).'],['The eurozone (21 EU countries using the euro and the ECB, 2026)','mu','One currency and one central bank.'],['EFTA (Iceland, Liechtenstein, Norway, Switzerland)','fta','EFTA members set their own external tariffs (p. 471).'],['CARICOM Single Market and Economy','cm','Hoang uses CARICOM as a common market example (p. 477).'],['SAFTA (eight South Asian countries, 2004)','fta','The South Asian Free Trade Area (p. 472).'],['The EU–Turkey customs union (1995)','cu','Turkey applies the EU’s common external tariff on most industrial goods, but has no free movement of workers.'],['The EU single market (goods, services, capital and people)','cm','The “four freedoms” make it a common market; not all members use the euro.'],['AfCFTA (54 African countries, trading since 2021)','fta','Internal tariffs are being phased out; no common external tariff.'],['Mercosur (Argentina, Brazil, Paraguay, Uruguay, Bolivia)','cu','Officially a customs union with a common external tariff, though with many exceptions.']],{fta:'Free trade area',cu:'Customs union',cm:'Common market',mu:'Monetary union'},'data-bt');
+/* /LAB CODE */
+
+$$('section.step').forEach(sec=>{const n=sec.querySelector('.num');const list=[...$$('section.step')].filter(x=>x.id!=='guide');if(n&&sec.id!=='guide'&&!n.dataset.fixed)n.textContent=String(list.indexOf(sec)+1).padStart(2,'0')});
+renderStatic();setLvl(LVL);
+/* LAB INIT: call each section's first draw here */
+stepper('lad',LSTEPS,drawLad);drawDf();drawTc();drawEm();drawMfn();drawWto();
+/* /LAB INIT */
+})();
+</script>
+<script id="cg-js">
+(function(){
+const CG={"title": "Chapter 30 · Economic integration", "intro": "Countries can integrate their economies step by step: from a single trade deal, through free trade areas and customs unions, to a common market and finally a shared currency. Each step brings bigger markets and closer cooperation, but members give up more control over their own policies. Chapter 30 also looks at the World Trade Organization, which tries to lower trade barriers for all its members at once.", "groups": [{"name": "Trade agreements", "terms": [{"term": "Economic integration", "level": "SL/HL", "definition": "The process by which countries become more interdependent by reducing barriers to trade and, at higher stages, sharing economic policies and a currency.", "explanation": "Integration ranges from a single tariff concession to full monetary union. Deeper integration usually brings larger gains from trade and investment, but also a greater loss of national control over policy. It links to the gains from trade (Chapter 27) and to globalization.", "example": "The EU began in 1957 as a six-member European Economic Community; by 2026 it had 27 members, 21 of which share the euro.", "exam_tip": "Use 'interdependence' as the key concept when you discuss integration.", "related": ["Preferential trade agreement (PTA)", "Trading bloc"]}, {"term": "Preferential trade agreement (PTA)", "level": "SL/HL", "definition": "A treaty between two or more countries that gives each other better access to their markets, such as lower tariffs, than they give to non-members.", "explanation": "PTAs are preferential because they discriminate: members get a better deal than outsiders. This is why they are an exception to the WTO's non-discrimination principle. Trading blocs are built from PTAs.", "example": "Under the China–Hong Kong CEPA (2004), most Hong Kong-made goods enter mainland China tariff-free (Hoang p. 470).", "exam_tip": "Do not use PTA and FTA as if they meant the same thing.", "related": ["Bilateral trade agreement", "Regional trade agreement", "Non-discrimination"]}, {"term": "Bilateral trade agreement", "level": "SL/HL", "definition": "A preferential trade agreement between two countries to reduce or remove trade barriers between them.", "explanation": "Bilateral deals are faster to negotiate than global ones and can be tailored to two economies. But many overlapping deals create complex rules (the 'spaghetti bowl'), and a larger partner may dominate the terms.", "example": "The UK–Australia free trade agreement came into force in 2023, removing tariffs on most goods traded between the two countries.", "exam_tip": "Give one bilateral example and one advantage over WTO talks: speed.", "related": ["Preferential trade agreement (PTA)", "Multilateral trade agreement"]}, {"term": "Regional trade agreement", "level": "SL/HL", "definition": "A reciprocal preferential trade agreement between two or more countries, usually in the same geographical region.", "explanation": "Neighbours often trade heavily with each other, so regional deals can deliver large gains. More than 300 regional trade agreements have been notified to the WTO. They can lead to deeper integration, such as a customs union.", "example": "Mercosur (Argentina, Brazil, Paraguay, Uruguay and Bolivia) and APEC's 21 Pacific economies (Hoang p. 470).", "exam_tip": "Regional agreements are one of the two exceptions to WTO non-discrimination.", "related": ["Trading bloc", "Preferential trade agreement (PTA)"]}, {"term": "Multilateral trade agreement", "level": "SL/HL", "definition": "A legally binding agreement between many countries, usually negotiated through the WTO, that reduces trade barriers on a non-discriminatory basis.", "explanation": "Because concessions apply to all members, multilateral deals give the widest gains from trade and avoid trade diversion. The cost is that every member must agree, which makes progress slow.", "example": "The WTO Trade Facilitation Agreement (in force 2017) simplified customs procedures for all members (Hoang p. 471).", "exam_tip": "Contrast with bilateral deals: wider gains, but much harder to agree.", "related": ["World Trade Organization (WTO)", "Most favoured nation (MFN) principle"]}]}, {"name": "Types of trading bloc", "terms": [{"term": "Trading bloc", "level": "SL/HL", "definition": "A group of countries that reduce or remove trade barriers between themselves while keeping barriers against non-members.", "explanation": "There are four types, each more integrated than the last: free trade area, customs union, common market and monetary union (Table 30.1). All four are trading blocs.", "example": "USMCA (FTA), SACU (customs union), CARICOM (common market) and the eurozone (monetary union) (Hoang p. 477).", "exam_tip": "Learn one real example for each of the four stages.", "related": ["Free trade area (FTA)", "Customs union", "Common market", "Monetary union"]}, {"term": "Free trade area (FTA)", "level": "SL/HL", "definition": "A trading bloc in which members remove trade barriers between themselves but each keeps its own barriers against non-members.", "explanation": "Because external tariffs differ, outside goods could enter through the member with the lowest tariff and then move freely (trade deflection). FTAs therefore need rules of origin to prove where goods were made, which adds paperwork.", "example": "USMCA replaced NAFTA in 2020; Mexico, Canada and the USA each still set their own tariffs on Chinese imports.", "exam_tip": "Hoang's top tip: in an FTA each member sets its own external tariffs (p. 473).", "related": ["Rules of origin", "Customs union"]}, {"term": "Rules of origin", "level": "SL/HL", "definition": "Rules in a free trade area that decide whether a good was made inside the bloc and so qualifies for tariff-free trade.", "explanation": "They stop trade deflection, where outside goods are routed through the lowest-tariff member. Proving origin costs time and money, so some firms pay the tariff instead. Rules of origin are not needed inside a customs union.", "example": "Since Brexit, UK exporters must show that enough of a product's content is British or European to sell it tariff-free in the EU.", "exam_tip": "Use rules of origin to explain the practical difference between an FTA and a customs union.", "related": ["Free trade area (FTA)", "Common external tariff (CET)"]}, {"term": "Customs union", "level": "SL/HL", "definition": "A free trade area in which members also adopt a common external tariff on imports from non-members.", "explanation": "Members trade freely and charge outsiders the same tariff, so no rules of origin are needed. They negotiate trade deals as one group, which raises bargaining power but removes each member's control over its own tariffs.", "example": "SACU (Botswana, Eswatini, Lesotho, Namibia and South Africa), founded in 1910, is the world's oldest customs union (Hoang p. 472).", "exam_tip": "Name the common external tariff as the defining feature.", "related": ["Common external tariff (CET)", "Free trade area (FTA)", "Trade diversion"]}, {"term": "Common external tariff (CET)", "level": "SL/HL", "definition": "The same tariff applied by all members of a customs union to imports from non-members.", "explanation": "The CET is what turns an FTA into a customs union. It also explains trade diversion: outside producers still pay the CET while partners pay nothing, so a dearer partner can undercut a cheaper outsider.", "example": "The EU's CET on imported cars is 10%, whichever EU port the car arrives at.", "exam_tip": "Link the CET to both sovereignty and (HL) trade diversion.", "related": ["Customs union", "Trade diversion", "Loss of sovereignty"]}, {"term": "Common market", "level": "SL/HL", "definition": "A customs union with free movement of factors of production, such as labour and capital, between member countries.", "explanation": "Workers can take jobs anywhere in the market and firms can invest freely across borders, so resources move to where they are most productive. It can also cause brain drain from poorer members and pressure on wages in richer ones.", "example": "In the EU single market, Volkswagen builds cars in Spain (SEAT) and Czechia (Škoda) as well as Germany (Hoang pp. 473–474).", "exam_tip": "Free movement of factors is what a common market adds.", "related": ["Customs union", "Monetary union"]}, {"term": "Monetary union", "level": "SL/HL", "definition": "A common market whose members share one monetary policy set by a single central bank and, in a full monetary union, one currency.", "explanation": "Members give up their own interest rates and exchange rates. They gain lower transaction costs, no exchange-rate risk within the union and greater price transparency.", "example": "The European Central Bank in Frankfurt sets interest rates for the 21 eurozone members; Bulgaria adopted the euro on 1 January 2026.", "exam_tip": "Not all EU members are in the monetary union (Denmark, Sweden, Poland and others).", "related": ["Common market", "Asymmetric shock", "Changeover costs"]}]}, {"name": "Advantages and disadvantages of trading blocs", "terms": [{"term": "Trade creation", "level": "HL", "definition": "A switch from higher-cost producers (at home or outside the bloc) to lower-cost producers inside the bloc, because internal barriers are removed.", "explanation": "Resources are used more efficiently and consumers pay lower prices, so world welfare rises. It is an advantage of joining a trading bloc (Hoang p. 474).", "example": "If a car costs $11,000 to make at home and imports cost $12,000 after a 20% tariff, the country makes its own cars. After a customs union, a partner sells them at $10,000, saving $1,000 of resources per car.", "exam_tip": "Show it with numbers: home cost, partner cost and the tariff.", "related": ["Trade diversion", "Customs union"]}, {"term": "Trade diversion", "level": "HL", "definition": "A switch from lower-cost producers outside the bloc to higher-cost producers inside it, because of the common external tariff.", "explanation": "Consumers may still pay less, but the government loses tariff revenue and the world uses more resources to make the good, so welfare can fall. A customs union improves welfare only if trade creation outweighs trade diversion (Hoang p. 476).", "example": "Japan makes a car for $9,000 ($10,800 with a 20% tariff); a partner makes it for $10,000 tariff-free. Consumers save $800, the government loses $1,800, so the country loses $1,000 per car.", "exam_tip": "Name the common external tariff as the cause.", "related": ["Trade creation", "Common external tariff (CET)"]}, {"term": "Economies of scale from market access", "level": "SL/HL", "definition": "Lower average costs that firms gain by producing more when a trading bloc gives them access to a larger market.", "explanation": "Removing internal barriers lets firms sell to many countries as if they were one market, so they can build larger plants and spread fixed costs. More competition also pushes firms to become more efficient.", "example": "The EU single market gives firms tariff-free access to about 450 million consumers.", "exam_tip": "Link to long-run average cost (Chapter 13 at HL) or simply to lower costs and prices.", "related": ["Trading bloc", "Common market"]}, {"term": "Loss of sovereignty", "level": "SL/HL", "definition": "A reduction in a country's power to make its own economic decisions, such as setting tariffs, regulations or (in a monetary union) interest rates.", "explanation": "Each stage of integration transfers more decisions to the bloc. Supporters see shared rules as the price of bigger markets; critics argue that national governments lose the policy tools they need.", "example": "Regaining control of trade policy and immigration was a central argument for Brexit (UK left the EU in 2020).", "exam_tip": "Sovereignty is lost even in a customs union, not only in a monetary union.", "related": ["Common external tariff (CET)", "Monetary union"]}, {"term": "Challenge to multilateral negotiations", "level": "SL/HL", "definition": "The risk that trading blocs reduce countries' interest in, and ability to reach, global trade agreements through the WTO.", "explanation": "Blocs discriminate against outsiders, and once countries have regional deals they may put less effort into WTO talks. Negotiating as large blocs can also make global bargaining more complex.", "example": "As the Doha Round stalled after 2001, the number of regional trade agreements notified to the WTO rose sharply.", "exam_tip": "Use this to argue that blocs can be a stumbling block, not a building block, for free trade.", "related": ["Multilateral trade agreement", "World Trade Organization (WTO)"]}]}, {"name": "Monetary union and the WTO", "terms": [{"term": "Asymmetric shock", "level": "HL", "definition": "An economic shock that affects members of a monetary union differently, so one interest rate cannot suit all of them.", "explanation": "A member in recession needs lower interest rates and a weaker currency, while a booming member needs higher rates. Inside a monetary union neither is available, so the struggling member must adjust through lower wages and prices, which raises unemployment.", "example": "After 2010 Greek unemployment rose above 27% while Germany's fell to about 5%, yet both faced the same ECB interest rate (Hoang pp. 478–479).", "exam_tip": "This is the strongest argument against joining a monetary union.", "related": ["Monetary union", "Loss of sovereignty"]}, {"term": "Changeover costs", "level": "HL", "definition": "The one-off costs of adopting a common currency, such as changing prices, IT systems, vending machines and cash.", "explanation": "These costs fall mainly on firms and governments at the time of the switch. There can also be a short-run rise in some prices as firms round them up.", "example": "Euro notes and coins replaced 12 national currencies on 1 January 2002 (Hoang p. 476).", "exam_tip": "Short-run cost; set it against long-run savings on transaction costs.", "related": ["Monetary union"]}, {"term": "World Trade Organization (WTO)", "level": "SL/HL", "definition": "The international organization, set up in 1995 to replace GATT, that promotes trade liberalization, runs multilateral negotiations, settles trade disputes and monitors members' trade policies.", "explanation": "The WTO works by consensus, so its influence depends on members accepting its rules. It has 166 members (2024), covering about 98% of world trade. Its influence is limited by the difficulty of agreeing on agriculture and services and by unequal bargaining power. (Hoang p. 479 says 123 countries set it up; 123 took part in the Uruguay Round, but about 76 were founding members on 1 January 1995.)", "example": "Since December 2019 the Appellate Body has not been able to hear appeals because the USA blocked new appointments.", "exam_tip": "Learn four functions: negotiation, dispute settlement, monitoring and support for developing countries (Aid for Trade).", "related": ["Most favoured nation (MFN) principle", "Dispute settlement", "Multilateral trade agreement"]}, {"term": "Most favoured nation (MFN) principle", "level": "SL/HL", "definition": "The WTO rule that a trade concession given to one member must be given to all members.", "explanation": "MFN stops countries from playing favourites with tariffs and spreads the benefits of each concession to all members. Free trade areas and customs unions are permitted exceptions.", "example": "If the USA cut its tariff on Japanese machinery from 20% to 10%, it would have to charge Brazil, Vietnam and every other WTO member 10% too.", "exam_tip": "MFN and non-discrimination are the WTO's core principles.", "related": ["Non-discrimination", "World Trade Organization (WTO)"]}, {"term": "Non-discrimination", "level": "SL/HL", "definition": "The WTO principle that members must not treat trading partners' goods, services or nationals differently.", "explanation": "It covers MFN (treating all members equally) and national treatment (treating imports the same as domestic goods once they are in the market). The two main exceptions are bilateral agreements and regional trading blocs (Hoang p. 483).", "example": "Temporary bans on poultry imports during bird flu outbreaks are allowed on health grounds (Hoang p. 480).", "exam_tip": "Name the two exceptions: bilateral deals and regional blocs.", "related": ["Most favoured nation (MFN) principle", "Preferential trade agreement (PTA)"]}, {"term": "Dispute settlement", "level": "SL/HL", "definition": "The WTO process in which members bring complaints about others' trade barriers, panels rule on whether WTO rules have been broken, and retaliation can be authorized.", "explanation": "It gives smaller countries a legal route against larger ones, but it is slow and depends on the losing side complying. Without a working Appellate Body, a losing member can block a ruling by appealing.", "example": "In the long-running Airbus–Boeing dispute, the WTO authorized the USA to put tariffs on $7.5bn of EU goods in 2019, including Scotch whisky.", "exam_tip": "Use the Appellate Body crisis to evaluate the WTO's influence.", "related": ["World Trade Organization (WTO)"]}]}]};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const box=document.getElementById('cgbox'),q=document.getElementById('cgq'),cnt=document.getElementById('cgcount');
+const id=t=>'cg-'+t.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+box.innerHTML='<p style="max-width:72ch">'+esc(CG.intro)+'</p>'+CG.groups.map(g=>{const hl=g.terms.every(t=>t.level==='HL');return `<div class="cg-group ${hl?'hlonly cg-hl':''}"><h3>${esc(g.name)}</h3>`+g.terms.map(t=>`<details class="cg-item ${t.level==='HL'?'cg-hl':''}" id="${id(t.term)}" data-s="${esc((t.term+' '+t.definition+' '+t.explanation+' '+t.example).toLowerCase())}"><summary><b>${esc(t.term)}</b><span class="badge ${t.level==='HL'?'b-hl':'b-sl'}">${t.level}</span><span class="cg-def">${esc(t.definition)}</span></summary><div class="cg-body"><div><span class="lbl">Definition</span><p class="defn">${esc(t.definition)}</p></div><div><span class="lbl">Explanation</span><p>${esc(t.explanation)}</p></div><div class="cg-ex"><span class="lbl">Example</span><p>${esc(t.example)}</p></div><div class="cg-tip"><span class="lbl">Exam tip</span><p>${esc(t.exam_tip)}</p></div>${(t.related||[]).length?`<div><span class="lbl">Related terms</span><div class="cg-rel">${t.related.map(r=>`<button type="button" data-go="${id(r)}">${esc(r)}</button>`).join('')}</div></div>`:''}</div></details>`).join('')+'</div>'}).join('')+'<p class="cg-empty" id="cgnone" hidden>No terms match your search.</p>';
+function lvl(){let l='HL';try{l=JSON.parse(localStorage.getItem('integrationlab.lvl'))||'HL'}catch(e){}return l}
+function apply(){const sl=document.querySelector('.lvl [data-lvl="SL"][aria-pressed="true"]')||lvl()==='SL';const s=(q.value||'').trim().toLowerCase();let n=0;
+ box.querySelectorAll('.cg-item').forEach(d=>{const show=!(sl&&d.classList.contains('cg-hl'))&&(!s||d.dataset.s.includes(s));d.hidden=!show;if(show)n++;if(s&&show)d.open=true});
+ box.querySelectorAll('.cg-group').forEach(g=>{g.hidden=![...g.querySelectorAll('.cg-item')].some(d=>!d.hidden)});
+ cnt.textContent=n+' term'+(n===1?'':'s');document.getElementById('cgnone').hidden=n>0}
+q.addEventListener('input',apply);
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(apply,0)));
+document.getElementById('cgopen').addEventListener('click',()=>box.querySelectorAll('.cg-item:not([hidden])').forEach(d=>d.open=true));
+document.getElementById('cgclose').addEventListener('click',()=>box.querySelectorAll('.cg-item').forEach(d=>d.open=false));
+box.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const t=document.getElementById(b.dataset.go);if(t){q.value='';apply();t.open=true;t.scrollIntoView({block:'center'})}});
+apply();
+})();
+</script>
+<script id="sb-js">
+(function(){
+const secs=[...document.querySelectorAll('section.step[id]')];
+const sb=document.createElement('aside');sb.className='sb';sb.setAttribute('aria-label','Lesson contents');
+const title=document.querySelector('.brand')?document.querySelector('.brand').childNodes[0].textContent.trim():document.title;
+const sub=document.querySelector('.brand span')?document.querySelector('.brand span').textContent:'';
+sb.innerHTML=`<a class="home" href="index.html">IB Economics</a><div class="sub">${title} · ${sub}</div><p class="lbl">In this lab</p>`+
+ secs.map(s=>{const n=s.querySelector('.num'),h=s.querySelector('h2');const t=h?h.childNodes[0].textContent.replace(/[:·].*$/,'').trim():s.id;return `<a class="it" href="#${s.id}" data-id="${s.id}"><span>${n?n.textContent:''}</span><span>${t}</span></a>`}).join('')+
+ `<p class="lbl">More</p><div class="links"><a href="plan/ch30.html">Teacher plan for this chapter</a><a href="index.html">All chapters</a></div>`;
+document.body.appendChild(sb);
+const btn=document.createElement('button');btn.className='sbbtn';btn.type='button';btn.textContent='☰ Contents';btn.setAttribute('aria-expanded','false');
+const bar=document.querySelector('.topin');if(bar)bar.insertBefore(btn,bar.firstChild);
+btn.addEventListener('click',()=>{sb.classList.toggle('open');btn.setAttribute('aria-expanded',sb.classList.contains('open'))});
+sb.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+function sync(){secs.forEach(s=>{const a=sb.querySelector(`[data-id="${s.id}"]`);if(a)a.hidden=s.hidden})}
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(sync,0)));sync();
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){sb.querySelectorAll('a.it').forEach(a=>a.classList.toggle('act',a.dataset.id===e.target.id))}}),{rootMargin:'-20% 0px -70% 0px'});secs.forEach(s=>io.observe(s))}
+})();
+</script>
