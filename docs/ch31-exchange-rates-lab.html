@@ -1,0 +1,589 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Exchange Rates Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#f4f5f1; --panel:#ffffff; --panel2:#f8f9f5; --ink:#1a2029; --muted:#5a636c; --rule:#d9ddd3; --grid:#e7eae2;
+  --supply:#c0441f; --supply2:#e8876a; --demand:#2451c4; --good:#12795f; --bad:#b3261e; --hl:#6f3aa8; --hlbg:#efe6f8; --slbg:#e2efe9; --sl:#0d6b5c;
+  --tint:#eaf0fc; --focus:#2451c4; --shade:rgba(192,68,31,.14); --shadeb:rgba(36,81,196,.14);
+  --serif:"Source Serif 4",Georgia,serif; --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:16px/1.6 var(--sans);margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:0 80px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--ground);border-bottom:1px solid var(--rule)}
+.topin{max-width:1120px;margin:0 auto;padding:10px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{font:650 18px var(--serif);margin-right:auto}
+.brand span{font:600 12px var(--sans);color:var(--muted);margin-left:8px}
+nav.jump{display:flex;gap:2px;flex-wrap:wrap}
+nav.jump a{font:600 12.5px var(--sans);color:var(--muted);text-decoration:none;padding:6px 9px;border-radius:6px}
+nav.jump a:hover{background:var(--panel);color:var(--ink)}
+.lvl{display:flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden}
+.lvl button{font:700 12px var(--sans);border:0;background:var(--panel);color:var(--muted);padding:6px 12px;cursor:pointer}
+.lvl button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+h1,h2,h3{font-family:var(--serif);font-weight:650;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h1{font-size:40px;line-height:1.1} h2{font-size:27px;line-height:1.2} h3{font-size:19px}
+p{margin:0} .muted{color:var(--muted)}
+.eyebrow{font:700 11.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--demand)}
+.badge{display:inline-block;font:700 10.5px var(--sans);letter-spacing:.06em;padding:2px 7px;border-radius:4px;vertical-align:3px}
+.b-hl{background:var(--hlbg);color:var(--hl)} .b-sl{background:var(--slbg);color:var(--sl)}
+button:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+section.step{padding-top:56px;scroll-margin-top:70px}
+.shead{display:grid;gap:8px;max-width:72ch;margin-bottom:20px}
+.shead .num{font:600 13px var(--mono);color:var(--muted)}
+.hero{padding-top:44px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:36px;align-items:center}
+.hero p.lead{font-size:18px;margin-top:14px;max-width:56ch}
+.goals{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px}
+.goals ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.goals li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:15px}
+.goals input{width:18px;height:18px;accent-color:var(--good);margin-top:3px}
+.lab{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:20px}
+.lab2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+svg.g{width:100%;height:auto;display:block;border-radius:8px;background:var(--panel2);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px}
+svg .axis{stroke:var(--ink);stroke-width:1.7;fill:none} svg .axl{fill:var(--ink);font:700 12.5px var(--sans)} svg .tick{fill:var(--muted);font:11.5px var(--mono)}
+svg .guide{stroke:var(--muted);stroke-dasharray:4 4;fill:none}
+svg .s{stroke:var(--supply);stroke-width:3;fill:none;stroke-linecap:round} svg .s2{stroke:var(--supply2);stroke-width:2.2;fill:none;stroke-dasharray:7 5}
+svg .sm{stroke:var(--ink);stroke-width:3;fill:none} svg .d{stroke:var(--demand);stroke-width:3;fill:none}
+svg .ghost{stroke:var(--muted);stroke-width:1.6;stroke-dasharray:3 4;fill:none}
+svg text.ls{fill:var(--supply);font:700 13px var(--sans)} svg text.ld{fill:var(--demand);font:700 13px var(--sans)} svg text.lm{fill:var(--ink);font:700 13px var(--sans)} svg text.lg{fill:var(--muted);font:700 12px var(--sans)}
+svg .dot{fill:var(--ink)} svg .dot2{fill:var(--panel);stroke:var(--ink);stroke-width:1.8}
+svg .arrow{stroke:var(--good);stroke-width:2.4;fill:none;marker-end:url(#ah)} svg .ahead{fill:var(--good)}
+svg .bar{fill:var(--demand);opacity:.7} svg .bar.dim{fill:var(--supply);opacity:.75}
+svg .note{fill:var(--muted);font:600 11.5px var(--sans)} svg .area{fill:var(--shade)}
+.ctl{display:grid;grid-template-columns:1fr 70px;gap:2px 10px;align-items:center;font-size:14px;margin-bottom:12px}
+.ctl span{grid-column:1/-1;font-weight:600;color:var(--muted)} .ctl input{width:100%;accent-color:var(--demand)} .ctl output{font:600 13px var(--mono);text-align:right}
+.read{display:grid;grid-template-columns:1fr auto;gap:6px 14px;font-size:14.5px;margin:6px 0 0}
+.read dt{color:var(--muted)} .read dd{margin:0;font:600 13.5px var(--mono);text-align:right}
+.explain{margin-top:14px;padding:12px 14px;border-left:3px solid var(--demand);background:var(--tint);border-radius:0 8px 8px 0;font-size:14.5px}
+.btn{font:600 14px var(--sans);border:1px solid var(--rule);background:var(--panel);color:var(--ink);padding:9px 13px;border-radius:8px;cursor:pointer;text-align:left}
+.btn:hover{border-color:var(--demand)} .btn.pri{background:var(--ink);color:var(--ground);border-color:var(--ink)} .btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.flip{perspective:900px;height:170px;border:0;background:none;padding:0;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:6px}
+.flip .f{background:var(--panel);justify-content:space-between} .flip .f b{font:650 19px var(--serif)}
+.flip .b{background:var(--tint);transform:rotateY(180deg);font-size:14.5px;overflow:auto}
+.flip .hint{font-size:12px;color:var(--muted)}
+.events{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;margin:14px 0}
+.ev{display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:start}
+.ev .l{font:700 14px var(--mono);color:var(--demand);background:var(--tint);border-radius:6px;text-align:center;padding:2px 0}
+.ev[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.predict{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.fb{font-weight:600} .fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+.sorter .card{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px;display:grid;gap:10px}
+.sorter .card p{font-size:16.5px;font-family:var(--serif)}
+.score{font:600 14px var(--mono)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--grid);text-align:right;font-variant-numeric:tabular-nums}
+th{font:700 11.5px var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule)}
+td:first-child,th:first-child{text-align:left} tr.cur td{background:var(--tint);font-weight:700} tr.dmr td:nth-child(3){color:var(--supply)}
+.tblwrap{overflow-x:auto}
+.case{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;display:grid;gap:10px}
+.case details{border-top:1px solid var(--grid);padding-top:10px}
+.case summary,.qa summary{cursor:pointer;font-weight:700;color:var(--demand)}
+.case ol{margin:8px 0 0;padding-left:20px}
+.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px}
+.mcq{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;display:grid;gap:8px}
+.mcq .opts{display:grid;gap:6px}
+.mcq .opt{font:500 14.5px var(--sans)} .mcq .opt.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--panel))} .mcq .opt.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--panel))}
+.mcq .why{font-size:14px;color:var(--muted)}
+.quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.qa{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 16px}
+.qa details p{margin-top:6px;padding:8px 10px;background:var(--panel2);border-radius:6px}
+.mist{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.mist div{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;font-size:14.5px}
+.mist b{display:block;color:var(--bad);font-size:13px;letter-spacing:.03em;margin-bottom:4px} .mist i{display:block;color:var(--good);font-style:normal;font-weight:600;margin-top:6px}
+.stepper{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.dots{display:flex;gap:5px} .dots i{width:9px;height:9px;border-radius:50%;background:var(--rule)} .dots i.on{background:var(--demand)}
+.pill{font:600 12.5px var(--mono);padding:3px 9px;border-radius:99px;background:var(--panel2);border:1px solid var(--rule)}
+footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+.hlonly[hidden]{display:none!important}
+@media (max-width:860px){.hero,.lab2{grid-template-columns:1fr} h1{font-size:32px} nav.jump{display:none}}
+@media (max-width:520px){.wrap,.topin{padding-inline:16px} .lab{padding:14px} h1{font-size:28px} h2{font-size:23px}}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}}
+svg .d2{stroke:var(--demand);stroke-width:2.2;fill:none;stroke-dasharray:7 5} svg text.ld2{fill:var(--demand);font:700 12px var(--sans)} svg .spend{fill:var(--shadeb)}
+svg .dwl{fill:rgba(214,151,0,.38)} svg .gap{stroke:var(--supply);stroke-width:5;opacity:.45}
+.sorter .btn[aria-pressed="true"],.lab .btn[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.flip .f span:not(.hint){font-size:14.5px;color:var(--muted)}
+.ctl input[type=number]{font:15px var(--mono);padding:7px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink);width:100%}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px} @media (max-width:860px){.two{grid-template-columns:1fr}}
+</style>
+<style id="sb-css">
+aside.sb{position:fixed;top:0;left:0;bottom:0;width:250px;overflow:auto;background:var(--panel);border-right:1px solid var(--rule);padding:16px 12px 40px;z-index:15;font-size:13.5px}
+aside.sb .home{display:block;font:700 15px var(--serif);color:var(--ink);text-decoration:none}
+aside.sb .sub{color:var(--muted);font-size:12px;margin:2px 0 14px}
+aside.sb .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:12px 4px 6px}
+aside.sb a.it{display:grid;grid-template-columns:30px 1fr;gap:2px;padding:6px 8px;border-radius:6px;color:var(--ink);text-decoration:none;line-height:1.3}
+aside.sb a.it span:first-child{font:600 11.5px var(--mono);color:var(--muted);padding-top:1px}
+aside.sb a.it:hover{background:var(--panel2)} aside.sb a.it.act{background:var(--tint);font-weight:700}
+aside.sb .links a{display:block;padding:4px 8px;color:var(--demand);font-weight:600;text-decoration:none}
+.sbbtn{display:none}
+@media (min-width:1100px){header.top,.wrap{margin-left:250px} nav.jump{display:none!important}}
+@media (max-width:1099px){aside.sb{transform:translateX(-105%);transition:transform .2s;box-shadow:0 0 30px rgba(0,0,0,.25);width:84%;max-width:300px}
+ aside.sb.open{transform:none} nav.jump{display:none!important}
+ .sbbtn{display:inline-block;font:700 13px var(--sans);padding:6px 10px;border-radius:8px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);cursor:pointer;order:-1}}
+@media (prefers-reduced-motion:reduce){aside.sb{transition:none}}
+</style>
+
+<style id="cg-css">
+.cg-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.cg-tools input{flex:1;min-width:220px;max-width:420px;font:15px var(--sans);padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink)}
+.cg-group{margin-top:22px} .cg-group h3{margin-bottom:10px}
+.cg-item{background:var(--panel);border:1px solid var(--rule);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.cg-item summary{cursor:pointer;list-style:none;padding:14px 18px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:baseline}
+.cg-item summary::-webkit-details-marker{display:none}
+.cg-item summary b{font:650 18px var(--serif)} .cg-item summary .cg-def{grid-column:1/-1;color:var(--muted);font-size:14.5px}
+.cg-item[open] summary .cg-def{display:none}
+.cg-body{padding:0 18px 16px;display:grid;gap:10px}
+.cg-body .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+.cg-body .defn{font-weight:600}
+.cg-ex{background:var(--tint);border-radius:8px;padding:10px 12px}
+.cg-tip{border-left:3px solid var(--good);padding:6px 12px;background:var(--panel2);border-radius:0 8px 8px 0}
+.cg-rel{display:flex;gap:6px;flex-wrap:wrap} .cg-rel button{font:600 12.5px var(--sans);border:1px solid var(--rule);background:var(--panel2);color:var(--ink);border-radius:99px;padding:3px 10px;cursor:pointer}
+.cg-empty{color:var(--muted)}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="top"><div class="topin">
+  <div class="brand">Exchange Rates Lab <span>IB Economics 4.5 · Hoang Ch 31</span></div>
+  <nav class="jump" aria-label="Sections"><a href="#terms">Terms</a><a href="#guide">Guide</a><a href="#cases">Cases</a><a href="#quiz">Quiz</a><a href="#exam">Exam</a></nav>
+  <div class="lvl" role="group" aria-label="Level"><button data-lvl="HL">HL</button><button data-lvl="SL">SL</button></div>
+</div></header>
+
+<div class="wrap">
+<section class="hero">
+  <div><p class="eyebrow">Unit 4 · The global economy · Chapter 31</p><h1>Your currency just fell 20%. Are you richer or poorer?</h1>
+  <p class="lead">Build the currency-market diagram, then find out what moves it: interest rates, exports, remittances, speculation. Convert prices, calculate how far a currency has moved, trace the effects through AD/AS, and try to defend a peg before your reserves run out.</p>
+  <p class="muted" style="margin-top:12px;font-size:14px">Textbook: Hoang, Wray &amp; Chakraborty, pp. 485–505. HL material is marked <span class="badge b-hl">HL</span>; switch to SL at the top to hide it.</p></div>
+  <div class="goals"><p class="eyebrow" style="color:var(--muted)">By the end I can…</p><ul id="goals"></ul></div>
+</section>
+
+<section class="step" id="terms"><div class="shead"><span class="num">01</span><h2>Key terms: flip the cards</h2><p class="muted">Say the definition out loud first, then click to check.</p></div><div class="cards" id="cards"></div></section>
+<section class="step" id="guide"><div class="shead"><span class="num">01b</span><h2>Concept guide: every term explained</h2><p>A fuller explanation of each term in this chapter, with a worked real-world example and an exam tip. Open a term, read it, then close the page and explain it to a partner in your own words.</p></div>
+  <div class="cg-tools"><input id="cgq" type="search" placeholder="Search terms, examples…" aria-label="Search the concept guide"><button class="btn" id="cgopen">Open all</button><button class="btn" id="cgclose">Close all</button><span class="pill" id="cgcount"></span></div>
+  <div id="cgbox"></div></section>
+
+<!-- LAB SECTIONS: numbered 02, 03 … one <section class="step" id="…"> per interactive topic -->
+
+<section class="step" id="build"><div class="shead"><span class="num">02</span><h2>Build the currency-market diagram</h2><p>A currency is bought and sold like any other good, so it has a demand curve and a supply curve (Hoang Fig 31.3, p. 487). Examiners lose patience with vague labels, so build this one piece at a time and copy the wording exactly.</p></div>
+  <div class="lab lab2"><div id="bdfig"></div><div><h3 id="bdt"></h3><p id="bdx" style="margin-top:8px"></p><div class="stepper"><button class="btn" id="bdprev">← Back</button><button class="btn pri" id="bdnext">Next step →</button><div class="dots" id="bddots"></div></div>
+  <div class="explain" style="margin-top:16px"><b>Label checklist:</b> y-axis “Price of A$ in £ (£ per A$)” · x-axis “Quantity of A$” · the currency named on <i>both</i> curve labels (D<sub>A$</sub>, S<sub>A$</sub>) · equilibrium ER<sub>e</sub> and Q<sub>e</sub> marked with dotted lines · the cause written beside any shift arrow.</div></div></div>
+</section>
+
+<section class="step" id="shift"><div class="shead"><span class="num">03</span><h2>What moves the rate?</h2><p>Demand for a currency is an <b>inflow</b> of money into the country; supply is an <b>outflow</b> (Hoang top tip, p. 488). Click an event to see which curve moves and which way the rate goes. The dashed grey curve is where it started.</p></div>
+  <div class="lab lab2"><div id="sffig"></div><div><div class="row" id="sfpick" style="margin-bottom:12px"></div>
+   <dl class="read" id="sfread"></dl><p class="explain" id="sfx"></p>
+   <p class="muted" style="font-size:12.5px">Illustrative model: linear demand and supply for the Australian dollar priced in pounds. Each event shifts one curve by a set amount so the direction is clear; real shifts vary in size.</p></div></div>
+</section>
+
+<section class="step" id="convert"><div class="shead"><span class="num">04</span><h2>Converting prices between currencies</h2><p>Two rules save you in the exam. If the rate is quoted as <b>1 unit of A = x units of B</b>, then multiply to go from A to B, and divide to go from B to A. Always ask yourself first whether the answer should be bigger or smaller than what you started with.</p></div>
+  <div class="row" id="cvpre" style="margin-bottom:14px"></div>
+  <div class="lab lab2"><div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <label class="ctl" for="cvamt" style="grid-template-columns:1fr"><span>Amount</span><input id="cvamt" type="number" step="any"></label>
+    <label class="ctl" for="cvrate" style="grid-template-columns:1fr"><span>Rate: 1 <span id="cvbase">A</span> = ? <span id="cvquote">B</span></span><input id="cvrate" type="number" step="any"></label>
+    <label class="ctl" for="cvfrom" style="grid-template-columns:1fr"><span>Amount is in</span><select id="cvfrom" style="padding:8px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink);font:inherit"></select></label>
+    <label class="ctl" for="cvdp" style="grid-template-columns:1fr"><span>Decimal places</span><input id="cvdp" type="number" min="0" max="4" step="1" value="2"></label></div>
+   <p class="explain" id="cvwork" style="margin-top:4px"></p></div>
+   <div><dl class="read" id="cvread"></dl><p class="explain" id="cvx"></p>
+   <h3 style="margin:18px 0 8px;font-size:16px">Cross rates</h3><p class="muted" style="font-size:13.5px;margin-bottom:8px">When two currencies are both quoted against a third, you can find the rate between them (Hoang EPQ 31.3).</p>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <label class="ctl" for="cxa" style="grid-template-columns:1fr"><span>C$1 = ? £</span><input id="cxa" type="number" step="any" value="0.65"></label>
+    <label class="ctl" for="cxb" style="grid-template-columns:1fr"><span>C$1 = ? €</span><input id="cxb" type="number" step="any" value="0.75"></label></div>
+   <dl class="read" id="cxread"></dl></div></div>
+</section>
+
+<section class="step" id="pct"><div class="shead"><span class="num">05</span><h2>How far has the currency moved?</h2><p>The trap: if currency A appreciates 27.8% against B, B does <b>not</b> depreciate by 27.8% against A. The two percentages use different starting values. Work out both and see the gap for yourself (Hoang EPQ 31.5, p. 494).</p></div>
+  <div class="row" id="pcpre" style="margin-bottom:14px"></div>
+  <div class="lab lab2"><div id="pcfig"></div><div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <label class="ctl" for="pcb" style="grid-template-columns:1fr"><span>Before: 1 <span class="pcA">A</span> = ? <span class="pcB">B</span></span><input id="pcb" type="number" step="any"></label>
+    <label class="ctl" for="pca" style="grid-template-columns:1fr"><span>After: 1 <span class="pcA">A</span> = ? <span class="pcB">B</span></span><input id="pca" type="number" step="any"></label></div>
+   <dl class="read" id="pcread"></dl><p class="explain" id="pcx"></p></div></div>
+</section>
+
+<section class="step" id="flow"><div class="shead"><span class="num">06</span><h2>Inflow or outflow?</h2><p>Every transaction either brings money into the country (demand for the currency) or sends it out (supply of the currency). Decide which, and the diagram follows automatically.</p></div>
+  <div class="lab sorter"><div class="card"><div class="row" style="justify-content:space-between"><span class="pill" id="fln"></span><span class="score" id="flsc"></span></div><p id="flq"></p>
+   <div class="row"><button class="btn" data-fl="d">Inflow: demand for the currency rises</button><button class="btn" data-fl="s">Outflow: supply of the currency rises</button></div><p class="fb" id="flfb"></p><div class="row"><button class="btn pri" id="flnext" hidden>Next card</button></div></div></div>
+</section>
+
+<section class="step" id="cupel"><div class="shead"><span class="num">07</span><h2>CUPEL: what a change in the rate does to the economy</h2><p><b>C</b>urrent account · <b>U</b>nemployment · <b>P</b>rices · <b>E</b>conomic growth · <b>L</b>iving standards (Hoang Fig 31.11, p. 494). A depreciation pushes AD right as net exports rise, and pushes SRAS left as imported inputs cost more. Move the slider and watch both channels at once.</p></div>
+  <div class="two"><div id="cufig1"></div><div id="cufig2"></div></div>
+  <div class="lab lab2" style="margin-top:14px"><div>
+   <label class="ctl" for="cuch"><span>Change in the exchange rate</span><input type="range" id="cuch" min="-30" max="30" step="5" value="-20"><output id="cucho"></output></label>
+   <label class="ctl" for="cupx"><span>PED for exports</span><input type="range" id="cupx" min="0" max="2" step="0.1" value="0.8"><output id="cupxo"></output></label>
+   <label class="ctl" for="cupm"><span>PED for imports</span><input type="range" id="cupm" min="0" max="2" step="0.1" value="0.7"><output id="cupmo"></output></label>
+   <label class="ctl" style="display:flex;gap:8px;align-items:center" for="cusr"><input type="checkbox" id="cusr" checked style="width:18px;height:18px"><span style="color:var(--ink);font-weight:500">Include the cost-push channel (imported raw materials and energy)</span></label>
+   <p class="muted" style="font-size:12.5px">Illustrative model: AD and SRAS shift in proportion to the size of the rate change. The Marshall–Lerner verdict uses the sum of the two elasticities, which is the correct condition (see the note below).</p></div>
+   <div><dl class="read" id="curead"></dl><p class="explain" id="cux"></p>
+   <div class="explain" style="margin-top:12px;border-left-color:var(--bad)"><b>Correction to Hoang p. 496:</b> the book says the current account changes if the PED for exports <i>and</i> the PED for imports are each greater than one. The correct test is the <b>Marshall–Lerner condition</b>: the <i>sum</i> of the two must exceed one. So PEDx 0.8 + PEDm 0.7 = 1.5 passes, even though neither is above one on its own.</div></div></div>
+</section>
+
+<section class="step" id="peg"><div class="shead"><span class="num">08</span><h2>Defend the peg</h2><p>In a <b>fixed</b> system the central bank holds the rate at one level; in a <b>managed</b> system it steps in only when the rate leaves a band (Hoang Figs 31.18, 31.20 and 31.22). Both cost reserves. Apply shocks and see how long you last.</p></div>
+  <div class="lab lab2"><div id="pgfig"></div><div><div class="row" id="pgmode" style="margin-bottom:12px"><button class="btn" data-pg="fix">Fixed rate</button><button class="btn" data-pg="man">Managed band ±3%</button><button class="btn" data-pg="float">Free float</button></div>
+   <div class="row" style="margin-bottom:12px"><button class="btn" id="pgsell">Shock: residents sell the currency</button><button class="btn" id="pgbuy">Shock: foreigners buy the currency</button><button class="btn" id="pgrate">Raise interest rates</button><button class="btn" id="pgreset">Reset</button></div>
+   <dl class="read" id="pgread"></dl><p class="explain" id="pgx"></p>
+   <p class="muted" style="font-size:12.5px">Illustrative model: reserves start at 100 units and each unit of intervention costs one unit of reserves. A rate rise pulls demand back towards the peg but is assumed to slow the domestic economy. Real defences also use capital controls and credibility.</p></div></div>
+</section>
+
+<section class="step hlonly" id="sys"><div class="shead"><span class="num">09</span><h2>Fixed versus floating <span class="badge b-hl">HL</span></h2><p>There is no single right answer, which is exactly why this is a 15-mark question. Weigh the criteria for one economy, then look at the <b>impossible trinity</b>: of the three things below, a country can have any two, never all three (Hoang pp. 502–504).</p></div>
+  <div class="lab lab2"><div><div id="sytog"></div></div>
+   <div><div id="syfig"></div><p class="explain" id="syx"></p>
+   <h3 style="margin:18px 0 8px;font-size:16px">The impossible trinity</h3><p class="muted" style="font-size:13.5px;margin-bottom:8px">Choose exactly two.</p>
+   <div class="row" id="trpick"></div><div id="trfig"></div><p class="explain" id="trx"></p></div></div>
+</section>
+<!-- /LAB SECTIONS -->
+
+<section class="step" id="cases"><div class="shead"><span class="num"></span><h2>Real-world cases</h2><p>Answer in your notebook, sketch the diagram, then open the model answer.</p></div><div class="cases" id="casebox"></div></section>
+
+<section class="step" id="quiz"><div class="shead"><span class="num"></span><h2>Check yourself</h2><p>Auto-marked multiple choice first, then quick-fire questions with model answers.</p><p class="score" id="mcqscore"></p></div><div class="quiz" id="mcqs"></div>
+  <h3 style="margin:30px 0 12px">Quick-fire checklist</h3><div class="quiz" id="qf"></div></section>
+
+<section class="step" id="mistakes"><div class="shead"><span class="num"></span><h2>Common mistakes to avoid</h2></div><div class="mist" id="mist"></div></section>
+
+<section class="step" id="exam"><div class="shead"><span class="num"></span><h2>Exam practice</h2><p>Plan each answer before opening the guide.</p></div><div class="cases" id="exambox"></div></section>
+
+<footer>Exchange Rates Lab · based on the IB Economics guide (4.5 Exchange rates) and Hoang, Wray &amp; Chakraborty, <i>Economics for the IB Diploma</i> (Hodder 2020), Chapter 31. Figs 31.3–31.5 (floating rates), 31.11–31.16 (CUPEL and AD/AS), 31.18 and 31.20 (fixed rates), 31.22 (managed band); EPQs 31.1–31.5 and 31.7. The peg simulation, the AD/AS model and the trilemma scores are illustrative. Exchange rates quoted for Japan, Nigeria and Hong Kong are approximate and change daily: check a live source (FRED, the ECB reference rates or your central bank) before teaching.</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+/* ============================ CONFIG ============================
+   NS     localStorage namespace, unique per lab (e.g. 'pedlab')
+   GOALS  [text, isHL]          TERMS [term, definition, isHL]
+   CASES  [title, context, [questions], [model answers]]
+   MCQ    [question, [4 options], correctIndex, explanation, isHL]
+   QF     [question, answer, isHL]          MI [mistake, correction]
+   EX     [paper label, question, [what a strong answer includes]]  (label containing 'HL' or 'Paper 3' = HL)
+================================================================== */
+const NS='exchangerateslab';
+const GOALS=[['Draw and label a currency-market diagram, and show an appreciation and a depreciation',0],['Explain how exports, investment, remittances, speculation, inflation and interest rates move a currency',0],['Convert prices between currencies and calculate cross rates',0],['Calculate the percentage change in the value of a currency from data',0],['Use AD/AS to explain the consequences of a change in the rate (CUPEL)',0],['Explain how fixed and managed rates are maintained, and evaluate them against floating',0]];
+const TERMS=[['Exchange rate','The price of one currency expressed in terms of another.',0],['Floating exchange rate','A rate set purely by demand and supply in the foreign exchange market, with no deliberate intervention.',0],['Appreciation','A rise in the value of a currency in a floating system.',0],['Depreciation','A fall in the value of a currency in a floating system.',0],['Demand for a currency','What foreigners want to buy at each rate, to pay for exports, investment or remittances: an inflow.',0],['Supply of a currency','What residents offer to get foreign currency, for imports or investment abroad: an outflow.',0],['Portfolio investment','Buying foreign shares and bonds without taking control of the firm.',0],['Remittances','Money sent home by people working abroad; an inflow for the home currency.',0],['Speculation','Buying or selling a currency to profit from an expected change in its value.',0],['Hot money','Short-term capital chasing interest-rate differences or expected currency moves.',0],['Fixed exchange rate','A rate held at a set value by the central bank, using reserves and interest rates.',0],['Foreign currency reserves','Stocks of foreign currency and gold a central bank can sell to support its own currency.',0],['Devaluation','A deliberate lowering of a fixed rate by the authorities.',0],['Revaluation','A deliberate raising of a fixed rate by the authorities.',0],['Managed exchange rate','A mainly market-set rate, with the central bank stepping in to keep it in a band.',0],['Overvalued currency','A currency held above its market equilibrium, making exports uncompetitive.',0],['Marshall–Lerner condition','A depreciation improves the current account only if PEDx + PEDm > 1.',0],['Impossible trinity','A country cannot have a fixed rate, free capital movement and independent monetary policy at once.',1]];
+const CASES=[['The yen and the interest-rate gap','Between 2021 and 2024 the US Federal Reserve raised interest rates sharply while the Bank of Japan held its own near zero. The yen fell from about ¥110 to over ¥150 per US dollar (approximate). Japanese car exporters reported record profits; Japanese households paid much more for imported food and energy.',['Explain why the yen depreciated.','Calculate the percentage change in the value of the yen.','Explain the consequences for Japan’s inflation, growth and living standards.'],['Dollar assets now paid far more, so investors sold yen to buy dollars. The supply of yen shifted right and demand for yen shifted left, lowering the rate. This is hot money responding to a relative interest-rate change (Hoang p. 493).','¥1 was worth $1/110 = $0.00909 and became worth $1/150 = $0.00667, a depreciation of about 27%. The dollar appreciated against the yen by (150 − 110)/110 = 36%. The two figures differ because they start from different base values.','Exports became cheaper abroad and imports dearer at home, so net exports and AD rose: growth up, unemployment down. But imported energy and food raised firms’ costs, shifting SRAS left: cost-push inflation. Real incomes fell for households even as exporters gained, so the effect on living standards was uneven.']],
+['Converting prices: which textbook is cheaper?','A textbook costs £40 in the UK and US$55 in the USA. The exchange rates are £1 = A$1.95 and US$1 = A$1.52. Shipping is the same from both.',['Calculate the price in A$ from each source.','Which is cheaper?','If the A$ appreciates 10% against the US$ only, does the answer change?'],['UK: £40 × 1.95 = A$78.00. USA: US$55 × 1.52 = A$83.60.','The UK book, by A$5.60.','A 10% appreciation means A$1 buys 10% more US dollars. Before, A$1 = US$0.658; after, A$1 = US$0.724, so US$1 = A$1.382. The US book now costs 55 × 1.382 ≈ A$76.00, which beats the UK price. An appreciation makes imports cheaper and can switch spending between suppliers.']],
+['Holding the Hong Kong dollar peg','The Hong Kong Monetary Authority has kept the HK$ near 7.80 per US$ since 1983, within a band of 7.75 to 7.85. When US interest rates rose above Hong Kong’s, investors sold HK$ for US$ and the rate reached the weak edge at 7.85.',['What must the HKMA do at 7.85, and show it on a diagram.','What happens to Hong Kong interest rates, and why?','What is the main cost of the peg?'],['Selling HK$ shifts the supply of HK$ right, pushing its value to the weak edge. The HKMA buys HK$ with its US$ reserves, shifting demand for HK$ right so the rate holds at 7.85 (Hoang Fig 31.20).','Buying HK$ takes them out of the banking system, so there are fewer HK$ available and interbank rates rise towards US rates. That removes the reason to sell, and the outflow stops. Hong Kong effectively imports US monetary policy.','It cannot set interest rates to suit its own economy — painful during a local property slump — and it must hold very large reserves. The benefit is certainty for trade and finance, which is why one of the world’s most open economies has kept the peg for over 40 years.']],
+['Nigeria floats the naira','For years Nigeria’s central bank held the official naira rate far above the parallel-market rate and rationed dollars. In 2023 it unified the rates and let the naira float more freely. The official rate fell from about ₦460 to over ₦1,400 per US$ within a year (approximate); inflation rose above 30%, but the dollar shortages that had crippled importers began to ease.',['Why was the naira overvalued before 2023?','Evaluate the move to a more flexible rate.','Who gained and who lost?'],['The official rate sat above the market-clearing rate, so the quantity of dollars demanded exceeded the quantity supplied. The result was a shortage, rationing by the central bank, and a parallel market at a weaker rate.','Floating removes the shortage: the rate falls to equilibrium, and foreign investors regain confidence that they can repatriate profits, which may raise FDI and portfolio inflows. Against that, a large depreciation raises the price of imported fuel, food and medicines, causing cost-push inflation, and firms with dollar debts face higher repayments. The judgement turns on whether credible monetary policy follows: a market rate improves allocation and removes the corruption that rationing invites, but only alongside inflation control.','Gained: exporters, families receiving remittances (each dollar now buys far more naira), foreign investors. Lost: importers, consumers of imported goods, and anyone on a fixed income.']]];
+const MCQ=[['In a currency-market diagram, the demand for a currency comes from…',['Residents buying imports','Foreigners buying the country’s exports','The central bank printing money','Residents investing abroad'],1,'Demand is an inflow; supply is an outflow (Hoang p. 488).',0],
+['A country’s interest rates rise relative to others. The currency will…',['Depreciate, as imports rise','Appreciate, as hot money flows in','Stay the same','Be devalued'],1,'Higher returns attract portfolio inflows, shifting demand right.',0],
+['£1 = $1.25. A jacket costs $100. In pounds it costs…',['£125','£80','£100','£1.25'],1,'Divide to go from the quoted currency back to the base: 100 ÷ 1.25 = £80.',0],
+['The rate moves from €1 = $1.10 to €1 = $1.21. The euro has…',['Depreciated 10%','Appreciated 10%','Appreciated 11%','Depreciated 11%'],1,'(1.21 − 1.10) ÷ 1.10 × 100 = 10%.',0],
+['Which is the difference between depreciation and devaluation?',['There is none','Depreciation is market-driven; devaluation is a government decision','Devaluation only happens to strong currencies','Depreciation only applies to fixed rates'],1,'Devaluation is deliberate, in a fixed system.',0],
+['A depreciation improves the current account only if…',['PEDx and PEDm are each greater than 1','PEDx + PEDm > 1','PEDx + PEDm < 1','Demand is perfectly inelastic'],1,'The Marshall–Lerner condition uses the sum. Note that Hoang p. 496 states this incorrectly.',0],
+['A depreciation can cause cost-push inflation because…',['Exports become cheaper','Imported raw materials and energy cost more','AD shifts right','Unemployment falls'],1,'Dearer imported inputs shift SRAS left (Fig 31.16).',0],
+['To stop its fixed currency from falling, a central bank…',['Sells its own currency','Sells foreign reserves to buy its own currency','Prints more foreign currency','Lowers interest rates'],1,'It buys its own currency, shifting demand right; it may also raise rates.',0],
+['An overvalued currency means…',['Exports are very competitive','The rate is above its market equilibrium, so exports are uncompetitive','The central bank has no reserves','Inflation must be zero'],1,'Above equilibrium: imports look cheap, exports dear.',0],
+['Under the impossible trinity, a country with a fixed rate and free capital movement must give up…',['Its central bank','Independent monetary policy','Foreign reserves','Its exports'],1,'Interest rates must follow the anchor currency, as in Hong Kong.',1]];
+const QF=[['Define an exchange rate.','The price of one currency expressed in terms of another.',0],['How should the axes of a currency-market diagram be labelled?','y-axis: price of currency A in currency B (e.g. £ per A$); x-axis: quantity of currency A.',0],['Which curve shifts, and which way, when exports increase?','Demand for the currency shifts right, so it appreciates.',0],['How do higher domestic interest rates affect the currency?','They attract hot money and portfolio inflows, so demand rises and the currency appreciates.',0],['£1 = $1.25. What does a $100 jacket cost in £?','$100 ÷ 1.25 = £80.',0],['The rate changes from €1 = $1.10 to €1 = $1.21. By how much has the euro appreciated?','(1.21 − 1.10) ÷ 1.10 × 100 = 10%.',0],['Why do the two currencies’ percentage changes differ?','Each is measured against a different base value, so the percentages are not mirror images.',0],['Give two effects of a depreciation.','Any two of: net exports and AD rise (growth, jobs); demand-pull and cost-push inflation; the current account may improve; living standards may fall as imports cost more.',0],['When does a depreciation improve the current account?','When PEDx + PEDm > 1 (the Marshall–Lerner condition). In the short run demand is inelastic, giving the J-curve.',0],['Distinguish devaluation from depreciation.','Devaluation is a deliberate lowering of a fixed rate; depreciation is a market-driven fall in a floating rate.',0],['How does a central bank stop its fixed currency from falling?','It sells foreign reserves to buy its own currency, and/or raises interest rates.',0],['What is an overvalued currency?','One held above its long-run market equilibrium, which makes exports uncompetitive and imports cheap.',0],['How does a managed rate differ from a fixed rate?','The central bank intervenes only when the rate leaves a band, instead of holding one rate continuously.',0],['Why can a peg attract speculators?','They know it must be defended; if they think reserves are too small they sell heavily, hoping to profit from a forced devaluation (Thailand, 1997).',1]];
+const MI=[['“Appreciation and revaluation are the same”','Appreciation happens through market forces in a floating system; revaluation is a deliberate decision in a fixed one. The same holds for depreciation and devaluation.'],['“A strong currency is always good”','It lowers inflation and buys more abroad, but it hurts exporters, growth and employment. Ask which stakeholder you mean.'],['“A depreciation always improves the current account”','Only if PEDx + PEDm > 1. In the short run demand is inelastic and the balance may worsen first: the J-curve.'],['“Supply of a currency comes from the central bank printing money”','In the forex market, supply comes from residents selling their own currency to buy foreign currency, for imports or investment abroad.'],['“Higher inflation makes a currency rise because prices are higher”','Higher relative inflation makes exports less competitive, so demand for the currency falls and its supply rises: it depreciates.'],['“If A rises 25% against B, then B falls 25% against A”','The two use different base values. A rise from 900 to 1,150 is +27.8% one way and −21.7% the other.']];
+const EX=[['Paper 1 (a) · 10 marks','Explain two factors that could lead to an appreciation of a country’s currency in a floating exchange rate system.',['Define appreciation and draw the currency market with both curves named for the currency.','Choose two factors, e.g. higher relative interest rates (hot money) and rising export demand.','Show each as a separate shift, with the cause written beside the arrow.','Use a real example, such as the dollar in 2022–23.']],
+['Paper 1 (b) · 15 marks','Using real-world examples, discuss the possible consequences of a fall in the exchange rate for a country’s macroeconomic objectives.',['Use CUPEL to organise: current account, unemployment, prices, growth, living standards.','AD right from net exports; SRAS left from dearer imported inputs. Both on one diagram.','Marshall–Lerner and the J-curve for the current account; name the elasticity condition properly.','Examples: the yen after 2021, the naira after 2023. Judge by stakeholder and by time period.']],
+['Paper 2 · 2 marks','Using the exchange rate in the text, calculate the price in euros of a product that costs $450.',['Show the working, not just the answer.','State the rate you used and its direction.','Round sensibly and give the currency symbol.']],
+['Paper 2 · 4 marks','Using an exchange rate diagram, explain how the central bank’s intervention maintained the value of the currency.',['Draw the fixed rate as a horizontal line at the target.','Show the shock shifting one curve away from the target.','Show the bank buying its own currency with reserves, shifting demand right.','Say explicitly that reserves fall, and that they are finite.']],
+['Paper 3 · 2 marks (HL)','Using the data provided, calculate the percentage change in the value of the currency between 2022 and 2024.',['(new − old) ÷ old × 100.','Say which currency you are measuring, and in which direction.','State clearly whether it is an appreciation or a depreciation.']],
+['Paper 1 (b) · 15 marks (HL)','Evaluate the view that a floating exchange rate system is preferable to a fixed exchange rate system.',['Floating: automatic adjustment, no reserves needed, independent monetary policy.','Fixed: certainty for trade and investment, an anchor for inflation credibility.','The impossible trinity as the organising framework.','Examples: Hong Kong’s peg, Thailand in 1997, Nigeria in 2023. Judge by the type of economy.']]];
+
+/* ============================ CORE (do not edit per chapter) ============================ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const st={get(k,d){try{const v=localStorage.getItem(NS+'.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(NS+'.'+k,JSON.stringify(v))}catch(e){}}};
+const f0=v=>Math.round(v).toLocaleString(), f1=v=>(Math.round(v*10)/10).toLocaleString(), f2=v=>(Math.round(v*100)/100).toLocaleString(), money=v=>(v<0?'−$':'$')+Math.round(Math.abs(v)).toLocaleString();
+const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tween(from,to,ms,cb){if(RM||document.hidden){cb(to);return}const t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;cb(from+(to-from)*e);if(k<1)requestAnimationFrame(f)})(t0)}
+const LC={s:'ls',s2:'ls',d:'ld',d2:'ld2',sm:'lm'};
+/* Plot({xmax,ymax,xl,yl,w?,h?,L?}) : fn(f,cls,label,lx) pts(points,cls) poly(points,cls) seg(x0,y0,x1,y1,cls) rect(x,y,cls)
+   bar(xCentre,width,height,cls,label) dot(x,y,cls) guide(x,y,xLabel,yLabel) xt(x,t) yt(y,t) text(x,y,t,cls,anchor) arrow(...) gap(x0,x1,y) svg(aria)
+   classes: d d2 s s2 sm ghost guide arrow | areas: spend (blue) area (orange) dwl (gold) | bars: bar, bar dim */
+function Plot(o){const W=o.w||540,H=o.h||380,L=o.L||54,R=26,T=24,B=44;const sx=x=>L+x/o.xmax*(W-L-R),sy=y=>H-B-y/o.ymax*(H-T-B);const out=[];
+ return{sx,sy,
+  fn(f,cls,label,lx){let d='',pen=false;for(let i=0;i<=160;i++){const x=o.xmax*i/160,y=f(x);if(!isFinite(y)||y<0||y>o.ymax){pen=false;continue}d+=(pen?'L':'M')+sx(x).toFixed(1)+' '+sy(y).toFixed(1)+' ';pen=true}if(d)out.push(`<path class="${cls}" d="${d}"/>`);if(label){const x=lx!=null?lx:o.xmax*.86,y=f(x);if(isFinite(y)&&y>=0&&y<=o.ymax)out.push(`<text class="${LC[cls]||'lg'}" x="${sx(x)+6}" y="${sy(y)-6}">${label}</text>`)}},
+  pts(p,cls){out.push(`<path class="${cls}" d="${p.map((q,i)=>(i?'L':'M')+sx(q[0]).toFixed(1)+' '+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  poly(p,cls){out.push(`<polygon class="${cls}" points="${p.map(q=>sx(q[0]).toFixed(1)+','+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  rect(x,y,cls){out.push(`<rect class="${cls}" x="${sx(0)}" y="${sy(y)}" width="${sx(x)-sx(0)}" height="${sy(0)-sy(y)}"/>`)},
+  bar(x,w,h,cls,lab){out.push(`<rect class="bar ${cls||''}" x="${sx(x-w/2)}" y="${sy(h)}" width="${sx(w)-sx(0)}" height="${sy(0)-sy(h)}"/>`);if(lab!=null)out.push(`<text class="note" x="${sx(x)}" y="${sy(h)-6}" text-anchor="middle">${lab}</text>`)},
+  seg(x0,y0,x1,y1,cls){out.push(`<path class="${cls}" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  dot(x,y,c){out.push(`<circle class="${c||'dot'}" cx="${sx(x)}" cy="${sy(y)}" r="5"/>`)},
+  guide(x,y,xl,yl){out.push(`<path class="guide" d="M${sx(0)} ${sy(y)} L${sx(x)} ${sy(y)} L${sx(x)} ${sy(0)}"/>`);if(yl)out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${yl}</text>`);if(xl)out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${xl}</text>`)},
+  xt(x,t){out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${t}</text>`)},
+  yt(y,t){out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${t}</text>`)},
+  text(x,y,t,c,a){out.push(`<text class="${c||'note'}" x="${sx(x)}" y="${sy(y)}" text-anchor="${a||'start'}">${t}</text>`)},
+  arrow(x0,y0,x1,y1){out.push(`<path class="arrow" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  gap(x0,x1,y){out.push(`<path class="gap" d="M${sx(x0)} ${sy(y)} L${sx(x1)} ${sy(y)}"/>`)},
+  svg(aria){return `<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria||''}"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0 0 L10 5 L0 10z"/></marker></defs>${out.join('')}<path class="axis" d="M${sx(0)} ${sy(o.ymax)} L${sx(0)} ${sy(0)} L${sx(o.xmax)} ${sy(0)}"/><text class="axl" x="${sx(0)-8}" y="${T-8}">${o.yl}</text><text class="axl" x="${sx(o.xmax)}" y="${H-8}" text-anchor="end">${o.xl}</text><text class="tick" x="${sx(0)-6}" y="${sy(0)+17}" text-anchor="end">0</text></svg>`}}}
+/* sorter('pre', [[card text, answerKey, explanation]], {key: label}, 'data-attr')  — needs ids pre+n/q/fb/next/sc */
+function sorter(pre,cards,labels,attr){let i=st.get(pre+'i',0),sc=st.get(pre+'s',[0,0]);
+ const draw=()=>{i%=cards.length;$('#'+pre+'n').textContent=`Card ${i+1} of ${cards.length}`;$('#'+pre+'q').textContent=cards[i][0];$('#'+pre+'fb').textContent='';$('#'+pre+'next').hidden=true;$$(`[${attr}]`).forEach(b=>b.disabled=false);$('#'+pre+'sc').textContent=`Score ${sc[0]} / ${sc[1]}`};
+ $$(`[${attr}]`).forEach(b=>b.addEventListener('click',()=>{const c=cards[i],ok=b.getAttribute(attr)===c[1];sc[1]++;if(ok)sc[0]++;st.set(pre+'s',sc);const fb=$('#'+pre+'fb');fb.className='fb '+(ok?'ok':'no');fb.textContent=(ok?'✓ Correct. ':'✗ Answer: '+labels[c[1]]+'. ')+c[2];$$(`[${attr}]`).forEach(x=>x.disabled=true);$('#'+pre+'next').hidden=false;$('#'+pre+'sc').textContent=`Score ${sc[0]} / ${sc[1]}`}));
+ $('#'+pre+'next').addEventListener('click',()=>{i++;st.set(pre+'i',i);draw()});draw()}
+/* stepper('pre', steps[[title, html]], draw(stepIndex)) — needs ids pre+t/x/prev/next/dots */
+function stepper(pre,steps,draw){let k=0;const go=()=>{k=Math.max(0,Math.min(steps.length-1,k));draw(k);$('#'+pre+'t').textContent=`Step ${k+1}: ${steps[k][0]}`;$('#'+pre+'x').innerHTML=steps[k][1];$('#'+pre+'dots').innerHTML=steps.map((_,i)=>`<i class="${i<=k?'on':''}"></i>`).join('');$('#'+pre+'prev').disabled=k===0;$('#'+pre+'next').disabled=k===steps.length-1};
+ $('#'+pre+'next').addEventListener('click',()=>{k++;go()});$('#'+pre+'prev').addEventListener('click',()=>{k--;go()});go();return{reset(){k=0;go()}}}
+let LVL=st.get('lvl','HL');const HASLVL=!!$('.lvl');
+function renderGoals(){const d=st.get('goals',[]);$('#goals').innerHTML=GOALS.map((g,i)=>g[1]&&LVL==='SL'?'':`<li><input type="checkbox" id="g${i}" ${d.includes(i)?'checked':''}><label for="g${i}">${g[0]} ${g[1]&&HASLVL?'<span class="badge b-hl">HL</span>':''}</label></li>`).join('');$$('#goals input').forEach(c=>c.addEventListener('change',()=>{const i=+c.id.slice(1);let v=st.get('goals',[]);v=c.checked?[...new Set([...v,i])]:v.filter(x=>x!==i);st.set('goals',v)}))}
+function renderCards(){$('#cards').innerHTML=TERMS.filter(t=>!(t[2]&&LVL==='SL')).map(t=>`<button class="flip" aria-label="${t[0]}: show definition"><div class="in"><div class="f"><b>${t[0]}</b><span class="hint">${t[2]&&HASLVL?'<span class="badge b-hl">HL</span> ':''}Click to flip</span></div><div class="b">${t[1]}</div></div></button>`).join('');$$('#cards .flip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on')))}
+function renderMCQ(){const list=MCQ.map((q,i)=>[q,i]).filter(x=>!(x[0][4]&&LVL==='SL'));
+ $('#mcqs').innerHTML=list.map(([q,i],k)=>`<div class="mcq" data-i="${i}"><p><b>${k+1}.</b> ${q[0]}</p><div class="opts">${q[1].map((o,j)=>`<button class="btn opt" data-j="${j}">${String.fromCharCode(65+j)}. ${o}</button>`).join('')}</div><p class="why" hidden></p></div>`).join('');
+ const sc=()=>{const a=st.get('mcq',{});const done=list.filter(x=>a[x[1]]!=null);const ok=done.filter(x=>a[x[1]]===x[0][2]).length;$('#mcqscore').innerHTML=done.length?`Score: ${ok} / ${list.length} <button class="btn" id="mcqreset" style="margin-left:10px;padding:4px 10px">Try again</button>`:'';const r=$('#mcqreset');if(r)r.addEventListener('click',()=>{st.set('mcq',{});renderMCQ()})};
+ $$('.mcq').forEach(el=>{const i=+el.dataset.i,q=MCQ[i];const mark=j=>{el.querySelectorAll('.opt').forEach(b=>{const k=+b.dataset.j;b.disabled=true;if(k===q[2])b.classList.add('ok');else if(k===j)b.classList.add('no')});const w=el.querySelector('.why');w.hidden=false;w.textContent=(j===q[2]?'✓ ':'✗ ')+q[3]};
+  const a=st.get('mcq',{});if(a[i]!=null)mark(a[i]);el.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{const a=st.get('mcq',{});a[i]=+b.dataset.j;st.set('mcq',a);mark(+b.dataset.j);sc()}))});sc()}
+function renderQF(){$('#qf').innerHTML=QF.filter(q=>!(q[2]&&LVL==='SL')).map(q=>`<div class="qa"><p><b>${q[0]}</b></p><details><summary>Show answer</summary><p>${q[1]}</p></details></div>`).join('')}
+function renderStatic(){
+ $('#casebox').innerHTML=CASES.map(c=>`<article class="case"><h3>${c[0]}</h3><p>${c[1]}</p><ol>${c[2].map(q=>`<li>${q}</li>`).join('')}</ol><details><summary>Model answer</summary><ol>${c[3].map(a=>`<li>${a}</li>`).join('')}</ol></details></article>`).join('');
+ $('#mist').innerHTML=MI.map(m=>`<div><b>✗ ${m[0]}</b>${m[1]}</div>`).join('');
+ $('#exambox').innerHTML=EX.map(e=>{const hl=/HL|Paper 3/.test(e[0]);return `<article class="case ${hl&&HASLVL?'hlonly':''}"><span class="badge ${hl?'b-hl':'b-sl'}">${e[0]}</span><p style="font-family:var(--serif);font-size:17px">${e[1]}</p><details><summary>What a strong answer includes</summary><ol>${e[2].map(x=>`<li>${x}</li>`).join('')}</ol></details></article>`}).join('')}
+function setLvl(l){LVL=HASLVL?l:'HL';st.set('lvl',LVL);$$('.lvl button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lvl===LVL));$$('.hlonly').forEach(e=>e.hidden=LVL==='SL');renderCards();renderGoals();renderMCQ();renderQF()}
+$$('.lvl button').forEach(b=>b.addEventListener('click',()=>setLvl(b.dataset.lvl)));
+
+/* LAB CODE: chapter-specific interactive sections. Each section = a draw() function + event listeners. */
+
+/* shared currency-market model: price of A$ in £ */
+const XD=er=>120-60*er, XS=er=>20+60*er;           /* D falls, S rises with the rate */
+const XEQ=(ds,ss)=>(100+ds-ss)/120;                /* solve 120+ds-60er = 20+ss+60er */
+
+/* y ticks, skipping any that would sit on top of a guide label */
+function yts(g,vals,skips,fmt){vals.forEach(v=>{if(!skips.some(k=>Math.abs(k-v)<0.13))g.yt(v,fmt(v))})}
+
+/* 02 diagram builder */
+const BDS=[['Label the axes','Never write just “Price”. The y-axis is <b>Price of A$ in £ (£ per A$)</b> and the x-axis is <b>Quantity of A$</b>. Naming the currency on both axes is worth easy marks.'],
+['Draw demand for A$','D<sub>A$</sub> slopes <b>down</b>: as the A$ gets cheaper in pounds, British buyers need fewer pounds for each Australian good, so they want more A$. Demand comes from <b>foreigners</b> buying Australian exports, investing in Australia or sending money there — every one of them an <b>inflow</b>.'],
+['Draw supply of A$','S<sub>A$</sub> slopes <b>up</b>: a higher A$ buys more pounds, so Australians offer more A$ to buy imports and foreign assets. Supply comes from <b>residents</b> — an <b>outflow</b>.'],
+['Mark the equilibrium','Where the curves cross, the quantity of A$ demanded equals the quantity supplied. Label the rate ER<sub>e</sub> and the quantity Q<sub>e</sub>, with dotted lines to both axes. Use “ER” if the question gives you no number.'],
+['Show an appreciation','Stronger demand for Australian exports shifts D<sub>A$</sub> <b>right</b>. The rate rises from ER<sub>1</sub> to ER<sub>2</sub>: the A$ has <b>appreciated</b>. Keep the old curve on the diagram and write the cause beside the arrow.'],
+['Name the other side','One currency rising always means the other falling. If the A$ appreciates against the pound, the pound has <b>depreciated</b> against the A$ by definition. Examiners look for this sentence.']];
+function drawBd(k){const g=Plot({xmax:120,ymax:2,xl:k>=1?'Quantity of A$':'Quantity of A$ →',yl:'Price of A$ in £'});
+ const gd=[];if(k>=3)gd.push(XEQ(0,0));if(k>=4)gd.push(XEQ(36,0));yts(g,[0.5,1,1.5],gd,v=>'£'+f1(v));
+ if(k>=1)g.fn(q=>(120-q)/60,'d','D(A$)',96);
+ if(k>=2)g.fn(q=>(q-20)/60,'s','S(A$)',104);
+ if(k>=3){const er=XEQ(0,0),q=XD(er);g.guide(q,er,'Qe','ERe');g.dot(q,er)}
+ if(k>=4){const ds=36,er2=XEQ(ds,0),q2=XD(er2)+ds;g.fn(q=>(120+ds-q)/60,'d2','D(A$)₂',70);g.guide(q2,er2,'Q₂','ER₂');g.dot(q2,er2);g.arrow(70,1.05,88,1.28);g.text(44,1.62,'more demand for Australian exports','note')}
+ if(k>=5)g.text(4,.22,'A$ appreciates ⇒ £ depreciates','lm');
+ $('#bdfig').innerHTML=g.svg('Currency market for the Australian dollar')}
+
+/* 03 determinants */
+const SF=[['Exports rise','d',1,'Foreign buyers need A$ to pay for Australian goods, so demand for A$ rises: an inflow.'],
+['Imports rise','s',1,'Australians sell A$ to buy foreign currency for imports, so the supply of A$ rises: an outflow.'],
+['Inward FDI','d',1,'A foreign firm building a plant in Australia must buy A$ first. Hoang’s example is Manulife investing across Asia (p. 490).'],
+['Outward FDI','s',1,'An Australian firm investing abroad sells A$ to get foreign currency.'],
+['Remittances sent home','d',1,'Workers abroad convert foreign currency into A$ for their families. The Philippines received about $33.5bn in 2019, roughly 9.3% of GDP (Hoang p. 492).'],
+['Higher domestic interest rates','d',1,'Hot money chases the better return, so foreigners buy A$ to hold Australian assets.'],
+['Higher domestic inflation','s',1,'Australian goods lose competitiveness: exports fall and imports look cheap, so demand for A$ falls and supply rises. Note it is <b>relative</b> inflation that matters.'],
+['Speculators expect a fall','s',1,'They sell A$ now to buy back cheaper later. Expectations can move a rate before anything real has changed.'],
+['Faster domestic growth','s',1,'Richer households buy more imports, so more A$ is supplied. (Growth can also attract investment, pulling the other way: say which effect you think dominates.)'],
+['Central bank buys A$','d',1,'The Reserve Bank sells foreign reserves to buy its own currency, pushing demand right. This is intervention, not a market force.']];
+let sfSel=-1;
+$('#sfpick').innerHTML=SF.map((s,i)=>`<button class="btn" data-sf="${i}">${s[0]}</button>`).join('');
+function drawSf(){const s=sfSel>=0?SF[sfSel]:null,amt=s?36:0,ds=s&&s[1]==='d'?amt:0,ss=s&&s[1]==='s'?amt:0;
+ $$('[data-sf]').forEach(b=>b.classList.toggle('pri',+b.dataset.sf===sfSel));
+ const er0=XEQ(0,0),er1=XEQ(ds,ss),q0=XD(er0),q1=XD(er1)+ds;
+ const g=Plot({xmax:120,ymax:2,xl:'Quantity of A$',yl:'Price of A$ in £'});yts(g,[0.5,1,1.5],[er0,er1],v=>'£'+f1(v));
+ if(s){g.fn(q=>(120-q)/60,ds?'ghost':'d',ds?'':'D(A$)',96);g.fn(q=>(q-20)/60,ss?'ghost':'s',ss?'':'S(A$)',104);
+  if(ds)g.fn(q=>(120+ds-q)/60,'d','D(A$)₂',96);if(ss)g.fn(q=>(q-20-ss)/60,'s','S(A$)₂',110);
+  g.guide(q0,er0,'','ER₁')}
+ else{g.fn(q=>(120-q)/60,'d','D(A$)',96);g.fn(q=>(q-20)/60,'s','S(A$)',104)}
+ g.guide(q1,er1,'',s?'ER₂':'ERe');g.dot(q1,er1);
+ $('#sffig').innerHTML=g.svg('Effect of the chosen event on the Australian dollar');
+ const dir=er1>er0?'appreciates':er1<er0?'depreciates':'does not move';
+ $('#sfread').innerHTML=s?`<dt>Curve that shifts</dt><dd>${s[1]==='d'?'Demand for A$':'Supply of A$'}, right</dd><dt>Flow</dt><dd>${s[1]==='d'?'inflow':'outflow'}</dd><dt>Exchange rate</dt><dd>£${f2(er0)} → £${f2(er1)}</dd><dt>The A$…</dt><dd>${dir}</dd><dt>The £…</dt><dd>${dir==='appreciates'?'depreciates':dir==='depreciates'?'appreciates':'does not move'}</dd>`:`<dt>Equilibrium rate</dt><dd>£${f2(er0)}</dd><dt>Quantity</dt><dd>${f0(q0)}</dd>`;
+ $('#sfx').innerHTML=s?s[3]+` <b>The A$ ${dir}</b> from £${f2(er0)} to £${f2(er1)}, so the pound moves the opposite way.`:'Pick an event to see which curve moves.'}
+$$('[data-sf]').forEach(b=>b.addEventListener('click',()=>{sfSel=+b.dataset.sf;drawSf()}));
+
+/* 04 converter */
+const CV=[['EPQ 31.1: car in the USA',35500,1.35,'£','$',1],['EPQ 31.2: concert ticket',65,0.65,'$','£',0],['EPQ 31.2 after the fall',65,0.60,'$','£',0],['EPQ 31.3: textbook in yuan',65,6.5,'$','CN¥',0],['EPQ 31.4: value of $1',1,1.587,'£','$',1]];
+$('#cvpre').innerHTML=CV.map((p,i)=>`<button class="btn" data-cv="${i}">${p[0]}</button>`).join('');
+let cvB='£',cvQ='$';
+function cvSet(p){cvB=p[3];cvQ=p[4];$('#cvamt').value=p[1];$('#cvrate').value=p[2];$('#cvbase').textContent=cvB;$('#cvquote').textContent=cvQ;
+ $('#cvfrom').innerHTML=`<option value="base">${cvB} (the base)</option><option value="quote">${cvQ} (the quoted currency)</option>`;$('#cvfrom').value=p[5]?'quote':'base';drawCv()}
+$$('[data-cv]').forEach(b=>b.addEventListener('click',()=>cvSet(CV[+b.dataset.cv])));
+function drawCv(){const a=+$('#cvamt').value,r=+$('#cvrate').value,from=$('#cvfrom').value,dp=Math.max(0,Math.min(4,+$('#cvdp').value||0));
+ if(!isFinite(a)||!isFinite(r)||r<=0){$('#cvread').innerHTML='<dt>Result</dt><dd>—</dd>';$('#cvwork').textContent='Enter an amount and a rate above zero.';$('#cvx').textContent='';return}
+ const res=from==='base'?a*r:a/r,fmt=v=>v.toLocaleString(undefined,{minimumFractionDigits:dp,maximumFractionDigits:dp});
+ $('#cvwork').innerHTML=from==='base'?`<b>Base → quoted, so multiply:</b><br>${fmt(a)} ${cvB} × ${r} = <b>${fmt(res)} ${cvQ}</b>`:`<b>Quoted → base, so divide:</b><br>${fmt(a)} ${cvQ} ÷ ${r} = <b>${fmt(res)} ${cvB}</b>`;
+ $('#cvread').innerHTML=`<dt>Rate used</dt><dd>1 ${cvB} = ${r} ${cvQ}</dd><dt>Converting</dt><dd>${from==='base'?cvB+' → '+cvQ:cvQ+' → '+cvB}</dd><dt><b>Answer</b></dt><dd><b>${fmt(res)} ${from==='base'?cvQ:cvB}</b></dd><dt>Inverse rate</dt><dd>1 ${cvQ} = ${(1/r).toFixed(4)} ${cvB}</dd>`;
+ const bigger=res>a;
+ $('#cvx').innerHTML=`Sense check: one ${cvB} is worth ${r>1?'more':'less'} than one ${cvQ}, so the same value expressed in ${from==='base'?cvQ:cvB} should be the <b>${bigger?'larger':'smaller'}</b> number — and it is. If your answer fails this check, you have multiplied where you should have divided.`}
+['cvamt','cvrate','cvdp'].forEach(id=>$('#'+id).addEventListener('input',drawCv));$('#cvfrom').addEventListener('change',drawCv);
+function drawCx(){const a=+$('#cxa').value,b=+$('#cxb').value;
+ if(!isFinite(a)||!isFinite(b)||a<=0||b<=0){$('#cxread').innerHTML='<dt>Cross rate</dt><dd>—</dd>';return}
+ $('#cxread').innerHTML=`<dt>Working</dt><dd>${b} ÷ ${a}</dd><dt><b>£1 =</b></dt><dd><b>€${(b/a).toFixed(3)}</b></dd><dt>€1 =</dt><dd>£${(a/b).toFixed(3)}</dd>`}
+['cxa','cxb'].forEach(id=>$('#'+id).addEventListener('input',drawCx));
+
+/* 05 percentage change */
+const PC=[['EPQ 31.5: KWD against NGN',900,1150,'KWD','NGN'],['Thai baht against the euro',36,40,'€','฿'],['Yen: $ against ¥',110,150,'$','¥'],['Euro against the dollar',1.10,1.21,'€','$']];
+$('#pcpre').innerHTML=PC.map((p,i)=>`<button class="btn" data-pc="${i}">${p[0]}</button>`).join('');
+let pcA='KWD',pcB='NGN';
+function pcSet(p){pcA=p[3];pcB=p[4];$('#pcb').value=p[1];$('#pca').value=p[2];$$('.pcA').forEach(e=>e.textContent=pcA);$$('.pcB').forEach(e=>e.textContent=pcB);drawPc()}
+$$('[data-pc]').forEach(b=>b.addEventListener('click',()=>pcSet(PC[+b.dataset.pc])));
+function drawPc(){const b=+$('#pcb').value,a=+$('#pca').value;
+ if(!isFinite(a)||!isFinite(b)||a<=0||b<=0){$('#pcread').innerHTML='<dt>Change</dt><dd>—</dd>';$('#pcx').textContent='Enter two rates above zero.';$('#pcfig').innerHTML='';return}
+ const chA=(a-b)/b*100,vb=1/b,va=1/a,chB=(va-vb)/vb*100;
+ const g=Plot({xmax:2,ymax:Math.max(Math.abs(chA),Math.abs(chB))*1.5+5,xl:'',yl:'% change',h:260,L:56});
+ const mx=Math.max(Math.abs(chA),Math.abs(chB))*1.5+5;
+ g.bar(.55,.5,Math.abs(chA),chA>=0?'':'dim',(chA>=0?'+':'−')+f1(Math.abs(chA))+'%');g.bar(1.45,.5,Math.abs(chB),chB>=0?'':'dim',(chB>=0?'+':'−')+f1(Math.abs(chB))+'%');
+ g.xt(.55,pcA);g.xt(1.45,pcB);g.text(.05,mx*.93,'size of the move, each measured from its own base','note');
+ $('#pcfig').innerHTML=g.svg('Percentage change in each currency');
+ $('#pcread').innerHTML=`<dt>Rate</dt><dd>1 ${pcA}: ${b} → ${a} ${pcB}</dd><dt>Change in ${pcA}</dt><dd>${chA>=0?'+':''}${f1(chA)}%</dd><dt>Value of 1 ${pcB}</dt><dd>${vb.toFixed(6)} → ${va.toFixed(6)} ${pcA}</dd><dt>Change in ${pcB}</dt><dd>${chB>=0?'+':''}${f1(chB)}%</dd><dt>Gap between them</dt><dd>${f1(Math.abs(Math.abs(chA)-Math.abs(chB)))} pp</dd>`;
+ $('#pcx').innerHTML=`The ${pcA} has <b>${chA>=0?'appreciated':'depreciated'} by ${f1(Math.abs(chA))}%</b> and the ${pcB} has <b>${chB>=0?'appreciated':'depreciated'} by ${f1(Math.abs(chB))}%</b>. The figures differ by ${f1(Math.abs(Math.abs(chA)-Math.abs(chB)))} percentage points because each is measured from its own starting value: ${f0(b)} in one case, ${vb.toFixed(6)} in the other. Write down which currency you are measuring <i>before</i> you divide.`}
+['pcb','pca'].forEach(id=>$('#'+id).addEventListener('input',drawPc));
+
+/* 06 inflow / outflow sorter */
+sorter('fl',[['A German car dealer buys 50 Australian-made trailers.','d','Exports: foreigners need A$, so demand rises. Inflow.'],['An Australian family books a holiday in Bali.','s','Imports of services: A$ are sold for rupiah. Outflow.'],['A Japanese pension fund buys shares on the Australian stock exchange.','d','Inward portfolio investment. Inflow.'],['An Australian miner builds a new plant in Chile.','s','Outward FDI. Outflow.'],['A nurse working in London sends money to her parents in Sydney.','d','Remittances arriving home. Inflow.'],['The Reserve Bank raises interest rates above those abroad.','d','Hot money chases the higher return. Inflow.'],['Australian inflation rises well above its trading partners’.','s','Exports lose competitiveness and imports look cheap, so more A$ is supplied. Outflow.'],['Traders expect the A$ to fall next month and act now.','s','Speculative selling. Outflow.'],['A Chinese firm pays for a shipment of Australian iron ore.','d','Export earnings. Inflow.'],['Australian households buy more imported electronics as incomes rise.','s','Growth raises import spending. Outflow.']],{d:'Inflow (demand rises)',s:'Outflow (supply rises)'},'data-fl');
+
+/* 07 CUPEL + AD/AS */
+function drawCu(){const ch=+$('#cuch').value,px=+$('#cupx').value,pm=+$('#cupm').value,sr=$('#cusr').checked;
+ $('#cucho').textContent=(ch>0?'+':'')+ch+'%';$('#cupxo').textContent=f1(px);$('#cupmo').textContent=f1(pm);
+ const dep=ch<0,k=Math.abs(ch)/20,ml=px+pm;
+ /* currency market */
+ const amt=36*k*(dep?1:-1),er0=XEQ(0,0),er1=XEQ(dep?0:amt*-1,dep?amt:0);
+ const g1=Plot({xmax:120,ymax:2,xl:'Quantity of A$',yl:'Price of A$ in £',w:420});const e1=ch===0?er0:dep?XEQ(0,36*k):XEQ(36*k,0);yts(g1,[0.5,1,1.5],[er0,e1],v=>'£'+f1(v));
+ if(ch===0){g1.fn(q=>(120-q)/60,'d','D(A$)',96);g1.fn(q=>(q-20)/60,'s','S(A$)',104);g1.guide(XD(er0),er0,'','ERe')}
+ else if(dep){const ss=36*k;g1.fn(q=>(120-q)/60,'d','D(A$)',96);g1.fn(q=>(q-20)/60,'ghost','',104);g1.fn(q=>(q-20-ss)/60,'s','S(A$)₂',110);const e=XEQ(0,ss);g1.guide(XD(e),e,'','ER₂');g1.dot(XD(e),e)}
+ else{const ds=36*k;g1.fn(q=>(120-q)/60,'ghost','',96);g1.fn(q=>(120+ds-q)/60,'d','D(A$)₂',96);g1.fn(q=>(q-20)/60,'s','S(A$)',104);const e=XEQ(ds,0);g1.guide(XD(e)+ds,e,'','ER₂');g1.dot(XD(e)+ds,e)}
+ g1.text(4,1.88,ch===0?'no change':dep?'depreciation':'appreciation','lm');
+ $('#cufig1').innerHTML=g1.svg('Currency market');
+ /* AD/AS */
+ const adShift=(dep?1:-1)*18*k,srShift=sr?(dep?1:-1)*12*k:0;
+ const g2=Plot({xmax:120,ymax:160,xl:'Real GDP',yl:'Average price level',w:420});
+ const AD=(q,s)=>(150-q)+s,SR=(q,s)=>(20+q*0.9)+s;
+ const solve=(a,s)=>{const q=(150+a-20-s)/1.9;return[q,SR(q,s)]};
+ const p0=solve(0,0),p1=solve(adShift,srShift);
+ g2.fn(q=>AD(q,0),adShift?'ghost':'d',adShift?'':'AD',88);if(adShift)g2.fn(q=>AD(q,adShift),'d','AD₂',88);
+ g2.fn(q=>SR(q,0),srShift?'ghost':'s',srShift?'':'SRAS',100);if(srShift)g2.fn(q=>SR(q,srShift),'s','SRAS₂',100);
+ const mv=adShift||srShift;g2.guide(p0[0],p0[1],mv&&Math.abs(p1[0]-p0[0])<7?'':'Y₁',mv&&Math.abs(p1[1]-p0[1])<13?'':'P₁');if(mv){g2.guide(p1[0],p1[1],'Y₂','P₂');g2.dot(p1[0],p1[1])}else g2.dot(p0[0],p0[1]);
+ $('#cufig2').innerHTML=g2.svg('AD/AS effects');
+ const dY=p1[0]-p0[0],dP=p1[1]-p0[1];
+ const ca=ml>1?(dep?'improves':'worsens'):ml===1?'does not change much':(dep?'worsens':'improves');
+ $('#curead').innerHTML=`<dt>Exchange rate</dt><dd>${ch>0?'+':''}${ch}%</dd><dt>PEDx + PEDm</dt><dd>${f1(ml)} ${ml>1?'(> 1 ✓)':'(≤ 1 ✗)'}</dd><dt><b>C</b>urrent account</dt><dd>${ch===0?'—':ca}</dd><dt><b>U</b>nemployment</dt><dd>${ch===0?'—':dY>0.5?'falls':dY<-0.5?'rises':'little change'}</dd><dt><b>P</b>rices</dt><dd>${ch===0?'—':dP>0.5?'rise':dP<-0.5?'fall':'little change'}</dd><dt><b>E</b>conomic growth</dt><dd>${ch===0?'—':dY>0.5?'rises':dY<-0.5?'slows':'little change'}</dd><dt><b>L</b>iving standards</dt><dd>${ch===0?'—':dep?'mixed: exporters gain, importers lose':'mixed: importers gain, exporters lose'}</dd>`;
+ $('#cux').innerHTML=ch===0?'Move the slider to depreciate or appreciate the currency.':dep?
+  `A depreciation makes exports cheaper abroad and imports dearer at home, so net exports and <b>AD shift right</b>: real GDP rises and unemployment falls, with demand-pull inflation. ${sr?'Because imported energy and raw materials now cost more, <b>SRAS shifts left</b> too (Fig 31.16), adding cost-push inflation and cancelling part of the output gain.':'With the cost-push channel switched off, output rises more and inflation less — unrealistic for an economy that imports its inputs.'} The current account <b>${ca}</b>: PEDx + PEDm = ${f1(ml)}, ${ml>1?'which passes the Marshall–Lerner condition':'which fails the Marshall–Lerner condition, so dearer imports outweigh the extra export volume'}. ${ml<=1?'This is the J-curve case: in the short run demand is inelastic and the balance worsens before it improves.':''}`:
+  `An appreciation makes exports dearer abroad and imports cheaper at home, so net exports and <b>AD shift left</b>: slower growth and higher unemployment, with less inflationary pressure. ${sr?'Cheaper imported inputs shift <b>SRAS right</b>, lowering costs and softening the output loss.':''} The current account <b>${ca}</b> with PEDx + PEDm = ${f1(ml)}. Living standards are mixed: imports buy more, but export industries shed jobs.`}
+['cuch','cupx','cupm'].forEach(id=>$('#'+id).addEventListener('input',drawCu));$('#cusr').addEventListener('change',drawCu);
+
+/* 08 defending a peg */
+let pgMode=st.get('pgm','fix'),pgRes=100,pgPress=0,pgRate=0,pgLog=[],pgDead=false;
+const PEG=1.0,BAND=0.03;
+function pgMarket(){return PEG+pgPress*0.05-pgRate*0.03}
+function pgStep(kind){if(pgDead&&kind!=='rate')return;
+ if(kind==='sell')pgPress-=1;if(kind==='buy')pgPress+=1;if(kind==='rate')pgRate+=1;
+ const m=pgMarket();let need=0,rate=m;
+ if(pgMode==='float'){rate=m}
+ else{const lo=pgMode==='fix'?PEG:PEG*(1-BAND),hi=pgMode==='fix'?PEG:PEG*(1+BAND);
+  if(m<lo){need=(lo-m)/0.05*20;rate=lo}else if(m>hi){need=-(m-hi)/0.05*20;rate=hi}}
+ if(need>0){if(pgRes>=need){pgRes-=need}else{need=pgRes;pgRes=0;pgDead=true;rate=m}}
+ else if(need<0)pgRes+=-need;
+ pgLog.push({kind,rate,need,res:pgRes});drawPg()}
+function drawPg(){$$('[data-pg]').forEach(b=>b.classList.toggle('pri',b.dataset.pg===pgMode));
+ const m=pgMarket(),last=pgLog[pgLog.length-1],rate=last?last.rate:PEG;
+ const g=Plot({xmax:120,ymax:1.6,xl:'Quantity of currency',yl:'Price in US$'});[0.4,0.8,1.2].forEach(v=>g.yt(v,'$'+f1(v)));
+ const ss=-pgPress*12,ds=pgRate*8;
+ g.fn(q=>(120+ds-q)/60*1.0,ds?'d':'d','D',96);if(ds)g.fn(q=>(120-q)/60,'ghost','',96);
+ g.fn(q=>(q-20-ss)/60,'s','S',70);if(ss)g.fn(q=>(q-20)/60,'ghost','',70);
+ if(pgMode!=='float'){g.seg(0,PEG,120,PEG,'sm');g.text(2,PEG+.05,'peg $1.00','lm');
+  if(pgMode==='man'){g.seg(0,PEG*(1+BAND),120,PEG*(1+BAND),'guide');g.seg(0,PEG*(1-BAND),120,PEG*(1-BAND),'guide');g.text(118,PEG*(1+BAND)+.05,'+3%','note','end');g.text(118,PEG*(1-BAND)-.09,'−3%','note','end')}}
+ g.dot(XD(rate),rate);g.text(4,1.5,pgDead?'reserves exhausted: forced devaluation':pgMode==='float'?'free float: no intervention':'defending','lm');
+ $('#pgfig').innerHTML=g.svg('Defending the exchange rate');
+ const used=100-pgRes;
+ $('#pgread').innerHTML=`<dt>Regime</dt><dd>${pgMode==='fix'?'fixed':pgMode==='man'?'managed ±3%':'floating'}</dd><dt>Market pressure</dt><dd>$${f2(m)}</dd><dt>Actual rate</dt><dd>$${f2(rate)}</dd><dt>Interest-rate rises used</dt><dd>${pgRate}</dd><dt>Intervention this round</dt><dd>${last&&last.need>0?f0(last.need)+' reserves sold':last&&last.need<0?f0(-last.need)+' reserves bought':'none'}</dd><dt><b>Reserves left</b></dt><dd><b>${f0(pgRes)} of 100</b></dd>`;
+ $('#pgx').innerHTML=pgDead?`<b>The peg has broken.</b> Reserves hit zero, so the central bank can no longer buy its own currency and the rate falls to the market level of $${f2(m)}: a <b>forced devaluation</b>. This is what happened to Thailand’s baht in July 1997 (Hoang p. 503). Speculators who sold at the peg now buy back cheaply, which is why a peg under pressure attracts more selling, not less.`
+  :pgMode==='float'?`No intervention and no reserves spent: the rate simply moves to $${f2(m)}. Adjustment is automatic, and monetary policy stays free for domestic goals. The cost is uncertainty for traders and investors, and exposure to speculation.`
+  :!pgLog.length?`Apply a shock. Selling pressure pushes the currency below the ${pgMode==='fix'?'peg':'band'}, and the bank must buy its own currency with reserves.`
+  :last.need>0?`Residents and investors are selling, so supply shifted right and the rate would have fallen to $${f2(m)}. To hold ${pgMode==='fix'?'the peg':'the lower band limit'}, the bank sold <b>${f0(last.need)} reserves</b> to buy its own currency, shifting demand right (Hoang Fig 31.20). Reserves are finite — that is the whole weakness of a peg. Raising interest rates is the alternative, but it slows the domestic economy.`
+  :last.need<0?`Foreign buying pushed the rate above ${pgMode==='fix'?'the peg':'the band'}, so the bank sold its own currency and bought foreign exchange, <b>gaining ${f0(-last.need)} reserves</b> (Fig 31.18). Defending against a <i>rise</i> is far easier: a bank can always create more of its own currency, but it cannot create foreign reserves.`
+  :`The rate is $${f2(m)}, still inside the ${pgMode==='man'?'band, so no intervention is needed — this is exactly how a managed rate saves reserves compared with a hard peg':'target'}.`}
+$$('[data-pg]').forEach(b=>b.addEventListener('click',()=>{pgMode=b.dataset.pg;st.set('pgm',pgMode);drawPg()}));
+$('#pgsell').addEventListener('click',()=>pgStep('sell'));$('#pgbuy').addEventListener('click',()=>pgStep('buy'));$('#pgrate').addEventListener('click',()=>pgStep('rate'));
+$('#pgreset').addEventListener('click',()=>{pgRes=100;pgPress=0;pgRate=0;pgLog=[];pgDead=false;drawPg()});
+
+/* 09 fixed vs floating + impossible trinity (HL) */
+const SY=[['trade','Trade and investment are a very large share of GDP',2],['small','The economy is small and open, with one dominant partner',2],['infl','Inflation has been high and the central bank lacks credibility',2],['res','The country holds large foreign currency reserves',1],['comm','Exports are concentrated in volatile commodities',-2],['cycle','The business cycle differs sharply from the anchor country’s',-2],['spec','The country is exposed to speculative capital flows',-1],['pol','An independent monetary policy is needed for domestic goals',-2]];
+let syOn=st.get('sy',{trade:true,cycle:true,pol:true});
+$('#sytog').innerHTML=SY.map(v=>`<label class="ctl" style="display:flex;gap:8px;align-items:flex-start" for="sy_${v[0]}"><input type="checkbox" id="sy_${v[0]}" style="width:18px;height:18px;margin-top:3px"><span style="color:var(--ink);font-weight:500">${v[1]} <span class="badge ${v[2]>0?'b-sl':'b-hl'}">${v[2]>0?'fixed':'floating'}</span></span></label>`).join('');
+SY.forEach(v=>{const c=$('#sy_'+v[0]);c.checked=!!syOn[v[0]];c.addEventListener('change',()=>{syOn[v[0]]=c.checked;st.set('sy',syOn);drawSy()})});
+function drawSy(){const sc=SY.reduce((a,v)=>a+(syOn[v[0]]?v[2]:0),0),W=520,H=120,x=v=>40+(v+8)/16*(W-80);
+ $('#syfig').innerHTML=`<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="Fixed versus floating meter"><rect x="${x(-8)}" y="50" width="${x(0)-x(-8)}" height="22" fill="var(--shade)"/><rect x="${x(0)}" y="50" width="${x(8)-x(0)}" height="22" fill="var(--shadeb)"/><text class="note" x="${x(-8)}" y="40">Floating suits it better</text><text class="note" x="${x(8)}" y="40" text-anchor="end">Fixed suits it better</text><path class="axis" d="M${x(0)} 44 L${x(0)} 78"/><circle cx="${x(Math.max(-8,Math.min(8,sc)))}" cy="61" r="10" class="dot"/><text class="tick" x="${x(Math.max(-8,Math.min(8,sc)))}" y="98" text-anchor="middle">${sc>0?'+':''}${sc}</text></svg>`;
+ const f=SY.filter(v=>syOn[v[0]]&&v[2]>0).map(v=>v[1].toLowerCase()),a=SY.filter(v=>syOn[v[0]]&&v[2]<0).map(v=>v[1].toLowerCase());
+ $('#syx').innerHTML=`<b>Leaning: ${sc>=3?'a fixed or managed rate':sc<=-3?'a floating rate':'genuinely balanced'}.</b> Paragraph scaffold: “A fixed rate would suit this economy because ${f.length?f.join('; '):'(nothing selected on that side)'}. However, ${a.length?a.join('; '):'there are few arguments the other way here'}. On balance…” Name the economy, say over what time period, and finish with the trinity below. The weights are illustrative; the marks come from the reasoning, not the score.`}
+const TR=[['fx','A fixed exchange rate',['A fixed','exchange rate']],['cap','Free movement of capital',['Free movement','of capital']],['mon','Independent monetary policy',['Independent','monetary policy']]];
+let trOn=st.get('tr',['fx','cap']);
+$('#trpick').innerHTML=TR.map(t=>`<button class="btn" data-tr="${t[0]}">${t[1]}</button>`).join('');
+function drawTr(){$$('[data-tr]').forEach(b=>b.classList.toggle('pri',trOn.includes(b.dataset.tr)));
+ const W=520,H=250,P=[[260,62],[80,175],[440,175]];let s='';
+ TR.forEach((t,i)=>{const on=trOn.includes(t[0]),[x,y]=P[i],ly=i===0?[14,28]:[y+46,y+60];
+  s+=`<circle cx="${x}" cy="${y}" r="26" fill="${on?'var(--shadeb)':'var(--panel2)'}" stroke="${on?'var(--demand)':'var(--rule)'}" stroke-width="2"/><text x="${x}" y="${y+6}" text-anchor="middle" style="font:700 18px var(--sans);fill:${on?'var(--demand)':'var(--muted)'}">${on?'✓':'✗'}</text>`
+   +t[2].map((ln,j)=>`<text x="${x}" y="${ly[j]}" text-anchor="middle" style="font:600 12.5px var(--sans);fill:var(--ink)">${ln}</text>`).join('')});
+ [[0,1],[1,2],[0,2]].forEach(([i,j])=>{const both=trOn.includes(TR[i][0])&&trOn.includes(TR[j][0]);s=`<path class="${both?'sm':'guide'}" d="M${P[i][0]} ${P[i][1]} L${P[j][0]} ${P[j][1]}"/>`+s});
+ $('#trfig').innerHTML=`<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="Impossible trinity">${s}</svg>`;
+ const k=trOn.slice().sort().join(',');
+ const msg={'cap,fx':'<b>Fixed rate + free capital, so no independent monetary policy.</b> Interest rates must follow the anchor country, or capital floods in or out. Hong Kong: the HKMA follows US rates because it must, even when Hong Kong needs something different.','fx,mon':'<b>Fixed rate + own monetary policy, so capital controls are needed.</b> If rates differ from the anchor and money can move freely, the peg breaks, so the government must restrict capital flows. China for much of its recent history.','cap,mon':'<b>Free capital + own monetary policy, so the rate must float.</b> The exchange rate becomes the shock absorber. The UK, Japan, Australia and most high-income economies.'}[k];
+ $('#trx').innerHTML=trOn.length!==2?`Select exactly <b>two</b> (you have ${trOn.length}). The point of the trinity is that the third is then impossible.`:msg+' Every exchange-rate regime in the world is a choice between these three corners, which is why there is no universally correct answer to the 15-mark question.'}
+$$('[data-tr]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.tr;trOn=trOn.includes(k)?trOn.filter(x=>x!==k):[...trOn,k];st.set('tr',trOn);drawTr()}));
+/* /LAB CODE */
+
+$$('section.step').forEach(sec=>{const n=sec.querySelector('.num');const list=[...$$('section.step')].filter(x=>x.id!=='guide');if(n&&sec.id!=='guide'&&!n.dataset.fixed)n.textContent=String(list.indexOf(sec)+1).padStart(2,'0')});
+renderStatic();setLvl(LVL);
+/* LAB INIT: call each section's first draw here */
+stepper('bd',BDS,drawBd);drawSf();cvSet(CV[0]);drawCx();pcSet(PC[0]);drawCu();drawPg();drawSy();drawTr();
+/* /LAB INIT */
+})();
+</script>
+<script id="cg-js">
+(function(){
+const CG={"title": "Chapter 31 · Exchange rates", "intro": "An exchange rate is just a price — the price of one currency in terms of another — so it is set by demand and supply like any other price. What makes it powerful is that it changes the price of every import and every export at once, so a single movement reaches inflation, growth, jobs and the current account together. Chapter 31 covers how the rate is determined, what moves it, what it does to the economy, and what happens when a government tries to hold it still.", "groups": [{"name": "The currency market", "terms": [{"term": "Exchange rate", "level": "SL/HL", "definition": "The price of one currency expressed in terms of another currency.", "explanation": "Rates are always quoted as a pair, so every statement has two sides: if the pound buys more dollars, the dollar buys fewer pounds. Getting the direction right is half the battle in exam questions, so write down which currency you are measuring before you calculate anything.", "example": "If £1 = US$1.25, then US$1 = £0.80 (1 ÷ 1.25).", "exam_tip": "Say which currency has risen or fallen, never just 'the exchange rate went up'.", "related": ["Floating exchange rate", "Appreciation", "Depreciation"]}, {"term": "Floating exchange rate", "level": "SL/HL", "definition": "An exchange rate determined purely by the demand for and supply of a currency in the foreign exchange market, with no deliberate government intervention.", "explanation": "The rate adjusts automatically to clear the market, so no foreign reserves are needed and monetary policy stays free for domestic goals. The cost is volatility, which creates uncertainty for traders and invites speculation.", "example": "The pound, the yen, the US dollar and the Australian dollar all float, though their central banks occasionally comment on sharp moves.", "exam_tip": "Floating rates appreciate and depreciate; they are never devalued.", "related": ["Appreciation", "Depreciation", "Fixed exchange rate"]}, {"term": "Demand for a currency", "level": "SL/HL", "definition": "The quantity of a currency that foreigners want to buy at each exchange rate, in order to pay for exports, invest in the country or send remittances to it.", "explanation": "Demand slopes downward: as the currency gets cheaper, foreign buyers need less of their own money for each unit, so they want more of it. Every source of demand is an inflow of money into the country.", "example": "A German dealer buying Australian trailers must first buy Australian dollars to pay the exporter.", "exam_tip": "Hoang's top tip (p. 488): demand is an inflow, supply is an outflow. Learn this one line.", "related": ["Supply of a currency", "Appreciation"]}, {"term": "Supply of a currency", "level": "SL/HL", "definition": "The quantity of a currency residents offer in exchange for foreign currency at each exchange rate, in order to buy imports or invest abroad.", "explanation": "Supply slopes upward: a stronger currency buys more foreign goods and assets, so residents offer more of it. Every source of supply is an outflow. Supply in this market comes from residents selling, not from the central bank printing money — a very common misunderstanding.", "example": "An Australian family paying for a holiday in Bali sells Australian dollars to buy rupiah.", "exam_tip": "If you catch yourself writing 'the central bank supplies the currency', stop and rethink.", "related": ["Demand for a currency", "Depreciation"]}, {"term": "Appreciation", "level": "SL/HL", "definition": "An increase in the value of a currency against another currency in a floating exchange rate system.", "explanation": "It happens when demand for the currency rises or its supply falls. Exports become dearer abroad and imports cheaper at home, which eases inflation but squeezes exporters.", "example": "If the euro moves from US$1.10 to US$1.21, it has appreciated by 10% against the dollar.", "exam_tip": "Appreciation of one currency is always depreciation of the other. Say both.", "related": ["Depreciation", "Revaluation"]}, {"term": "Depreciation", "level": "SL/HL", "definition": "A decrease in the value of a currency against another currency in a floating exchange rate system.", "explanation": "It happens when supply of the currency rises or demand falls. Exports become cheaper abroad and imports dearer at home, which helps exporters but raises the cost of living through imported goods.", "example": "The yen fell from about ¥110 to over ¥150 per US dollar between 2021 and 2024, a depreciation of roughly 27% (approximate figures).", "exam_tip": "Never call a market-driven fall a 'devaluation'.", "related": ["Appreciation", "Devaluation"]}]}, {"name": "What moves the rate", "terms": [{"term": "Portfolio investment", "level": "SL/HL", "definition": "The purchase of foreign financial assets such as shares and bonds, without taking control of the firm.", "explanation": "Inward portfolio investment requires buying the home currency, so it raises demand for it; outward investment raises supply. These flows react quickly to interest-rate differences, which makes them a major source of short-run volatility.", "example": "A Japanese pension fund buying shares on the Australian stock exchange must first buy Australian dollars.", "exam_tip": "Distinguish it from FDI: portfolio flows can reverse in days, FDI cannot.", "related": ["Hot money", "Demand for a currency"]}, {"term": "Remittances", "level": "SL/HL", "definition": "Money sent home by people working abroad.", "explanation": "Remittances are an inflow and so raise demand for the home currency. For several countries they are larger and far more stable than foreign aid or portfolio investment, which makes them an important support for the currency.", "example": "The Philippines received about US$33.5bn in remittances in 2019, roughly 9.3% of GDP (Hoang p. 492).", "exam_tip": "A good example for a country whose currency holds up despite a trade deficit.", "related": ["Demand for a currency", "Current account"]}, {"term": "Speculation", "level": "SL/HL", "definition": "Buying or selling a currency in the hope of profiting from a future change in its value.", "explanation": "Expectations alone can move a rate before anything real has changed, and the move can be self-fulfilling: if enough traders sell because they expect a fall, the currency falls. Speculation is why pegs under pressure often break suddenly rather than gradually.", "example": "Traders selling a currency ahead of an expected devaluation, as in Thailand in 1997.", "exam_tip": "Use it to explain why exchange rates are far more volatile than goods prices.", "related": ["Hot money", "Fixed exchange rate"]}, {"term": "Hot money", "level": "SL/HL", "definition": "Short-term capital that moves between countries to take advantage of interest-rate differences or expected exchange-rate changes.", "explanation": "When one country's interest rates rise relative to others, hot money flows in, raising demand for its currency and causing an appreciation. The flows can reverse just as fast, which is why relying on them to support a currency is risky.", "example": "The US dollar appreciated strongly in 2022–23 as the Federal Reserve raised rates well above those in Japan and the eurozone.", "exam_tip": "Always say relative interest rates, not just 'interest rates'.", "related": ["Portfolio investment", "Speculation"]}, {"term": "Relative inflation rates", "level": "SL/HL", "definition": "A country's inflation rate compared with those of its trading partners, which affects the competitiveness of its exports.", "explanation": "Higher relative inflation makes exports dearer and imports relatively cheap, so demand for the currency falls and its supply rises: the currency depreciates. Students often reason the opposite way, thinking higher prices mean a stronger currency.", "example": "A country with 20% inflation while its partners run 2% will see its currency slide unless something offsets it.", "exam_tip": "The word 'relative' earns the mark. Inflation of 5% is low if partners have 10%.", "related": ["Supply of a currency", "Overvalued currency"]}]}, {"name": "Consequences and calculations", "terms": [{"term": "CUPEL", "level": "SL/HL", "definition": "A memory aid for the consequences of an exchange-rate change: Current account, Unemployment, Prices, Economic growth, Living standards.", "explanation": "A depreciation raises net exports, shifting AD right (growth up, unemployment down, demand-pull inflation), while dearer imported inputs shift SRAS left (cost-push inflation). An appreciation does the reverse. The two channels work against each other on output, so always say which you think dominates.", "example": "Japan after 2021: exporters posted record profits while households paid far more for imported food and energy.", "exam_tip": "Use CUPEL to structure a 15-mark answer, one paragraph per letter you choose.", "related": ["Marshall–Lerner condition", "Depreciation"]}, {"term": "Marshall–Lerner condition", "level": "SL/HL", "definition": "A depreciation improves the current account only if the sum of the PED for exports and the PED for imports is greater than one.", "explanation": "A depreciation raises export volumes but also raises the price paid for each import. Whether the balance improves depends on how responsive both quantities are. Note the correction: Hoang p. 496 says each elasticity must exceed one, but the condition uses the sum, so 0.8 + 0.7 = 1.5 passes even though neither does alone.", "example": "Oil exporters such as Saudi Arabia and Kuwait face inelastic demand for their main export, so a depreciation does far less for their current account (Hoang p. 496).", "exam_tip": "Name the condition and state it as a sum. This separates strong answers from average ones.", "related": ["J-curve", "Current account"]}, {"term": "J-curve", "level": "SL/HL", "definition": "The pattern in which a depreciation worsens the current account at first, before improving it as quantities adjust.", "explanation": "In the short run, contracts are already signed and buyers need time to switch suppliers, so demand is price inelastic and the Marshall–Lerner condition fails. Over months to years, elasticities rise and the balance improves, tracing a J shape.", "example": "The UK current account deteriorated for several quarters after sterling fell sharply in 2016 before trade volumes responded.", "exam_tip": "Pair this with Marshall–Lerner: it is the time dimension of the same idea.", "related": ["Marshall–Lerner condition", "Current account"]}, {"term": "Current account", "level": "SL/HL", "definition": "The part of the balance of payments recording trade in goods and services, primary income such as investment income, and secondary income such as transfers.", "explanation": "Exchange-rate changes affect it mainly through the trade balance, but it is wider than trade alone. A deficit is not automatically a problem; it reflects national saving and investment as much as competitiveness.", "example": "A country can run a trade deficit yet have a smaller current account deficit thanks to large remittance inflows.", "exam_tip": "Do not write 'current account' when you mean 'trade balance'. Chapter 32 covers the full structure.", "related": ["Marshall–Lerner condition", "Remittances"]}, {"term": "Percentage change in a currency's value", "level": "SL/HL", "definition": "The change in a currency's value, found as (new rate − old rate) ÷ old rate × 100, measured from the point of view of one named currency.", "explanation": "The two currencies in a pair do not change by the same percentage, because each is measured against a different starting value. Work out the value of one unit of the currency you are asked about, then apply the formula to those figures.", "example": "When the price of a dinar rises from 900 to 1,150 naira, the dinar appreciates by 27.8% while the naira depreciates by 21.7% (Hoang EPQ 31.5, p. 494).", "exam_tip": "Write the currency you are measuring at the top of your working, before you divide.", "related": ["Exchange rate", "Appreciation"]}]}, {"name": "Fixed, managed and the policy choice", "terms": [{"term": "Fixed exchange rate", "level": "SL/HL", "definition": "A system in which the central bank keeps the currency at a set value against another currency or a basket, by buying and selling currencies and adjusting interest rates.", "explanation": "Holding the rate requires continuous intervention. Defending against a rise is easy, since a bank can create more of its own currency; defending against a fall is hard, because it must sell finite foreign reserves. Note that Hoang p. 504 calls fixed rates very rare — in fact many countries still peg, including Denmark to the euro and several Gulf states to the dollar.", "example": "The Hong Kong dollar has been held near 7.80 per US dollar since 1983, within a band of 7.75 to 7.85.", "exam_tip": "Always mention that reserves are finite. It is the key evaluation point.", "related": ["Foreign currency reserves", "Devaluation", "Managed exchange rate"]}, {"term": "Foreign currency reserves", "level": "SL/HL", "definition": "Stocks of foreign currencies and other reserve assets such as gold held by a central bank, which it can sell to buy its own currency and support its value.", "explanation": "Reserves are the ammunition for defending a peg, and they carry an opportunity cost: the money could have been invested domestically. Once they run out, the peg breaks and a devaluation is forced.", "example": "In June 2020 China held about US$3,101,700m in reserves against the USA's US$128,802m — US reserves were just 4.15% of China's (Hoang EPQ 31.7, p. 504).", "exam_tip": "The USA needs few reserves because the dollar floats and is the main reserve currency.", "related": ["Fixed exchange rate", "Devaluation"]}, {"term": "Devaluation", "level": "SL/HL", "definition": "A deliberate decision by the authorities to lower the value of a currency in a fixed exchange rate system.", "explanation": "Unlike a depreciation, this is a policy choice, though it is often forced by reserves running low. It makes exports cheaper and can relieve a current account deficit, but it raises import prices and damages the credibility of the peg.", "example": "Thailand was forced to abandon and devalue its baht peg in July 1997, triggering the Asian financial crisis (Hoang p. 503).", "exam_tip": "Devaluation and revaluation belong to fixed systems only. Using them for floating rates costs marks.", "related": ["Revaluation", "Depreciation", "Fixed exchange rate"]}, {"term": "Revaluation", "level": "SL/HL", "definition": "A deliberate decision by the authorities to raise the value of a currency in a fixed exchange rate system.", "explanation": "It is far rarer than devaluation, because a weak currency helps exporters and governments are reluctant to give that up. It may be used to curb imported inflation or to answer accusations that the currency is undervalued.", "example": "China allowed the renminbi to rise in steps from 2005 after pressure over an allegedly undervalued currency.", "exam_tip": "Pair it with 'undervalued currency' in questions about trade tensions.", "related": ["Devaluation", "Undervalued currency"]}, {"term": "Managed exchange rate", "level": "SL/HL", "definition": "A system in which the rate is mainly set by market forces, but the central bank intervenes from time to time to keep it within a target band or to prevent sharp moves.", "explanation": "It is a middle path: fewer reserves are needed than for a hard peg, because no action is taken while the rate stays inside the band, but it still offers traders more predictability than a free float. Most real-world regimes sit somewhere between pure floating and pure fixing.", "example": "Vietnam sets a central rate for the dong that is adjusted regularly, with a trading band widened to ±5% in 2022. Note that Hoang p. 500 calls this a crawling peg; a crawling peg adjusted within a band is more precisely a crawling band.", "exam_tip": "Managed and fixed are not the same (Hoang p. 502). Under a managed rate the bank does nothing while the rate is inside the band.", "related": ["Fixed exchange rate", "Floating exchange rate"]}, {"term": "Overvalued currency", "level": "SL/HL", "definition": "A currency whose value is held above its long-run market equilibrium, making exports uncompetitive and imports cheap.", "explanation": "At a rate above equilibrium, the quantity of foreign currency demanded exceeds the quantity supplied, so there is a shortage of foreign exchange. Governments then ration it, which encourages a parallel market and corruption.", "example": "Nigeria held the official naira rate far above the parallel rate for years before unifying and floating in 2023; the official rate then fell from about ₦460 to over ₦1,400 per US dollar (approximate).", "exam_tip": "Draw the official rate as a line above equilibrium and label the excess supply of the domestic currency.", "related": ["Undervalued currency", "Managed exchange rate"]}, {"term": "Undervalued currency", "level": "SL/HL", "definition": "A currency whose value is held below its long-run market equilibrium, making exports cheap and imports expensive.", "explanation": "It boosts export competitiveness and supports a current account surplus, which is why it draws accusations of unfair trade. Maintaining it means buying foreign currency continuously, so reserves pile up.", "example": "China was widely accused of keeping the renminbi undervalued in the 2000s while accumulating very large dollar reserves.", "exam_tip": "Link it to trade protection arguments from Chapter 29 and to WTO disputes.", "related": ["Overvalued currency", "Foreign currency reserves"]}, {"term": "Impossible trinity", "level": "HL", "definition": "The principle that a country cannot simultaneously have a fixed exchange rate, free movement of capital and an independent monetary policy; it must give up one of the three.", "explanation": "If capital moves freely and the rate is fixed, interest rates must track the anchor country or money floods in or out. Keeping policy independence with a fixed rate therefore requires capital controls, and keeping both free capital and independent policy requires letting the rate float. It is the cleanest framework for a 15-mark fixed-versus-floating answer.", "example": "Hong Kong fixes and allows free capital, so it follows US interest rates. The UK and Japan keep policy independence and free capital, so their rates float.", "exam_tip": "Name the corner each country has given up. It turns a list of advantages into real evaluation.", "related": ["Fixed exchange rate", "Floating exchange rate", "Currency liquidity"]}, {"term": "Currency liquidity", "level": "HL", "definition": "How readily a currency can be bought and sold in the foreign exchange market without moving its price.", "explanation": "Widely traded currencies are cheap to exchange and hard to destabilise, while thinly traded ones face wide spreads and are vulnerable to speculation. Note that Hoang p. 503 suggests central bank purchases 'crowd out' currency for private investors; this is not a standard argument, and liquidity is better treated as the cost and limit of holding large reserves.", "example": "More than US$6 trillion a day was traded on global currency markets in 2019 (Hoang p. 502), overwhelmingly in a handful of major currencies.", "exam_tip": "Use it to explain why small economies are more exposed to speculative attack.", "related": ["Impossible trinity", "Speculation"]}]}]};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const box=document.getElementById('cgbox'),q=document.getElementById('cgq'),cnt=document.getElementById('cgcount');
+const id=t=>'cg-'+t.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+box.innerHTML='<p style="max-width:72ch">'+esc(CG.intro)+'</p>'+CG.groups.map(g=>{const hl=g.terms.every(t=>t.level==='HL');return `<div class="cg-group ${hl?'hlonly cg-hl':''}"><h3>${esc(g.name)}</h3>`+g.terms.map(t=>`<details class="cg-item ${t.level==='HL'?'cg-hl':''}" id="${id(t.term)}" data-s="${esc((t.term+' '+t.definition+' '+t.explanation+' '+t.example).toLowerCase())}"><summary><b>${esc(t.term)}</b><span class="badge ${t.level==='HL'?'b-hl':'b-sl'}">${t.level}</span><span class="cg-def">${esc(t.definition)}</span></summary><div class="cg-body"><div><span class="lbl">Definition</span><p class="defn">${esc(t.definition)}</p></div><div><span class="lbl">Explanation</span><p>${esc(t.explanation)}</p></div><div class="cg-ex"><span class="lbl">Example</span><p>${esc(t.example)}</p></div><div class="cg-tip"><span class="lbl">Exam tip</span><p>${esc(t.exam_tip)}</p></div>${(t.related||[]).length?`<div><span class="lbl">Related terms</span><div class="cg-rel">${t.related.map(r=>`<button type="button" data-go="${id(r)}">${esc(r)}</button>`).join('')}</div></div>`:''}</div></details>`).join('')+'</div>'}).join('')+'<p class="cg-empty" id="cgnone" hidden>No terms match your search.</p>';
+function lvl(){let l='HL';try{l=JSON.parse(localStorage.getItem('exchangerateslab.lvl'))||'HL'}catch(e){}return l}
+function apply(){const sl=document.querySelector('.lvl [data-lvl="SL"][aria-pressed="true"]')||lvl()==='SL';const s=(q.value||'').trim().toLowerCase();let n=0;
+ box.querySelectorAll('.cg-item').forEach(d=>{const show=!(sl&&d.classList.contains('cg-hl'))&&(!s||d.dataset.s.includes(s));d.hidden=!show;if(show)n++;if(s&&show)d.open=true});
+ box.querySelectorAll('.cg-group').forEach(g=>{g.hidden=![...g.querySelectorAll('.cg-item')].some(d=>!d.hidden)});
+ cnt.textContent=n+' term'+(n===1?'':'s');document.getElementById('cgnone').hidden=n>0}
+q.addEventListener('input',apply);
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(apply,0)));
+document.getElementById('cgopen').addEventListener('click',()=>box.querySelectorAll('.cg-item:not([hidden])').forEach(d=>d.open=true));
+document.getElementById('cgclose').addEventListener('click',()=>box.querySelectorAll('.cg-item').forEach(d=>d.open=false));
+box.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const t=document.getElementById(b.dataset.go);if(t){q.value='';apply();t.open=true;t.scrollIntoView({block:'center'})}});
+apply();
+})();
+</script>
+<script id="sb-js">
+(function(){
+const secs=[...document.querySelectorAll('section.step[id]')];
+const sb=document.createElement('aside');sb.className='sb';sb.setAttribute('aria-label','Lesson contents');
+const title=document.querySelector('.brand')?document.querySelector('.brand').childNodes[0].textContent.trim():document.title;
+const sub=document.querySelector('.brand span')?document.querySelector('.brand span').textContent:'';
+sb.innerHTML=`<a class="home" href="index.html">IB Economics</a><div class="sub">${title} · ${sub}</div><p class="lbl">In this lab</p>`+
+ secs.map(s=>{const n=s.querySelector('.num'),h=s.querySelector('h2');const t=h?h.childNodes[0].textContent.replace(/[:·].*$/,'').trim():s.id;return `<a class="it" href="#${s.id}" data-id="${s.id}"><span>${n?n.textContent:''}</span><span>${t}</span></a>`}).join('')+
+ `<p class="lbl">More</p><div class="links"><a href="plan/ch31.html">Teacher plan for this chapter</a><a href="index.html">All chapters</a></div>`;
+document.body.appendChild(sb);
+const btn=document.createElement('button');btn.className='sbbtn';btn.type='button';btn.textContent='☰ Contents';btn.setAttribute('aria-expanded','false');
+const bar=document.querySelector('.topin');if(bar)bar.insertBefore(btn,bar.firstChild);
+btn.addEventListener('click',()=>{sb.classList.toggle('open');btn.setAttribute('aria-expanded',sb.classList.contains('open'))});
+sb.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+function sync(){secs.forEach(s=>{const a=sb.querySelector(`[data-id="${s.id}"]`);if(a)a.hidden=s.hidden})}
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(sync,0)));sync();
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){sb.querySelectorAll('a.it').forEach(a=>a.classList.toggle('act',a.dataset.id===e.target.id))}}),{rootMargin:'-20% 0px -70% 0px'});secs.forEach(s=>io.observe(s))}
+})();
+</script>
