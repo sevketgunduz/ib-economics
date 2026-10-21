@@ -27,6 +27,7 @@ aligned to the IB Economics guide.
   - [Chapter 27: Benefits of international trade](https://sevketgunduz.github.io/ib-economics/ch27-gains-from-trade-lab.html)
   - [Chapter 30: Economic integration](https://sevketgunduz.github.io/ib-economics/ch30-integration-lab.html)
   - [Chapter 31: Exchange rates](https://sevketgunduz.github.io/ib-economics/ch31-exchange-rates-lab.html)
+  - [Chapter 32: Balance of payments](https://sevketgunduz.github.io/ib-economics/ch32-balance-of-payments-lab.html)
 
 The [site's front page](https://sevketgunduz.github.io/ib-economics/) shows the whole course
 map, so the labs already written and those still to come are both visible.

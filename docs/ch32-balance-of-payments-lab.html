@@ -1,0 +1,607 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Balance of Payments Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#f4f5f1; --panel:#ffffff; --panel2:#f8f9f5; --ink:#1a2029; --muted:#5a636c; --rule:#d9ddd3; --grid:#e7eae2;
+  --supply:#c0441f; --supply2:#e8876a; --demand:#2451c4; --good:#12795f; --bad:#b3261e; --hl:#6f3aa8; --hlbg:#efe6f8; --slbg:#e2efe9; --sl:#0d6b5c;
+  --tint:#eaf0fc; --focus:#2451c4; --shade:rgba(192,68,31,.14); --shadeb:rgba(36,81,196,.14);
+  --serif:"Source Serif 4",Georgia,serif; --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --ground:#12161b; --panel:#1a2027; --panel2:#1f262e; --ink:#e6eaee; --muted:#9ca7b1; --rule:#2e3842; --grid:#252f38;
+  --supply:#ff8d66; --supply2:#b8664b; --demand:#86a6ff; --good:#4fd1a8; --bad:#ff7b72; --hl:#c29af2; --hlbg:#2c2240; --slbg:#173029; --sl:#6fd6bf;
+  --tint:#1b2436; --focus:#86a6ff; --shade:rgba(255,141,102,.18); --shadeb:rgba(134,166,255,.18);}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:16px/1.6 var(--sans);margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:0 80px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--ground);border-bottom:1px solid var(--rule)}
+.topin{max-width:1120px;margin:0 auto;padding:10px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{font:650 18px var(--serif);margin-right:auto}
+.brand span{font:600 12px var(--sans);color:var(--muted);margin-left:8px}
+nav.jump{display:flex;gap:2px;flex-wrap:wrap}
+nav.jump a{font:600 12.5px var(--sans);color:var(--muted);text-decoration:none;padding:6px 9px;border-radius:6px}
+nav.jump a:hover{background:var(--panel);color:var(--ink)}
+.lvl{display:flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden}
+.lvl button{font:700 12px var(--sans);border:0;background:var(--panel);color:var(--muted);padding:6px 12px;cursor:pointer}
+.lvl button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+h1,h2,h3{font-family:var(--serif);font-weight:650;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h1{font-size:40px;line-height:1.1} h2{font-size:27px;line-height:1.2} h3{font-size:19px}
+p{margin:0} .muted{color:var(--muted)}
+.eyebrow{font:700 11.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--demand)}
+.badge{display:inline-block;font:700 10.5px var(--sans);letter-spacing:.06em;padding:2px 7px;border-radius:4px;vertical-align:3px}
+.b-hl{background:var(--hlbg);color:var(--hl)} .b-sl{background:var(--slbg);color:var(--sl)}
+button:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+section.step{padding-top:56px;scroll-margin-top:70px}
+.shead{display:grid;gap:8px;max-width:72ch;margin-bottom:20px}
+.shead .num{font:600 13px var(--mono);color:var(--muted)}
+.hero{padding-top:44px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:36px;align-items:center}
+.hero p.lead{font-size:18px;margin-top:14px;max-width:56ch}
+.goals{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px}
+.goals ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.goals li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:15px}
+.goals input{width:18px;height:18px;accent-color:var(--good);margin-top:3px}
+.lab{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:20px}
+.lab2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+svg.g{width:100%;height:auto;display:block;border-radius:8px;background:var(--panel2);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px}
+svg .axis{stroke:var(--ink);stroke-width:1.7;fill:none} svg .axl{fill:var(--ink);font:700 12.5px var(--sans)} svg .tick{fill:var(--muted);font:11.5px var(--mono)}
+svg .guide{stroke:var(--muted);stroke-dasharray:4 4;fill:none}
+svg .s{stroke:var(--supply);stroke-width:3;fill:none;stroke-linecap:round} svg .s2{stroke:var(--supply2);stroke-width:2.2;fill:none;stroke-dasharray:7 5}
+svg .sm{stroke:var(--ink);stroke-width:3;fill:none} svg .d{stroke:var(--demand);stroke-width:3;fill:none}
+svg .ghost{stroke:var(--muted);stroke-width:1.6;stroke-dasharray:3 4;fill:none}
+svg text.ls{fill:var(--supply);font:700 13px var(--sans)} svg text.ld{fill:var(--demand);font:700 13px var(--sans)} svg text.lm{fill:var(--ink);font:700 13px var(--sans)} svg text.lg{fill:var(--muted);font:700 12px var(--sans)}
+svg .dot{fill:var(--ink)} svg .dot2{fill:var(--panel);stroke:var(--ink);stroke-width:1.8}
+svg .arrow{stroke:var(--good);stroke-width:2.4;fill:none;marker-end:url(#ah)} svg .ahead{fill:var(--good)}
+svg .bar{fill:var(--demand);opacity:.7} svg .bar.dim{fill:var(--supply);opacity:.75}
+svg .note{fill:var(--muted);font:600 11.5px var(--sans)} svg .area{fill:var(--shade)}
+.ctl{display:grid;grid-template-columns:1fr 70px;gap:2px 10px;align-items:center;font-size:14px;margin-bottom:12px}
+.ctl span{grid-column:1/-1;font-weight:600;color:var(--muted)} .ctl input{width:100%;accent-color:var(--demand)} .ctl output{font:600 13px var(--mono);text-align:right}
+.read{display:grid;grid-template-columns:1fr auto;gap:6px 14px;font-size:14.5px;margin:6px 0 0}
+.read dt{color:var(--muted)} .read dd{margin:0;font:600 13.5px var(--mono);text-align:right}
+.explain{margin-top:14px;padding:12px 14px;border-left:3px solid var(--demand);background:var(--tint);border-radius:0 8px 8px 0;font-size:14.5px}
+.btn{font:600 14px var(--sans);border:1px solid var(--rule);background:var(--panel);color:var(--ink);padding:9px 13px;border-radius:8px;cursor:pointer;text-align:left}
+.btn:hover{border-color:var(--demand)} .btn.pri{background:var(--ink);color:var(--ground);border-color:var(--ink)} .btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.flip{perspective:900px;height:170px;border:0;background:none;padding:0;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:6px}
+.flip .f{background:var(--panel);justify-content:space-between} .flip .f b{font:650 19px var(--serif)}
+.flip .b{background:var(--tint);transform:rotateY(180deg);font-size:14.5px;overflow:auto}
+.flip .hint{font-size:12px;color:var(--muted)}
+.events{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;margin:14px 0}
+.ev{display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:start}
+.ev .l{font:700 14px var(--mono);color:var(--demand);background:var(--tint);border-radius:6px;text-align:center;padding:2px 0}
+.ev[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.predict{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.fb{font-weight:600} .fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+.sorter .card{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px;display:grid;gap:10px}
+.sorter .card p{font-size:16.5px;font-family:var(--serif)}
+.score{font:600 14px var(--mono)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--grid);text-align:right;font-variant-numeric:tabular-nums}
+th{font:700 11.5px var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule)}
+td:first-child,th:first-child{text-align:left} tr.cur td{background:var(--tint);font-weight:700} tr.dmr td:nth-child(3){color:var(--supply)}
+.tblwrap{overflow-x:auto}
+.case{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;display:grid;gap:10px}
+.case details{border-top:1px solid var(--grid);padding-top:10px}
+.case summary,.qa summary{cursor:pointer;font-weight:700;color:var(--demand)}
+.case ol{margin:8px 0 0;padding-left:20px}
+.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px}
+.mcq{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;display:grid;gap:8px}
+.mcq .opts{display:grid;gap:6px}
+.mcq .opt{font:500 14.5px var(--sans)} .mcq .opt.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--panel))} .mcq .opt.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--panel))}
+.mcq .why{font-size:14px;color:var(--muted)}
+.quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.qa{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 16px}
+.qa details p{margin-top:6px;padding:8px 10px;background:var(--panel2);border-radius:6px}
+.mist{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.mist div{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;font-size:14.5px}
+.mist b{display:block;color:var(--bad);font-size:13px;letter-spacing:.03em;margin-bottom:4px} .mist i{display:block;color:var(--good);font-style:normal;font-weight:600;margin-top:6px}
+.stepper{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.dots{display:flex;gap:5px} .dots i{width:9px;height:9px;border-radius:50%;background:var(--rule)} .dots i.on{background:var(--demand)}
+.pill{font:600 12.5px var(--mono);padding:3px 9px;border-radius:99px;background:var(--panel2);border:1px solid var(--rule)}
+footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+.hlonly[hidden]{display:none!important}
+@media (max-width:860px){.hero,.lab2{grid-template-columns:1fr} h1{font-size:32px} nav.jump{display:none}}
+@media (max-width:520px){.wrap,.topin{padding-inline:16px} .lab{padding:14px} h1{font-size:28px} h2{font-size:23px}}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}}
+svg .d2{stroke:var(--demand);stroke-width:2.2;fill:none;stroke-dasharray:7 5} svg text.ld2{fill:var(--demand);font:700 12px var(--sans)} svg .spend{fill:var(--shadeb)}
+svg .dwl{fill:rgba(214,151,0,.38)} svg .gap{stroke:var(--supply);stroke-width:5;opacity:.45}
+.sorter .btn[aria-pressed="true"],.lab .btn[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.flip .f span:not(.hint){font-size:14.5px;color:var(--muted)}
+.ctl input[type=number]{font:15px var(--mono);padding:7px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink);width:100%}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px} @media (max-width:860px){.two{grid-template-columns:1fr}}
+</style>
+<style id="sb-css">
+aside.sb{position:fixed;top:0;left:0;bottom:0;width:250px;overflow:auto;background:var(--panel);border-right:1px solid var(--rule);padding:16px 12px 40px;z-index:15;font-size:13.5px}
+aside.sb .home{display:block;font:700 15px var(--serif);color:var(--ink);text-decoration:none}
+aside.sb .sub{color:var(--muted);font-size:12px;margin:2px 0 14px}
+aside.sb .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:12px 4px 6px}
+aside.sb a.it{display:grid;grid-template-columns:30px 1fr;gap:2px;padding:6px 8px;border-radius:6px;color:var(--ink);text-decoration:none;line-height:1.3}
+aside.sb a.it span:first-child{font:600 11.5px var(--mono);color:var(--muted);padding-top:1px}
+aside.sb a.it:hover{background:var(--panel2)} aside.sb a.it.act{background:var(--tint);font-weight:700}
+aside.sb .links a{display:block;padding:4px 8px;color:var(--demand);font-weight:600;text-decoration:none}
+.sbbtn{display:none}
+@media (min-width:1100px){header.top,.wrap{margin-left:250px} nav.jump{display:none!important}}
+@media (max-width:1099px){aside.sb{transform:translateX(-105%);transition:transform .2s;box-shadow:0 0 30px rgba(0,0,0,.25);width:84%;max-width:300px}
+ aside.sb.open{transform:none} nav.jump{display:none!important}
+ .sbbtn{display:inline-block;font:700 13px var(--sans);padding:6px 10px;border-radius:8px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);cursor:pointer;order:-1}}
+@media (prefers-reduced-motion:reduce){aside.sb{transition:none}}
+</style>
+
+<style id="cg-css">
+.cg-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.cg-tools input{flex:1;min-width:220px;max-width:420px;font:15px var(--sans);padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink)}
+.cg-group{margin-top:22px} .cg-group h3{margin-bottom:10px}
+.cg-item{background:var(--panel);border:1px solid var(--rule);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.cg-item summary{cursor:pointer;list-style:none;padding:14px 18px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:baseline}
+.cg-item summary::-webkit-details-marker{display:none}
+.cg-item summary b{font:650 18px var(--serif)} .cg-item summary .cg-def{grid-column:1/-1;color:var(--muted);font-size:14.5px}
+.cg-item[open] summary .cg-def{display:none}
+.cg-body{padding:0 18px 16px;display:grid;gap:10px}
+.cg-body .lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+.cg-body .defn{font-weight:600}
+.cg-ex{background:var(--tint);border-radius:8px;padding:10px 12px}
+.cg-tip{border-left:3px solid var(--good);padding:6px 12px;background:var(--panel2);border-radius:0 8px 8px 0}
+.cg-rel{display:flex;gap:6px;flex-wrap:wrap} .cg-rel button{font:600 12.5px var(--sans);border:1px solid var(--rule);background:var(--panel2);color:var(--ink);border-radius:99px;padding:3px 10px;cursor:pointer}
+.cg-empty{color:var(--muted)}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="top"><div class="topin">
+  <div class="brand">Balance of Payments Lab <span>IB Economics 4.6 · Hoang Ch 32</span></div>
+  <nav class="jump" aria-label="Sections"><a href="#terms">Terms</a><a href="#guide">Guide</a><a href="#cases">Cases</a><a href="#quiz">Quiz</a><a href="#exam">Exam</a></nav>
+  <div class="lvl" role="group" aria-label="Level"><button data-lvl="HL">HL</button><button data-lvl="SL">SL</button></div>
+</div></header>
+
+<div class="wrap">
+<section class="hero">
+  <div><p class="eyebrow">Unit 4 · The global economy · Chapter 32</p><h1>If a country buys more from the world than it sells, who pays the difference?</h1>
+  <p class="lead">Sort real transactions into the right account with the right sign, then calculate the current account and prove that the whole balance of payments must come to zero. HL: link the accounts to the exchange rate, build a J-curve from live elasticities, and judge whether a surplus is really good news.</p>
+  <p class="muted" style="margin-top:12px;font-size:14px">Textbook: Hoang, Wray &amp; Chakraborty, pp. 506–526. HL material is marked <span class="badge b-hl">HL</span>; switch to SL at the top to hide it.</p></div>
+  <div class="goals"><p class="eyebrow" style="color:var(--muted)">By the end I can…</p><ul id="goals"></ul></div>
+</section>
+
+<section class="step" id="terms"><div class="shead"><span class="num">01</span><h2>Key terms: flip the cards</h2><p class="muted">Say the definition out loud first, then click to check.</p></div><div class="cards" id="cards"></div></section>
+<section class="step" id="guide"><div class="shead"><span class="num">01b</span><h2>Concept guide: every term explained</h2><p>A fuller explanation of each term in this chapter, with a worked real-world example and an exam tip. Open a term, read it, then close the page and explain it to a partner in your own words.</p></div>
+  <div class="cg-tools"><input id="cgq" type="search" placeholder="Search terms, examples…" aria-label="Search the concept guide"><button class="btn" id="cgopen">Open all</button><button class="btn" id="cgclose">Close all</button><span class="pill" id="cgcount"></span></div>
+  <div id="cgbox"></div></section>
+
+<!-- LAB SECTIONS: numbered 02, 03 … one <section class="step" id="…"> per interactive topic -->
+
+<section class="step" id="credit"><div class="shead"><span class="num">02</span><h2>Credit or debit, and which account?</h2><p>Every transaction with the rest of the world goes somewhere. Money coming <b>in</b> is a <b>credit</b> (+); money going <b>out</b> is a <b>debit</b> (−). Click a transaction to watch it drop into the right place (Hoang Tables 32.1–32.2, pp. 507–508).</p></div>
+  <div class="lab lab2"><div><div class="row" id="crpick" style="margin-bottom:12px"></div>
+   <p class="explain" id="crx"></p>
+   <p class="muted" style="font-size:12.5px">All figures are illustrative amounts in $m, chosen to keep the arithmetic simple. The country here is a net receiver of remittances, like the Philippines.</p></div>
+   <div><div class="tblwrap"><table><thead><tr><th>Account</th><th>Component</th><th>Entry</th></tr></thead><tbody id="crtbl"></tbody></table></div>
+   <dl class="read" id="crread" style="margin-top:10px"></dl><div class="row" style="margin-top:10px"><button class="btn" id="crclear">Clear the ledger</button></div></div></div>
+</section>
+
+<section class="step" id="ca"><div class="shead"><span class="num">03</span><h2>Build the current account: GIST</h2><p><b>G</b>oods · <b>I</b>ncome · <b>S</b>ervices · <b>T</b>ransfers. Income means <i>factor</i> income — wages, interest, rent and profit (WIRP) — not export earnings. Enter the figures and the balances build up as the examiner expects to see them.</p></div>
+  <div class="row" id="capre" style="margin-bottom:14px"></div>
+  <div class="lab lab2"><div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <label class="ctl" for="caxg" style="grid-template-columns:1fr"><span>Exports of goods</span><input id="caxg" type="number" step="any"></label>
+    <label class="ctl" for="camg" style="grid-template-columns:1fr"><span>Imports of goods</span><input id="camg" type="number" step="any"></label>
+    <label class="ctl" for="caxs" style="grid-template-columns:1fr"><span>Exports of services</span><input id="caxs" type="number" step="any"></label>
+    <label class="ctl" for="cams" style="grid-template-columns:1fr"><span>Imports of services</span><input id="cams" type="number" step="any"></label>
+    <label class="ctl" for="cani" style="grid-template-columns:1fr"><span>Net income (+ or −)</span><input id="cani" type="number" step="any"></label>
+    <label class="ctl" for="cant" style="grid-template-columns:1fr"><span>Net current transfers (+ or −)</span><input id="cant" type="number" step="any"></label></div>
+   <p class="muted" style="font-size:12.5px">Enter imports as positive numbers; the calculator subtracts them. Units are whatever the question uses ($bn, $m): keep them consistent and state them in your answer.</p></div>
+   <div><div id="cafig"></div><dl class="read" id="caread"></dl><p class="explain" id="cax"></p></div></div>
+</section>
+
+<section class="step" id="bop"><div class="shead"><span class="num">04</span><h2>Why the balance of payments always balances</h2><p>A country that spends more abroad than it earns has to find the money somewhere: borrow it, sell assets, or run down reserves. Every one of those is recorded too, so the accounts must sum to zero. Change any figure and watch errors and omissions absorb the difference.</p></div>
+  <div class="row" id="bppre" style="margin-bottom:14px"></div>
+  <div class="lab lab2"><div id="bpfig"></div><div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <label class="ctl" for="bpca" style="grid-template-columns:1fr"><span>Current account</span><input id="bpca" type="number" step="any"></label>
+    <label class="ctl" for="bpka" style="grid-template-columns:1fr"><span>Capital account</span><input id="bpka" type="number" step="any"></label>
+    <label class="ctl" for="bpfa" style="grid-template-columns:1fr"><span>Financial account</span><input id="bpfa" type="number" step="any"></label></div>
+   <dl class="read" id="bpread"></dl><p class="explain" id="bpx"></p>
+   <div class="explain" style="margin-top:12px;border-left-color:var(--bad)"><b>Correction to Hoang p. 514:</b> the book writes “Current account = Capital account + Financial account”. With the sign convention used in its own exercises (debits negative), the identity is <b>CA + KA + FA + E&amp;O = 0</b>. Use the sign form and EPQ 32.3 comes out right; use the book's version and you will lose the minus sign.</div></div></div>
+</section>
+
+<section class="step" id="sort"><div class="shead"><span class="num">05</span><h2>Which account does it belong to?</h2><p>Exam questions rarely ask “what is the capital account?”. They give you a transaction and expect you to place it. Ten to try.</p></div>
+  <div class="lab sorter"><div class="card"><div class="row" style="justify-content:space-between"><span class="pill" id="acn"></span><span class="score" id="acsc"></span></div><p id="acq"></p>
+   <div class="row"><button class="btn" data-ac="cur">Current account</button><button class="btn" data-ac="cap">Capital account</button><button class="btn" data-ac="fin">Financial account</button></div><p class="fb" id="acfb"></p><div class="row"><button class="btn pri" id="acnext" hidden>Next card</button></div></div></div>
+</section>
+
+<section class="step hlonly" id="erlink"><div class="shead"><span class="num">06</span><h2>The accounts and the exchange rate <span class="badge b-hl">HL</span></h2><p>Here is the link that ties this chapter to Chapter 31. On a currency diagram, <b>demand is the credits</b> and <b>supply is the debits</b>, so at equilibrium the balance of payments balances (Hoang Fig 32.6, p. 515). Apply a shock and see which account moved it.</p></div>
+  <div class="lab lab2"><div id="erfig"></div><div><div class="row" id="erpick" style="margin-bottom:12px"></div>
+   <dl class="read" id="erread"></dl><p class="explain" id="erx"></p>
+   <p class="muted" style="font-size:12.5px">Illustrative model: linear demand and supply for the currency. Demand = all credits (exports, inward investment, transfers received); supply = all debits (imports, outward investment).</p></div></div>
+</section>
+
+<section class="step hlonly" id="deficit"><div class="shead"><span class="num">07</span><h2>A persistent deficit: what follows, and what to do <span class="badge b-hl">HL</span></h2><p>One year of deficit means little. A deficit of 5–7% of GDP for a decade is another matter (Hoang pp. 516–518). Set the size and how it is financed, then try the three families of policy.</p></div>
+  <div class="lab lab2"><div>
+   <label class="ctl" for="dfsz"><span>Current account deficit (% of GDP)</span><input type="range" id="dfsz" min="0" max="10" step="0.5" value="6"><output id="dfszo"></output></label>
+   <label class="ctl" for="dfhot"><span>Share financed by short-term “hot” money rather than FDI</span><input type="range" id="dfhot" min="0" max="100" step="10" value="70"><output id="dfhoto"></output></label>
+   <h3 style="margin:16px 0 8px;font-size:16px">Policy response</h3><div id="dfpol"></div></div>
+   <div><div id="dffig"></div><dl class="read" id="dfread"></dl><p class="explain" id="dfx"></p>
+   <p class="muted" style="font-size:12.5px">Illustrative risk model: the score weighs the deficit's size against how easily its financing could reverse. It shows the direction of the argument, not a forecast.</p></div></div>
+</section>
+
+<section class="step hlonly" id="jcurve"><div class="shead"><span class="num">08</span><h2>Marshall–Lerner and the J-curve <span class="badge b-hl">HL</span></h2><p>A depreciation makes exports cheaper and imports dearer — so why does the trade balance often get <b>worse</b> first? Because in the short run nobody can switch quickly. Build the diagram step by step, then move the elasticities and watch the curve change shape.</p></div>
+  <div class="lab lab2"><div id="jcfig"></div><div><h3 id="jct"></h3><p id="jcx" style="margin-top:8px"></p><div class="stepper"><button class="btn" id="jcprev">← Back</button><button class="btn pri" id="jcnext">Next step →</button><div class="dots" id="jcdots"></div></div>
+   <label class="ctl" for="jcsx" style="margin-top:16px"><span>Short-run PED for exports</span><input type="range" id="jcsx" min="0" max="1.5" step="0.05" value="0.3"><output id="jcsxo"></output></label>
+   <label class="ctl" for="jcsm"><span>Short-run PED for imports</span><input type="range" id="jcsm" min="0" max="1.5" step="0.05" value="0.2"><output id="jcsmo"></output></label>
+   <label class="ctl" for="jclx"><span>Long-run PED for exports</span><input type="range" id="jclx" min="0" max="2" step="0.05" value="0.9"><output id="jclxo"></output></label>
+   <label class="ctl" for="jclm"><span>Long-run PED for imports</span><input type="range" id="jclm" min="0" max="2" step="0.05" value="0.6"><output id="jclmo"></output></label>
+   <dl class="read" id="jcread"></dl>
+   <div class="explain" style="margin-top:12px"><b>Label checklist:</b> y-axis “Trade balance” with a zero line · x-axis “Time” · start at A in deficit at the moment of depreciation · dip to B (Marshall–Lerner <i>not</i> met) · rise through zero to C (condition met) · annotate both segments.</div></div></div>
+</section>
+
+<section class="step hlonly" id="surplus"><div class="shead"><span class="num">09</span><h2>Is a persistent surplus good news? <span class="badge b-hl">HL</span></h2><p>Students assume a surplus must be a success. It depends entirely on <b>why</b> it exists (Hoang top tip, p. 524). Pick the causes and see what follows for the economy and for its trading partners.</p></div>
+  <div class="lab lab2"><div><div id="sucause"></div>
+   <label class="ctl" style="display:flex;gap:8px;align-items:center;margin-top:10px" for="sueuro"><input type="checkbox" id="sueuro" style="width:18px;height:18px"><span style="color:var(--ink);font-weight:500">The country is in a monetary union, so its currency cannot appreciate against its main partners</span></label></div>
+   <div><div class="two"><div id="sufig1"></div><div id="sufig2"></div></div><dl class="read" id="suread"></dl><p class="explain" id="sux"></p></div></div>
+</section>
+<!-- /LAB SECTIONS -->
+
+<section class="step" id="cases"><div class="shead"><span class="num"></span><h2>Real-world cases</h2><p>Answer in your notebook, sketch the diagram, then open the model answer.</p></div><div class="cases" id="casebox"></div></section>
+
+<section class="step" id="quiz"><div class="shead"><span class="num"></span><h2>Check yourself</h2><p>Auto-marked multiple choice first, then quick-fire questions with model answers.</p><p class="score" id="mcqscore"></p></div><div class="quiz" id="mcqs"></div>
+  <h3 style="margin:30px 0 12px">Quick-fire checklist</h3><div class="quiz" id="qf"></div></section>
+
+<section class="step" id="mistakes"><div class="shead"><span class="num"></span><h2>Common mistakes to avoid</h2></div><div class="mist" id="mist"></div></section>
+
+<section class="step" id="exam"><div class="shead"><span class="num"></span><h2>Exam practice</h2><p>Plan each answer before opening the guide.</p></div><div class="cases" id="exambox"></div></section>
+
+<footer>Balance of Payments Lab · based on the IB Economics guide (4.6 Balance of payments) and Hoang, Wray &amp; Chakraborty, <i>Economics for the IB Diploma</i> (Hodder 2020), Chapter 32. Tables 32.1–32.2; Figs 32.6 (current account and the exchange rate), 32.9–32.13 (J-curve, inverse J-curve, surplus AD/AS); EPQs 32.1–32.3. The J-curve, exchange-rate and AD/AS models are illustrative. Country figures for the Philippines, Hong Kong, Germany and France are rounded and approximate: check IMF DataMapper or the national statistics office for current data.</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+/* ============================ CONFIG ============================
+   NS     localStorage namespace, unique per lab (e.g. 'pedlab')
+   GOALS  [text, isHL]          TERMS [term, definition, isHL]
+   CASES  [title, context, [questions], [model answers]]
+   MCQ    [question, [4 options], correctIndex, explanation, isHL]
+   QF     [question, answer, isHL]          MI [mistake, correction]
+   EX     [paper label, question, [what a strong answer includes]]  (label containing 'HL' or 'Paper 3' = HL)
+================================================================== */
+const NS='balanceofpaymentslab';
+const GOALS=[['Classify any transaction as a credit or debit in the right account',0],['Calculate the balance of trade and the current account from data (GIST)',0],['Explain why the balance of payments must sum to zero, and find errors and omissions',0],['Link the current and financial accounts to the exchange rate on a diagram',1],['Evaluate the implications of a persistent deficit and the policies to correct it',1],['Apply the Marshall–Lerner condition and draw the J-curve',1]];
+const TERMS=[['Balance of payments (BOP)','A record of all transactions between a country’s residents and the rest of the world over a period, usually one year.',0],['Credit item','A transaction that brings money into the country, recorded as a positive value.',0],['Debit item','A transaction that sends money out of the country, recorded as a negative value.',0],['Current account','Trade in goods and services, plus net income and net current transfers: the GIST components.',0],['Balance of trade','Exports of goods and services minus imports of goods and services (X − M).',0],['Net income','Wages, interest, rent and profit received from abroad, minus the same paid to non-residents (WIRP).',0],['Current transfers','One-way payments with nothing received in return: remittances, aid grants, pensions paid abroad.',0],['Capital account','Capital transfers such as debt forgiveness, plus non-produced, non-financial assets such as patents and resource rights.',0],['Financial account','Changes in cross-border ownership of assets: FDI, portfolio investment, reserve assets and official borrowing.',0],['Foreign direct investment (FDI)','Investment giving a lasting controlling interest in a foreign enterprise.',0],['Portfolio investment','Buying foreign shares or bonds without gaining control of the enterprise.',0],['Reserve assets','Foreign currencies and gold held by the central bank, used to intervene or to finance a deficit.',0],['Errors and omissions','The balancing item that corrects statistical gaps so the accounts sum to zero.',0],['Expenditure switching','Policies that move spending from imports to domestic goods: devaluation, tariffs, export promotion.',1],['Expenditure reducing','Contractionary fiscal or monetary policy that cuts total spending, including spending on imports.',1],['Marshall–Lerner condition','A depreciation improves the trade balance only if PEDx + PEDm > 1.',1],['J-curve effect','The trade balance worsens at first after a depreciation, then improves as elasticities rise.',1],['Credit rating','An agency’s assessment of a borrower’s ability to repay; a downgrade raises borrowing costs.',1]];
+const CASES=[['Remittances and the Philippine current account','In one year the Philippines records exports of goods of $75bn and imports of goods of $125bn. Services exports, largely business process outsourcing, are $45bn and services imports $25bn. Net income is +$3bn and net current transfers, mostly remittances from overseas workers, are +$32bn. (Figures are illustrative and rounded.)',['Calculate the balance of trade and the current account balance.','Is the large goods deficit a sign of economic weakness?','What risks does this structure create?'],['Goods balance = 75 − 125 = −$50bn. Services balance = 45 − 25 = +$20bn. Balance of trade = −$30bn. Current account = −30 + 3 + 32 = <b>+$5bn</b>, a small surplus.','No. The transfers more than offset the trade gap, and part of the goods deficit is imported inputs for the export industries. A country can run a large goods deficit and still have a current account surplus — which is exactly why you must not treat the two as the same thing.','Remittances depend on economic conditions abroad, so a global downturn would hit them hard. They also reflect skilled workers leaving (brain drain). Against that, they support household consumption, schooling and housing far more reliably than portfolio capital does.']],
+['Hong Kong: a deficit financed by investment','Hong Kong is a small, open economy with few natural resources, importing most of its food and energy (Hoang p. 514). Suppose in one year its current account is −$8bn, net FDI inflows are +$10bn, portfolio flows are −$1bn and the capital account is zero.',['How is the current account deficit financed?','Calculate errors and omissions.','What risk does this pattern create?'],['The financial account is +10 − 1 = <b>+$9bn</b>. That surplus supplies the foreign exchange needed to pay for the excess of imports: foreigners acquire Hong Kong assets, and in return Hong Kong gets the currency to buy goods.','CA + KA + FA + E&O = 0, so −8 + 0 + 9 + E&O = 0 and E&O = <b>−$1bn</b>.','The deficit is sustainable only while investors keep coming. If confidence fell and FDI reversed, demand for the currency would drop sharply. Under Hong Kong’s peg the monetary authority would have to sell reserves to hold the rate, and if reserves ran low, spending would have to be cut instead.']],
+['Depreciation in Country Z: does the deficit shrink? (HL)','Country Z’s currency falls 15% after an election. In the first year contracts are fixed and households keep buying imported fuel and medicines: PEDx = 0.3, PEDm = 0.2. After two years firms have found new markets and consumers have switched to domestic brands: PEDx = 0.9, PEDm = 0.6.',['What happens to the trade balance in the short run and in the long run?','Link your answer to the Marshall–Lerner condition.','What side effects should the government expect?'],['Short run: PEDx + PEDm = 0.5, which is below 1, so import spending in domestic currency rises by more than export revenue and the trade balance <b>worsens</b> (A to B on the J-curve). Long run: 0.9 + 0.6 = 1.5, above 1, so the balance <b>improves</b> (B to C).','The condition is about the <i>sum</i> of the two elasticities, not each one separately. Demand is inelastic in the short run because contracts are signed, habits are fixed and substitutes take time to find — which is precisely why the curve dips before it rises.','Imported fuel and medicines cost more, so there is cost-push inflation and real incomes fall, hitting poorer households hardest. The central bank may have to tighten policy, which slows growth. The eventual improvement also depends on non-price competitiveness and on partners’ incomes.']],
+['Germany’s persistent surplus (HL)','Germany has run current account surpluses of roughly 6–8% of GDP for much of the past decade, built on exports of cars and machinery. The IMF and the US government have argued that German households and government save too much and invest too little at home. (Figures approximate.)',['Explain two benefits of the surplus for Germany.','Explain two costs.','Why can Germany not rely on the usual exchange-rate correction?'],['Net exports add to AD, supporting output and export-sector employment (Fig 32.12). The surplus also accumulates foreign assets, which generate income flows in future years — useful for an economy with an ageing population.','Domestic consumption and investment are lower than they could be: the saving is lent abroad instead of being spent on German infrastructure and housing. The surplus also contributes to imbalances with deficit partners and attracts accusations of unfair advantage, raising the risk of retaliation.','Inside the euro, Germany shares a currency with its main trading partners, so the appreciation that would normally erode a surplus cannot happen against them. The imbalance therefore persists far longer than it would with an independent currency — a direct link to the monetary-union costs in Chapter 30.']]];
+const MCQ=[['A German tourist pays for a hotel in Bangkok. For Thailand this is…',['A debit in the current account','A credit in the current account, services','A credit in the financial account','A capital account item'],1,'Tourism is an export of services: money comes in.',0],
+['What does GIST stand for?',['Goods, Interest, Savings, Tax','Goods, Income, Services, Transfers','Growth, Investment, Saving, Trade','Goods, Imports, Surplus, Trade'],1,'The four components of the current account.',0],
+['Goods −20, services +8, income −3, transfers +5. The current account is…',['−10','+10','−36','+36'],0,'−20 + 8 − 3 + 5 = −10, a deficit of 10.',0],
+['Debt forgiveness given to a developing country is recorded in the…',['Current account','Capital account','Financial account','Reserve assets only'],1,'It is a capital transfer.',0],
+['Buying 5% of a foreign company’s shares is…',['FDI','Portfolio investment','A current transfer','A capital transfer'],1,'No controlling interest, so it is portfolio investment.',0],
+['Which statement about the balance of payments is correct?',['It can be in overall deficit','It must sum to zero across all accounts','It only records trade in goods','It excludes investment income'],1,'Deficits in one account are matched by surpluses in another.',0],
+['CA = −$40bn, KA = +$5bn, FA = +$32bn. Errors and omissions are…',['−$3bn','+$3bn','−$77bn','+$77bn'],1,'−40 + 5 + 32 + E&O = 0, so E&O = +$3bn.',0],
+['On a currency diagram, the supply of the domestic currency represents…',['Credits','Debits','Reserve assets only','Errors and omissions'],1,'Residents sell their currency to pay for imports and foreign assets.',1],
+['Devaluation to correct a deficit is an example of…',['Expenditure reducing','Expenditure switching','Supply-side policy','A capital transfer'],1,'It redirects spending towards domestic goods.',1],
+['PEDx = 0.3 and PEDm = 0.4. After a depreciation the trade balance will…',['Improve immediately','Worsen, because the sum is below 1','Stay the same','Improve, because both are positive'],1,'0.7 < 1 fails the Marshall–Lerner condition.',1]];
+const QF=[['Define the balance of payments.','A record of all transactions between a country’s residents and the rest of the world over a period, usually one year.',0],['What does GIST stand for?','Goods, Income, Services, Transfers: the four components of the current account.',0],['A Kenyan worker in Dubai sends money home. Which account and component for Kenya?','Current account, current transfers: a credit.',0],['Give one example of a capital account item.','Debt forgiveness, migrants’ transfers of assets, or the sale of patents or resource rights.',0],['What are reserve assets?','Foreign currencies and gold held by the central bank, used to intervene in the currency market or finance a deficit.',0],['Distinguish the balance of trade from the current account.','The balance of trade is exports minus imports of goods and services; the current account also includes net income and net current transfers.',0],['Goods −20, services +8, income −3, transfers +5. Calculate the current account.','−20 + 8 − 3 + 5 = −10, a deficit of 10.',0],['Why must the balance of payments balance?','Any deficit must be financed by borrowing, selling assets or using reserves, all of which are recorded; errors and omissions close the statistical gap.',0],['Distinguish FDI from portfolio investment.','FDI gives a lasting controlling interest; portfolio investment is shares or bonds without control, and is far easier to withdraw.',0],['On a currency diagram, what represents debits?','The supply of the domestic currency: residents sell it to buy imports and foreign assets.',1],['How can a financial account inflow hide a current account problem?','Hot money or FDI raises demand for the currency, holding the exchange rate up even though imports exceed exports.',1],['Distinguish expenditure switching from expenditure reducing.','Switching redirects spending from imports to domestic goods (devaluation, tariffs); reducing cuts total spending through contractionary policy.',1],['State the Marshall–Lerner condition.','A depreciation improves the trade balance only if PEDx + PEDm > 1.',1],['Why does the J-curve dip first?','Short-run demand is price inelastic — contracts, habits and the time needed to find substitutes — so import spending rises by more than export revenue.',1]];
+const MI=[['“A current account deficit means a weak economy”','The USA, the UK and Australia run persistent deficits; some low-income countries run surpluses. What matters is why the deficit exists and how it is financed (Hoang p. 511).'],['“The balance of payments can be in deficit overall”','By construction it sums to zero. Only individual accounts are in surplus or deficit, so never write “a balance of payments deficit” when you mean the current account.'],['“The balance of trade and the current account are the same”','The current account also includes net income and net current transfers. The Philippines case shows a goods deficit of $50bn alongside a current account surplus.'],['“FDI and portfolio investment are interchangeable”','FDI buys a controlling interest and is hard to reverse; portfolio money can leave in days, which is why deficits financed by it are far riskier.'],['“Depreciation improves the trade balance straight away”','Not if PEDx + PEDm ≤ 1. The J-curve shows the balance worsening first.'],['Hoang p. 514: “Current account = Capital account + Financial account”','With debits recorded as negatives, the identity is CA + KA + FA + E&O = 0. Use the sign form or EPQ 32.3 will come out with the wrong sign.']];
+const EX=[['Paper 2 · 2 marks','Using the data provided, calculate the current account balance for Country X.',['Set out the four GIST components as a list.','Show the formula, then the substitution, then the answer.','Give the units and the sign, and say whether it is a surplus or a deficit.']],
+['Paper 2 · 4 marks','Explain two reasons why a country’s current account deficit may be matched by a surplus on its financial account.',['The deficit must be financed: foreigners supply the currency by acquiring domestic assets.','Reason 1: inward FDI, for example a foreign carmaker building a plant.','Reason 2: portfolio inflows attracted by higher interest rates.','Refer to the identity CA + KA + FA + E&O = 0.']],
+['Paper 1 (a) · 10 marks (HL)','Explain how a persistent current account deficit may affect a country’s exchange rate and interest rates.',['Draw the currency market with demand as credits and supply as debits (Fig 32.6).','Persistent debits mean continuous downward pressure on the currency.','The central bank may hold rates high to attract the inflows that finance the deficit.','Cost: dearer borrowing cuts investment and slows growth. Use a named country.']],
+['Paper 1 (b) · 15 marks (HL)','Using real-world examples, evaluate the effectiveness of policies that a government could use to correct a persistent current account deficit.',['Expenditure switching: devaluation, tariffs, export promotion — with Marshall–Lerner and the J-curve as the limitation.','Expenditure reducing: contractionary policy, effective but at the cost of growth and jobs.','Supply-side: the only lasting fix, but slow and expensive.','Evaluate by time period, by the cause of the deficit, and by whether the country can devalue at all (eurozone members cannot).']],
+['Paper 3 · 4 marks (HL)','Using a J-curve diagram, explain why a depreciation might not immediately improve the trade balance.',['Axes: trade balance against time, with the zero line drawn.','Start at A in deficit; dip to B; recover through zero to C.','Annotate A–B as Marshall–Lerner not met, B–C as met.','Explain why short-run elasticities are low.']],
+['Paper 3 · 2 marks (HL)','Given PEDx = 0.3 and PEDm = 0.4, determine whether a depreciation will improve the trade balance, and explain your answer.',['Add them: 0.3 + 0.4 = 0.7.','State the condition: improvement needs a sum above 1.','Conclude that the balance worsens, and say why.']]];
+
+/* ============================ CORE (do not edit per chapter) ============================ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const st={get(k,d){try{const v=localStorage.getItem(NS+'.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(NS+'.'+k,JSON.stringify(v))}catch(e){}}};
+const f0=v=>Math.round(v).toLocaleString(), f1=v=>(Math.round(v*10)/10).toLocaleString(), f2=v=>(Math.round(v*100)/100).toLocaleString(), money=v=>(v<0?'−$':'$')+Math.round(Math.abs(v)).toLocaleString();
+const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tween(from,to,ms,cb){if(RM||document.hidden){cb(to);return}const t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;cb(from+(to-from)*e);if(k<1)requestAnimationFrame(f)})(t0)}
+const LC={s:'ls',s2:'ls',d:'ld',d2:'ld2',sm:'lm'};
+/* Plot({xmax,ymax,xl,yl,w?,h?,L?}) : fn(f,cls,label,lx) pts(points,cls) poly(points,cls) seg(x0,y0,x1,y1,cls) rect(x,y,cls)
+   bar(xCentre,width,height,cls,label) dot(x,y,cls) guide(x,y,xLabel,yLabel) xt(x,t) yt(y,t) text(x,y,t,cls,anchor) arrow(...) gap(x0,x1,y) svg(aria)
+   classes: d d2 s s2 sm ghost guide arrow | areas: spend (blue) area (orange) dwl (gold) | bars: bar, bar dim */
+function Plot(o){const W=o.w||540,H=o.h||380,L=o.L||54,R=26,T=24,B=44;const sx=x=>L+x/o.xmax*(W-L-R),sy=y=>H-B-y/o.ymax*(H-T-B);const out=[];
+ return{sx,sy,
+  fn(f,cls,label,lx){let d='',pen=false;for(let i=0;i<=160;i++){const x=o.xmax*i/160,y=f(x);if(!isFinite(y)||y<0||y>o.ymax){pen=false;continue}d+=(pen?'L':'M')+sx(x).toFixed(1)+' '+sy(y).toFixed(1)+' ';pen=true}if(d)out.push(`<path class="${cls}" d="${d}"/>`);if(label){const x=lx!=null?lx:o.xmax*.86,y=f(x);if(isFinite(y)&&y>=0&&y<=o.ymax)out.push(`<text class="${LC[cls]||'lg'}" x="${sx(x)+6}" y="${sy(y)-6}">${label}</text>`)}},
+  pts(p,cls){out.push(`<path class="${cls}" d="${p.map((q,i)=>(i?'L':'M')+sx(q[0]).toFixed(1)+' '+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  poly(p,cls){out.push(`<polygon class="${cls}" points="${p.map(q=>sx(q[0]).toFixed(1)+','+sy(q[1]).toFixed(1)).join(' ')}"/>`)},
+  rect(x,y,cls){out.push(`<rect class="${cls}" x="${sx(0)}" y="${sy(y)}" width="${sx(x)-sx(0)}" height="${sy(0)-sy(y)}"/>`)},
+  bar(x,w,h,cls,lab){out.push(`<rect class="bar ${cls||''}" x="${sx(x-w/2)}" y="${sy(h)}" width="${sx(w)-sx(0)}" height="${sy(0)-sy(h)}"/>`);if(lab!=null)out.push(`<text class="note" x="${sx(x)}" y="${sy(h)-6}" text-anchor="middle">${lab}</text>`)},
+  seg(x0,y0,x1,y1,cls){out.push(`<path class="${cls}" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  dot(x,y,c){out.push(`<circle class="${c||'dot'}" cx="${sx(x)}" cy="${sy(y)}" r="5"/>`)},
+  guide(x,y,xl,yl){out.push(`<path class="guide" d="M${sx(0)} ${sy(y)} L${sx(x)} ${sy(y)} L${sx(x)} ${sy(0)}"/>`);if(yl)out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${yl}</text>`);if(xl)out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${xl}</text>`)},
+  xt(x,t){out.push(`<text class="tick" x="${sx(x)}" y="${sy(0)+17}" text-anchor="middle">${t}</text>`)},
+  yt(y,t){out.push(`<text class="tick" x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end">${t}</text>`)},
+  text(x,y,t,c,a){out.push(`<text class="${c||'note'}" x="${sx(x)}" y="${sy(y)}" text-anchor="${a||'start'}">${t}</text>`)},
+  arrow(x0,y0,x1,y1){out.push(`<path class="arrow" d="M${sx(x0)} ${sy(y0)} L${sx(x1)} ${sy(y1)}"/>`)},
+  gap(x0,x1,y){out.push(`<path class="gap" d="M${sx(x0)} ${sy(y)} L${sx(x1)} ${sy(y)}"/>`)},
+  svg(aria){return `<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria||''}"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0 0 L10 5 L0 10z"/></marker></defs>${out.join('')}<path class="axis" d="M${sx(0)} ${sy(o.ymax)} L${sx(0)} ${sy(0)} L${sx(o.xmax)} ${sy(0)}"/><text class="axl" x="${sx(0)-8}" y="${T-8}">${o.yl}</text><text class="axl" x="${sx(o.xmax)}" y="${H-8}" text-anchor="end">${o.xl}</text><text class="tick" x="${sx(0)-6}" y="${sy(0)+17}" text-anchor="end">0</text></svg>`}}}
+/* sorter('pre', [[card text, answerKey, explanation]], {key: label}, 'data-attr')  — needs ids pre+n/q/fb/next/sc */
+function sorter(pre,cards,labels,attr){let i=st.get(pre+'i',0),sc=st.get(pre+'s',[0,0]);
+ const draw=()=>{i%=cards.length;$('#'+pre+'n').textContent=`Card ${i+1} of ${cards.length}`;$('#'+pre+'q').textContent=cards[i][0];$('#'+pre+'fb').textContent='';$('#'+pre+'next').hidden=true;$$(`[${attr}]`).forEach(b=>b.disabled=false);$('#'+pre+'sc').textContent=`Score ${sc[0]} / ${sc[1]}`};
+ $$(`[${attr}]`).forEach(b=>b.addEventListener('click',()=>{const c=cards[i],ok=b.getAttribute(attr)===c[1];sc[1]++;if(ok)sc[0]++;st.set(pre+'s',sc);const fb=$('#'+pre+'fb');fb.className='fb '+(ok?'ok':'no');fb.textContent=(ok?'✓ Correct. ':'✗ Answer: '+labels[c[1]]+'. ')+c[2];$$(`[${attr}]`).forEach(x=>x.disabled=true);$('#'+pre+'next').hidden=false;$('#'+pre+'sc').textContent=`Score ${sc[0]} / ${sc[1]}`}));
+ $('#'+pre+'next').addEventListener('click',()=>{i++;st.set(pre+'i',i);draw()});draw()}
+/* stepper('pre', steps[[title, html]], draw(stepIndex)) — needs ids pre+t/x/prev/next/dots */
+function stepper(pre,steps,draw){let k=0;const go=()=>{k=Math.max(0,Math.min(steps.length-1,k));draw(k);$('#'+pre+'t').textContent=`Step ${k+1}: ${steps[k][0]}`;$('#'+pre+'x').innerHTML=steps[k][1];$('#'+pre+'dots').innerHTML=steps.map((_,i)=>`<i class="${i<=k?'on':''}"></i>`).join('');$('#'+pre+'prev').disabled=k===0;$('#'+pre+'next').disabled=k===steps.length-1};
+ $('#'+pre+'next').addEventListener('click',()=>{k++;go()});$('#'+pre+'prev').addEventListener('click',()=>{k--;go()});go();return{reset(){k=0;go()}}}
+let LVL=st.get('lvl','HL');const HASLVL=!!$('.lvl');
+function renderGoals(){const d=st.get('goals',[]);$('#goals').innerHTML=GOALS.map((g,i)=>g[1]&&LVL==='SL'?'':`<li><input type="checkbox" id="g${i}" ${d.includes(i)?'checked':''}><label for="g${i}">${g[0]} ${g[1]&&HASLVL?'<span class="badge b-hl">HL</span>':''}</label></li>`).join('');$$('#goals input').forEach(c=>c.addEventListener('change',()=>{const i=+c.id.slice(1);let v=st.get('goals',[]);v=c.checked?[...new Set([...v,i])]:v.filter(x=>x!==i);st.set('goals',v)}))}
+function renderCards(){$('#cards').innerHTML=TERMS.filter(t=>!(t[2]&&LVL==='SL')).map(t=>`<button class="flip" aria-label="${t[0]}: show definition"><div class="in"><div class="f"><b>${t[0]}</b><span class="hint">${t[2]&&HASLVL?'<span class="badge b-hl">HL</span> ':''}Click to flip</span></div><div class="b">${t[1]}</div></div></button>`).join('');$$('#cards .flip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on')))}
+function renderMCQ(){const list=MCQ.map((q,i)=>[q,i]).filter(x=>!(x[0][4]&&LVL==='SL'));
+ $('#mcqs').innerHTML=list.map(([q,i],k)=>`<div class="mcq" data-i="${i}"><p><b>${k+1}.</b> ${q[0]}</p><div class="opts">${q[1].map((o,j)=>`<button class="btn opt" data-j="${j}">${String.fromCharCode(65+j)}. ${o}</button>`).join('')}</div><p class="why" hidden></p></div>`).join('');
+ const sc=()=>{const a=st.get('mcq',{});const done=list.filter(x=>a[x[1]]!=null);const ok=done.filter(x=>a[x[1]]===x[0][2]).length;$('#mcqscore').innerHTML=done.length?`Score: ${ok} / ${list.length} <button class="btn" id="mcqreset" style="margin-left:10px;padding:4px 10px">Try again</button>`:'';const r=$('#mcqreset');if(r)r.addEventListener('click',()=>{st.set('mcq',{});renderMCQ()})};
+ $$('.mcq').forEach(el=>{const i=+el.dataset.i,q=MCQ[i];const mark=j=>{el.querySelectorAll('.opt').forEach(b=>{const k=+b.dataset.j;b.disabled=true;if(k===q[2])b.classList.add('ok');else if(k===j)b.classList.add('no')});const w=el.querySelector('.why');w.hidden=false;w.textContent=(j===q[2]?'✓ ':'✗ ')+q[3]};
+  const a=st.get('mcq',{});if(a[i]!=null)mark(a[i]);el.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{const a=st.get('mcq',{});a[i]=+b.dataset.j;st.set('mcq',a);mark(+b.dataset.j);sc()}))});sc()}
+function renderQF(){$('#qf').innerHTML=QF.filter(q=>!(q[2]&&LVL==='SL')).map(q=>`<div class="qa"><p><b>${q[0]}</b></p><details><summary>Show answer</summary><p>${q[1]}</p></details></div>`).join('')}
+function renderStatic(){
+ $('#casebox').innerHTML=CASES.map(c=>`<article class="case"><h3>${c[0]}</h3><p>${c[1]}</p><ol>${c[2].map(q=>`<li>${q}</li>`).join('')}</ol><details><summary>Model answer</summary><ol>${c[3].map(a=>`<li>${a}</li>`).join('')}</ol></details></article>`).join('');
+ $('#mist').innerHTML=MI.map(m=>`<div><b>✗ ${m[0]}</b>${m[1]}</div>`).join('');
+ $('#exambox').innerHTML=EX.map(e=>{const hl=/HL|Paper 3/.test(e[0]);return `<article class="case ${hl&&HASLVL?'hlonly':''}"><span class="badge ${hl?'b-hl':'b-sl'}">${e[0]}</span><p style="font-family:var(--serif);font-size:17px">${e[1]}</p><details><summary>What a strong answer includes</summary><ol>${e[2].map(x=>`<li>${x}</li>`).join('')}</ol></details></article>`}).join('')}
+function setLvl(l){LVL=HASLVL?l:'HL';st.set('lvl',LVL);$$('.lvl button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lvl===LVL));$$('.hlonly').forEach(e=>e.hidden=LVL==='SL');renderCards();renderGoals();renderMCQ();renderQF()}
+$$('.lvl button').forEach(b=>b.addEventListener('click',()=>setLvl(b.dataset.lvl)));
+
+/* LAB CODE: chapter-specific interactive sections. Each section = a draw() function + event listeners. */
+
+const ACN={cur:'Current',cap:'Capital',fin:'Financial'};
+const sg=v=>(Math.abs(v)<1e-9?'':v>0?'+':'')+f1(v);
+
+/* 02 credit / debit ledger */
+const CR=[['A German tourist pays for a hotel here','cur','Services','+',40,'Tourism is an export of a service: money comes in, so it is a credit.'],
+['We import crude oil','cur','Goods','−',420,'Imports of goods are a debit: money leaves the country.'],
+['A nurse working abroad sends money to her family','cur','Transfers','+',75,'A remittance is a current transfer with nothing given in return, and it is an inflow.'],
+['A foreign parent company takes its profits home','cur','Income','−',55,'Profit paid to non-residents is factor income leaving: a debit. Note this is <b>income</b>, not a transfer.'],
+['We export electronic components','cur','Goods','+',180,'Export earnings are the classic credit.'],
+['Households pay for foreign streaming subscriptions','cur','Services','−',20,'An imported service, so a debit.'],
+['A creditor country cancels part of our debt','cap','Capital transfers','+',30,'Debt forgiveness is a capital transfer, not a current transfer: it changes a stock of debt, not current income.'],
+['We sell mining rights to a foreign firm','cap','Non-produced assets','+',15,'Rights to natural resources and patents are non-produced, non-financial assets: the capital account.'],
+['A Japanese carmaker builds a plant here','fin','FDI','+',120,'Inward FDI is a credit: foreigners acquire a lasting controlling interest and bring money in.'],
+['A domestic pension fund buys US government bonds','fin','Portfolio','−',60,'Residents buying foreign assets send money out: a debit.'],
+['The central bank sells foreign currency reserves','fin','Reserve assets','+',45,'Running down reserves brings foreign currency in to finance other transactions: a credit.'],
+['The government borrows from the IMF','fin','Official borrowing','+',50,'Borrowing from abroad is an inflow now, though it creates future debits.']];
+let crOn=[];
+$('#crpick').innerHTML=CR.map((c,i)=>`<button class="btn" data-cr="${i}">${c[0]}</button>`).join('');
+function drawCr(){$$('[data-cr]').forEach(b=>b.classList.toggle('pri',crOn.includes(+b.dataset.cr)));
+ $('#crtbl').innerHTML=crOn.length?crOn.map(i=>{const c=CR[i];return `<tr><td>${ACN[c[1]]}</td><td>${c[2]}</td><td style="text-align:right;font-family:var(--mono);color:${c[3]==='+'?'var(--good)':'var(--bad)'}">${c[3]}${f0(c[4])}</td></tr>`}).join(''):'<tr><td colspan="3" class="muted">Nothing recorded yet.</td></tr>';
+ const sum=k=>crOn.filter(i=>CR[i][1]===k).reduce((a,i)=>a+(CR[i][3]==='+'?CR[i][4]:-CR[i][4]),0);
+ const ca=sum('cur'),ka=sum('cap'),fa=sum('fin'),tot=ca+ka+fa;
+ $('#crread').innerHTML=`<dt>Current account</dt><dd>${money(ca)}</dd><dt>Capital account</dt><dd>${money(ka)}</dd><dt>Financial account</dt><dd>${money(fa)}</dd><dt>Sum so far</dt><dd>${money(tot)}</dd><dt>Items recorded</dt><dd>${crOn.length} of ${CR.length}</dd>`;
+ const last=crOn[crOn.length-1];
+ $('#crx').innerHTML=last==null?'Click a transaction to record it. Add several and watch each account build up.':`<b>${CR[last][0]}</b> → ${ACN[CR[last][1]]} account, ${CR[last][2]}, <b>${CR[last][3]}${f0(CR[last][4])}</b>. ${CR[last][5]}`+(crOn.length===CR.length?` <br><br>All twelve recorded, and the three accounts sum to exactly <b>${money(tot)}</b>. The current account deficit of ${money(-ca)} is financed by the capital and financial accounts: debt relief, asset sales and inward investment. These figures are constructed to balance exactly; real data never do, which is why <b>errors and omissions</b> exists — see section 04.`:'')}
+$$('[data-cr]').forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.cr;if(!crOn.includes(i))crOn.push(i);drawCr()}));
+$('#crclear').addEventListener('click',()=>{crOn=[];drawCr()});
+
+/* 03 current account calculator */
+const CA=[['EPQ 32.1: Country K',57,88,28,15,0,0],['EPQ 32.2: Country L',0,18.3,21.8,0,6.7,-5.6],['The Philippines',75,125,45,25,3,32],['Your own numbers',200,180,60,40,-10,5]];
+$('#capre').innerHTML=CA.map((p,i)=>`<button class="btn" data-ca="${i}">${p[0]}</button>`).join('');
+$$('[data-ca]').forEach(b=>b.addEventListener('click',()=>{const p=CA[+b.dataset.ca];['caxg','camg','caxs','cams','cani','cant'].forEach((id,k)=>$('#'+id).value=p[k+1]);drawCa()}));
+function drawCa(){const v=id=>{const x=parseFloat($('#'+id).value);return isFinite(x)?x:0};
+ const xg=v('caxg'),mg=v('camg'),xs=v('caxs'),ms=v('cams'),ni=v('cani'),nt=v('cant');
+ const bg=xg-mg,bs=xs-ms,bt=bg+bs,ca=bt+ni+nt,tx=xg+xs,tm=mg+ms;
+ const mx=Math.max(Math.abs(bg),Math.abs(bs),Math.abs(ni),Math.abs(nt),Math.abs(ca),1)*1.35;
+ const g=Plot({xmax:5,ymax:mx,xl:'',yl:'Balance',h:260,L:62});
+ const items=[[0.5,bg,'Goods'],[1.5,bs,'Services'],[2.5,ni,'Income'],[3.5,nt,'Transfers'],[4.5,ca,'CA']];
+ const zero=mx*0; items.forEach(([x,val,lab])=>{const h=Math.abs(val);if(h>0)g.bar(x,.6,h,val>=0?'':'dim',(val>=0?'+':'−')+f1(Math.abs(val)));g.xt(x,lab)});
+ g.text(.05,mx*.93,'bar height = size of each balance','note');
+ $('#cafig').innerHTML=g.svg('Current account components');
+ $('#caread').innerHTML=`<dt>Total exports</dt><dd>${f1(tx)}</dd><dt>Total imports</dt><dd>${f1(tm)}</dd><dt>Balance of trade in goods</dt><dd>${f1(xg)} − ${f1(mg)} = ${sg(bg)}</dd><dt>Balance of trade in services</dt><dd>${f1(xs)} − ${f1(ms)} = ${sg(bs)}</dd><dt><b>Balance of trade</b></dt><dd><b>${sg(bt)}</b></dd><dt>Net income</dt><dd>${sg(ni)}</dd><dt>Net current transfers</dt><dd>${sg(nt)}</dd><dt><b>Current account</b></dt><dd><b>${sg(ca)}</b></dd>`;
+ $('#cax').innerHTML=`The current account is <b>${ca>=0?'in surplus':'in deficit'}</b> at ${sg(ca)}. `+
+  (Math.sign(bt)!==Math.sign(ca)&&bt!==0&&ca!==0?`Notice that the balance of trade (${sg(bt)}) and the current account (${sg(ca)}) have <b>opposite signs</b>: income and transfers of ${(ni+nt)>=0?'+':''}${f1(ni+nt)} more than reverse the trade position. This is why treating the two as the same thing loses marks.`
+  :`Trade contributes ${sg(bt)} and income plus transfers contribute ${sg(ni+nt)}.`)+
+  ` In the exam, set out all four GIST lines, show the subtraction, and give the units and the sign.`}
+['caxg','camg','caxs','cams','cani','cant'].forEach(id=>$('#'+id).addEventListener('input',drawCa));
+
+/* 04 the BOP identity */
+const BP=[['EPQ 32.3: Country J',-130,46,103],['Hong Kong',-8,0,9],['Country Z',-40,5,32],['A surplus country',120,-5,-110]];
+$('#bppre').innerHTML=BP.map((p,i)=>`<button class="btn" data-bp="${i}">${p[0]}</button>`).join('');
+$$('[data-bp]').forEach(b=>b.addEventListener('click',()=>{const p=BP[+b.dataset.bp];['bpca','bpka','bpfa'].forEach((id,k)=>$('#'+id).value=p[k+1]);drawBp()}));
+function drawBp(){const v=id=>{const x=parseFloat($('#'+id).value);return isFinite(x)?x:0};
+ const ca=v('bpca'),ka=v('bpka'),fa=v('bpfa'),sum=ca+ka+fa,eo=-sum;
+ const mx=Math.max(Math.abs(ca),Math.abs(ka),Math.abs(fa),Math.abs(eo),1)*1.4;
+ const g=Plot({xmax:4,ymax:mx,xl:'',yl:'Balance',h:300,L:64});
+ [[0.5,ca,'Current'],[1.5,ka,'Capital'],[2.5,fa,'Financial'],[3.5,eo,'E & O']].forEach(([x,val,lab])=>{const h=Math.abs(val);if(h>0)g.bar(x,.6,h,val>=0?'':'dim',(val>=0?'+':'−')+f1(Math.abs(val)));g.xt(x,lab)});
+ g.text(.05,mx*.94,'the four bars must cancel out exactly','note');
+ $('#bpfig').innerHTML=g.svg('The four balance of payments accounts');
+ $('#bpread').innerHTML=`<dt>Current account</dt><dd>${sg(ca)}</dd><dt>Capital account</dt><dd>${sg(ka)}</dd><dt>Financial account</dt><dd>${sg(fa)}</dd><dt>Sum of the three</dt><dd>${sg(sum)}</dd><dt><b>Errors and omissions</b></dt><dd><b>${sg(eo)}</b></dd><dt>Overall total</dt><dd>${f1(ca+ka+fa+eo)}</dd>`;
+ $('#bpx').innerHTML=`CA + KA + FA + E&O = 0, so E&O = −(${f1(ca)} ${ka>=0?'+ '+f1(ka):'− '+f1(-ka)} ${fa>=0?'+ '+f1(fa):'− '+f1(-fa)}) = <b>${sg(eo)}</b>. `+
+  (ca<0?`The current account deficit of ${f1(-ca)} is financed by the ${(ka+fa)>=0?`combined capital and financial account surplus of ${f1(ka+fa)}`:'other accounts'}: foreigners acquire domestic assets, or the country borrows or runs down reserves, and in return it obtains the foreign currency to pay for the extra imports.`
+  :ca>0?`The current account surplus of ${f1(ca)} means the country is earning more from the world than it spends, so it is <b>lending to the rest of the world</b>: the capital and financial accounts show a matching outflow of ${f1(-(ka+fa))} as residents acquire foreign assets.`
+  :'With a current account of zero, the capital and financial accounts must cancel each other.')+
+  ` The overall total is always zero — which is why “a balance of payments deficit” is not a thing you can write.`}
+['bpca','bpka','bpfa'].forEach(id=>$('#'+id).addEventListener('input',drawBp));
+
+/* 05 account sorter */
+sorter('ac',[['A Spanish company pays dividends to its British shareholders.','cur','Net income (profit paid abroad) — current account, a debit for Spain.'],['A French bank buys 2% of the shares in a Brazilian firm.','fin','Portfolio investment — financial account.'],['Germany cancels debt owed by an African government.','cap','A capital transfer — capital account.'],['An Indian software firm exports services to the USA.','cur','Trade in services — current account credit for India.'],['Toyota builds a car plant in Mexico.','fin','FDI: a lasting controlling interest — financial account.'],['A migrant brings personal savings when moving permanently to Canada.','cap','Migrants’ transfer of assets — capital account.'],['The Bank of Japan sells US dollars from its reserves.','fin','Reserve assets — financial account.'],['A Mexican worker in the USA sends money to relatives at home.','cur','Current transfers — current account credit for Mexico.'],['A country sells the rights to extract minerals to a foreign company.','cap','A non-produced, non-financial asset — capital account.'],['A government borrows $2bn from the IMF.','fin','Official borrowing — financial account.']],{cur:'Current account',cap:'Capital account',fin:'Financial account'},'data-ac');
+
+/* 06 BOP and the exchange rate (HL) */
+const ERX=[['Import boom','s',1,'cur','Residents sell the currency to pay for imports, so <b>supply rises</b>. The current account worsens and the currency depreciates.'],
+['Export earnings rise','d',1,'cur','Foreigners buy the currency to pay for exports, so <b>demand rises</b>. The current account improves and the currency appreciates.'],
+['Interest rates rise, attracting hot money','d',1,'fin','Portfolio inflows raise <b>demand</b>. Note that this is the <i>financial</i> account propping up the currency, which can mask a current account problem.'],
+['A large inward FDI project','d',1,'fin','A foreign firm must buy the currency to build here: <b>demand rises</b>.'],
+['Capital flight: investors pull money out','s',1,'fin','Foreign investors sell the currency to take money home, so <b>supply rises</b> and the currency falls sharply. This is the “sudden stop” risk.'],
+['Remittances from workers abroad increase','d',1,'cur','Transfers received are credits, so <b>demand rises</b>.']];
+let erSel=-1;
+$('#erpick').innerHTML=ERX.map((e,i)=>`<button class="btn" data-er="${i}">${e[0]}</button>`).join('');
+function drawEr(){const e=erSel>=0?ERX[erSel]:null,amt=e?36:0,ds=e&&e[1]==='d'?amt:0,ss=e&&e[1]==='s'?amt:0;
+ $$('[data-er]').forEach(b=>b.classList.toggle('pri',+b.dataset.er===erSel));
+ const eq=(d,s)=>(100+d-s)/120,er0=eq(0,0),er1=eq(ds,ss),q0=120-60*er0,q1=120+ds-60*er1;
+ const g=Plot({xmax:120,ymax:2,xl:'Quantity of the currency',yl:'Exchange rate'});
+ [0.5,1,1.5].forEach(v=>{if(Math.abs(v-er0)>0.13&&Math.abs(v-er1)>0.13)g.yt(v,f1(v))});
+ if(e){g.fn(q=>(120-q)/60,ds?'ghost':'d',ds?'':'D = credits',92);g.fn(q=>(q-20)/60,ss?'ghost':'s',ss?'':'S = debits',100);
+  if(ds)g.fn(q=>(120+ds-q)/60,'d','D₂ = credits',92);if(ss)g.fn(q=>(q-20-ss)/60,'s','S₂ = debits',106);
+  g.guide(q0,er0,'','ER₁')}
+ else{g.fn(q=>(120-q)/60,'d','D = credits',92);g.fn(q=>(q-20)/60,'s','S = debits',100)}
+ g.guide(q1,er1,'',e?'ER₂':'ER');g.dot(q1,er1);
+ $('#erfig').innerHTML=g.svg('Credits and debits in the currency market');
+ const dir=er1>er0?'appreciates':er1<er0?'depreciates':'does not move';
+ $('#erread').innerHTML=e?`<dt>Account affected</dt><dd>${ACN[e[3]]}</dd><dt>Credit or debit?</dt><dd>${e[1]==='d'?'credit (demand)':'debit (supply)'}</dd><dt>Exchange rate</dt><dd>${f2(er0)} → ${f2(er1)}</dd><dt>The currency…</dt><dd>${dir}</dd>`:`<dt>Equilibrium rate</dt><dd>${f2(er0)}</dd><dt>At equilibrium</dt><dd>credits = debits</dd>`;
+ $('#erx').innerHTML=e?e[4]+` The rate moves from ${f2(er0)} to ${f2(er1)}, so the currency <b>${dir}</b>.`:'At the equilibrium rate, the quantity of currency demanded (all credits) equals the quantity supplied (all debits) — which is another way of saying the balance of payments balances. Pick a shock to disturb it.'}
+$$('[data-er]').forEach(b=>b.addEventListener('click',()=>{erSel=+b.dataset.er;drawEr()}));
+
+/* 07 persistent deficit (HL) */
+const POL=[['none','No policy change: keep financing it',0,0,0],
+['switch','Expenditure switching: devalue the currency',-2,1,1],
+['tariff','Expenditure switching: tariffs on imports',-1,0,2],
+['reduce','Expenditure reducing: raise taxes and interest rates',-3,3,0],
+['supply','Supply-side: training, infrastructure, innovation',-3,0,0]];
+let polSel='none';
+$('#dfpol').innerHTML=POL.map(p=>`<label class="ctl" style="display:flex;gap:8px;align-items:flex-start" for="pol_${p[0]}"><input type="radio" name="dfpol" id="pol_${p[0]}" value="${p[0]}" style="width:18px;height:18px;margin-top:3px"><span style="color:var(--ink);font-weight:500">${p[1]}</span></label>`).join('');
+$$('input[name=dfpol]').forEach(r=>r.addEventListener('change',()=>{polSel=r.value;drawDf()}));
+function drawDf(){const sz=+$('#dfsz').value,hot=+$('#dfhot').value/100;
+ $('#dfszo').textContent=f1(sz)+'%';$('#dfhoto').textContent=Math.round(hot*100)+'%';
+ const p=POL.find(x=>x[0]===polSel);$('#pol_'+polSel).checked=true;
+ const risk=Math.max(0,Math.min(10,sz*(0.6+0.8*hot)+p[2]));
+ const W=520,H=120,x=v=>40+v/10*(W-80);
+ $('#dffig').innerHTML=`<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="Deficit risk meter"><rect x="${x(0)}" y="50" width="${x(10)-x(0)}" height="22" fill="var(--shade)"/><rect x="${x(0)}" y="50" width="${x(risk)-x(0)}" height="22" fill="${risk>6.5?'var(--supply)':risk>3.5?'var(--area)':'var(--demand)'}"/><text class="note" x="${x(0)}" y="40">Comfortable</text><text class="note" x="${x(10)}" y="40" text-anchor="end">Crisis risk</text><circle cx="${x(risk)}" cy="61" r="9" class="dot"/><text class="tick" x="${x(risk)}" y="98" text-anchor="middle">${f1(risk)} / 10</text></svg>`;
+ const lvl=risk>6.5?'high':risk>3.5?'moderate':'low';
+ $('#dfread').innerHTML=`<dt>Deficit</dt><dd>${f1(sz)}% of GDP</dd><dt>Financed by hot money</dt><dd>${Math.round(hot*100)}%</dd><dt>Risk of a sudden stop</dt><dd>${lvl}</dd><dt>Effect on growth</dt><dd>${p[3]>2?'strongly negative':p[3]>0?'negative':'neutral or positive'}</dd><dt>Risk of retaliation</dt><dd>${p[4]>1?'high':p[4]>0?'some':'none'}</dd><dt><b>Overall risk</b></dt><dd><b>${f1(risk)} / 10</b></dd>`;
+ const impl=`A deficit of ${f1(sz)}% of GDP financed ${Math.round(hot*100)}% by short-term money carries <b>${lvl}</b> risk. ${hot>0.6?'Hot money can leave in days, so a loss of confidence would force a sharp depreciation, imported inflation and possibly emergency borrowing. FDI would be far safer: a factory cannot be flown out overnight.':'Financing through FDI is much more stable: the assets cannot be withdrawn quickly, though the profits will flow abroad as income debits in future years.'} Persistent deficits also mean rising foreign ownership, higher external debt and the threat of a credit-rating downgrade, which raises borrowing costs further.`;
+ const adv={none:'Doing nothing is a real option while investors remain willing to lend, and the USA has run deficits for decades. But the longer it lasts, the larger the stock of foreign claims on the country.',
+  switch:'Devaluation makes exports cheaper and imports dearer, but it works only if PEDx + PEDm > 1 (section 08), and it raises import prices, so real incomes fall. A eurozone member cannot do this at all.',
+  tariff:'Tariffs cut imports quickly, but invite retaliation and a WTO complaint, raise costs for firms using imported inputs, and treat the symptom rather than the cause of weak competitiveness.',
+  reduce:'Contractionary policy reliably cuts imports, because it cuts spending on everything. The cost is lower growth and higher unemployment — politically very hard, and it does nothing to make exports better.',
+  supply:'Training, infrastructure and innovation raise non-price competitiveness, which is the only lasting fix. But it is slow, expensive, and the payoff arrives well beyond one electoral term.'}[polSel];
+ $('#dfx').innerHTML=impl+'<br><br><b>Your policy:</b> '+adv}
+['dfsz','dfhot'].forEach(id=>$('#'+id).addEventListener('input',drawDf));
+
+/* 08 Marshall-Lerner and the J-curve (HL) */
+const JCS=[['Set up the axes','The vertical axis is the <b>trade balance</b>, with a <b>zero line</b> across the middle: surplus above, deficit below. The horizontal axis is <b>time</b>. Students who leave off the zero line cannot show the curve crossing into surplus.'],
+['Start at point A','The country begins <b>in deficit</b>. Mark <b>A</b> at the moment the currency depreciates. Starting at zero or in surplus is the most common error in this diagram.'],
+['The dip to B','Straight after the depreciation, demand is <b>price inelastic</b>: contracts are already signed, habits are fixed and substitutes take time to find. Import spending in domestic currency rises by more than export revenue, so the balance <b>worsens</b> to <b>B</b>.'],
+['The recovery to C','Over months and years, elasticities rise: exporters win new orders and consumers switch to domestic goods. The balance improves, crosses the zero line and reaches <b>C</b>.'],
+['Annotate the condition','Write <b>“PEDx + PEDm &lt; 1”</b> on the A–B segment and <b>“PEDx + PEDm &gt; 1”</b> on B–C. This is the Marshall–Lerner condition, and naming it on the diagram is what turns a sketch into a full-mark answer.']];
+function jcCurve(sl,ll){const sr=sl-1,lr=ll-1;return t=>{if(t<=0)return -1;
+ const dip=sr*1.4*t*Math.exp(-t/0.8);                       /* short-run effect: bites early, then fades */
+ const rec=lr*3*(1-Math.exp(-Math.pow(t/2.5,2)));           /* long-run effect: slow to start, then dominates */
+ return Math.max(-1.85,Math.min(1.85,-1+dip+rec))}}
+let jcStep=0;
+function drawJc(k){if(k!=null)jcStep=k;const sx=+$('#jcsx').value,sm=+$('#jcsm').value,lx=+$('#jclx').value,lm=+$('#jclm').value;
+ $('#jcsxo').textContent=f2(sx);$('#jcsmo').textContent=f2(sm);$('#jclxo').textContent=f2(lx);$('#jclmo').textContent=f2(lm);
+ const sl=sx+sm,ll=lx+lm,fn=jcCurve(sl,ll),k2=jcStep;
+ const g=Plot({xmax:8,ymax:4,xl:'Time (years after the depreciation)',yl:'Trade balance'});
+ const Y=v=>Math.max(.15,Math.min(3.8,v+2));
+ g.seg(0,Y(0),8,Y(0),'sm');g.text(.1,Y(0)+.12,'zero: trade balanced','note');
+ if(k2>=1){g.yt(Y(0),'0');g.text(.1,Y(1.55),'surplus','note');g.text(.1,Y(-1.9),'deficit','note')}
+ const a=fn(0.001);
+ if(k2>=1){g.dot(0,Y(a));g.text(.14,Y(a)-.32,k2<2?'A: depreciation':'A','note')}
+ let lo=0,lv=a;for(let i=1;i<=60;i++){const t=i*3/60,v=fn(t);if(v<lv){lv=v;lo=t}}
+ const dips=lv<a-.12;
+ if(k2>=2){const pts=[];for(let i=0;i<=40;i++){const t=i*1.6/40;pts.push([t,Y(fn(t))])}g.pts(pts,'d');
+  if(dips){g.dot(lo,Y(lv));g.text(lo+.14,Y(lv)+.42,'B','note')}}
+ if(k2>=3){const pts=[];for(let i=0;i<=80;i++){const t=1.6+i*6.4/80;pts.push([t,Y(fn(t))])}g.pts(pts,'d');
+  g.dot(8,Y(fn(8)));g.text(7.8,Y(fn(8))+.34,'C','note','end')}
+ if(k2>=4){g.text(1.45,Y(Math.min(lv,a)-.75),'PEDx + PEDm '+(sl>1?'> 1':'< 1'),'lm');
+  g.text(4.5,Y(Math.max(-1.2,Math.min(1.15,fn(8)))+.85),'PEDx + PEDm '+(ll>1?'> 1':'< 1'),'lm')}
+ $('#jcfig').innerHTML=g.svg('The J-curve');
+ $('#jcread').innerHTML=`<dt>Short run: PEDx + PEDm</dt><dd>${f2(sl)} ${sl>1?'(> 1)':'(≤ 1)'}</dd><dt>Short-run effect</dt><dd>balance ${sl>1?'improves':'worsens'}</dd><dt>Long run: PEDx + PEDm</dt><dd>${f2(ll)} ${ll>1?'(> 1)':'(≤ 1)'}</dd><dt>Long-run effect</dt><dd>balance ${ll>1?'improves':'worsens'}</dd><dt><b>Shape</b></dt><dd><b>${sl<=1&&ll>1?'a J-curve':sl>1&&ll>1?'improves throughout':ll<=1?'no recovery: the depreciation fails':'unusual'}</b></dd>`}
+['jcsx','jcsm','jclx','jclm'].forEach(id=>$('#'+id).addEventListener('input',()=>drawJc()));
+
+/* 09 persistent surplus (HL) */
+const SUC=[['comp','Strong non-price competitiveness in exports (quality, engineering, brands)',1],
+['save','High household and government saving, with weak domestic demand',-1],
+['invest','Low domestic investment: the surplus is lent abroad instead',-1],
+['oil','High world prices for the country’s commodity exports',0],
+['protect','Import barriers that hold down the import bill',-1],
+['under','A currency held below its market value',-1]];
+let suOn=st.get('su',{comp:true});
+$('#sucause').innerHTML='<p class="muted" style="font-size:13.5px;margin-bottom:8px">Why does the surplus exist?</p>'+SUC.map(c=>`<label class="ctl" style="display:flex;gap:8px;align-items:flex-start" for="su_${c[0]}"><input type="checkbox" id="su_${c[0]}" style="width:18px;height:18px;margin-top:3px"><span style="color:var(--ink);font-weight:500">${c[1]}</span></label>`).join('');
+SUC.forEach(c=>{const el=$('#su_'+c[0]);el.checked=!!suOn[c[0]];el.addEventListener('change',()=>{suOn[c[0]]=el.checked;st.set('su',suOn);drawSu()})});
+$('#sueuro').addEventListener('change',drawSu);
+function drawSu(){const on=SUC.filter(c=>suOn[c[0]]),euro=$('#sueuro').checked;
+ const score=on.reduce((a,c)=>a+c[2],0),n=Math.max(1,on.length);
+ /* AD/AS */
+ const g1=Plot({xmax:120,ymax:160,xl:'Real GDP',yl:'Price level',w:400});
+ const AD=(q,s)=>(150-q)+s,SR=q=>20+q*0.9,sh=18;
+ const sol=s=>{const q=(150+s-20)/1.9;return[q,SR(q)]};
+ const p0=sol(0),p1=sol(sh);
+ g1.fn(q=>AD(q,0),'ghost','',86);g1.fn(q=>AD(q,sh),'d','AD₂ (X − M up)',86);g1.fn(SR,'s','SRAS',100);
+ g1.guide(p0[0],p0[1],'','P₁');g1.guide(p1[0],p1[1],'','P₂');g1.dot(p1[0],p1[1]);
+ g1.text(4,152,'surplus raises AD','lm');
+ $('#sufig1').innerHTML=g1.svg('Surplus and aggregate demand');
+ /* inverse J-curve */
+ const g2=Plot({xmax:8,ymax:4,xl:'Time after appreciation',yl:'Trade balance',w:400});
+ const Y=v=>v+2;g2.seg(0,Y(0),8,Y(0),'sm');g2.yt(Y(0),'0');
+ const f=t=>{if(t<=0)return 1;return 1+0.9*t*Math.exp(-t/1.2)*1.1-1.35*(1-Math.exp(-t/1.2))*1.5};
+ const pts=[];for(let i=0;i<=80;i++){const t=i*8/80;pts.push([t,Y(f(t))])}
+ if(euro){g2.pts([[0,Y(1)],[8,Y(1)]],'d');g2.text(1.2,Y(1)+.3,'no appreciation possible','lm')}
+ else{g2.pts(pts,'d');g2.text(.9,Y(1.45),'surplus widens first…','note');g2.text(3.6,Y(f(8))-.45,'…then narrows','note')}
+ g2.text(.1,Y(1.75),'surplus','note');g2.text(.1,Y(-1.9),'deficit','note');
+ $('#sufig2').innerHTML=g2.svg(euro?'No exchange-rate correction inside a monetary union':'Inverse J-curve');
+ $('#suread').innerHTML=`<dt>Causes selected</dt><dd>${on.length}</dd><dt>Healthy or worrying?</dt><dd>${score>0?'mainly healthy':score<0?'mainly worrying':'mixed'}</dd><dt>Effect on AD</dt><dd>net exports raise AD</dd><dt>Inflation risk near full employment</dt><dd>${on.length?'yes':'—'}</dd><dt>Self-correcting?</dt><dd>${euro?'no: currency cannot appreciate':'yes, slowly, via appreciation'}</dd>`;
+ $('#sux').innerHTML=(!on.length?'Select at least one cause. ':
+  score>0?'<b>This surplus looks healthy.</b> It comes from genuine competitiveness, so it reflects products the world wants rather than demand being held down at home. ':
+  score<0?'<b>This surplus is a warning sign, not a trophy.</b> It comes from weak domestic demand, suppressed consumption or policy distortions, so the country is producing more than it consumes and lending the difference abroad instead of investing at home. ':
+  'A mixed picture: some of the surplus reflects real competitiveness and some reflects weak domestic demand. ')+
+  (on.length?`Either way, net exports shift <b>AD right</b> (Fig 32.12), which supports jobs but risks inflation if the economy is already near full employment. `:'')+
+  (euro?'Inside a monetary union the currency cannot appreciate against the main trading partners, so the usual correction never happens and the imbalance persists — which is how large surpluses and deficits built up inside the eurozone.'
+   :'With a floating currency the surplus tends to correct itself: demand for the currency rises, it appreciates, and exports lose price competitiveness. The <b>inverse J-curve</b> shows the surplus widening first, because elasticities are low in the short run, before narrowing.')+
+  ' Partners also matter: one country’s surplus is another’s deficit, which is why persistent surpluses draw complaints and threats of retaliation (Hoang p. 524).'}
+/* /LAB CODE */
+
+$$('section.step').forEach(sec=>{const n=sec.querySelector('.num');const list=[...$$('section.step')].filter(x=>x.id!=='guide');if(n&&sec.id!=='guide'&&!n.dataset.fixed)n.textContent=String(list.indexOf(sec)+1).padStart(2,'0')});
+renderStatic();setLvl(LVL);
+/* LAB INIT: call each section's first draw here */
+drawCr();['caxg','camg','caxs','cams','cani','cant'].forEach((id,k)=>$('#'+id).value=CA[0][k+1]);drawCa();
+['bpca','bpka','bpfa'].forEach((id,k)=>$('#'+id).value=BP[0][k+1]);drawBp();
+drawEr();drawDf();stepper('jc',JCS,drawJc);drawSu();
+/* /LAB INIT */
+})();
+</script>
+<script id="cg-js">
+(function(){
+const CG={"title": "Chapter 32 · Balance of payments", "intro": "The balance of payments is simply a record of every transaction between a country's residents and the rest of the world: money in is a credit, money out is a debit. The whole thing must sum to zero, because anything a country cannot pay for out of earnings it must borrow, sell assets for, or take from reserves. The hard part is not the arithmetic but the judgement: deciding when a deficit matters, and noticing that a surplus is not automatically good news.", "groups": [{"name": "The structure of the accounts", "terms": [{"term": "Balance of payments (BOP)", "level": "SL/HL", "definition": "A record of all financial transactions between the residents of a country and the rest of the world over a given period, usually one year.", "explanation": "It has three accounts — current, capital and financial — plus a balancing item for statistical error. Because every transaction is recorded twice, once as the thing bought and once as the payment, the accounts must sum to zero overall.", "example": "A country importing $125bn of goods while exporting $75bn records the $50bn gap as debits that must be financed somewhere else in the accounts.", "exam_tip": "Never write 'a balance of payments deficit'. Only individual accounts can be in deficit.", "related": ["Credit item", "Debit item", "Errors and omissions"]}, {"term": "Credit item", "level": "SL/HL", "definition": "A transaction that brings money into the economy from abroad, recorded as a positive value.", "explanation": "Credits include export revenue, income received from abroad, remittances arriving, and foreigners acquiring domestic assets. The test is direction of payment, not whether something physically arrives or leaves.", "example": "A German tourist paying for a Bangkok hotel is a credit for Thailand, even though nothing leaves the country.", "exam_tip": "Ask 'does money come in?' rather than 'do goods go out?'", "related": ["Debit item", "Current account"]}, {"term": "Debit item", "level": "SL/HL", "definition": "A transaction that sends money out of the economy to foreigners, recorded as a negative value.", "explanation": "Debits include import spending, profits paid to foreign owners, and residents buying foreign assets. A common slip is treating an inward investment's future profit outflows as if they never happen: they appear later as income debits.", "example": "A foreign parent company repatriating $55m of profit is a debit on the income component of the current account.", "exam_tip": "Enter debits as negatives in calculations, and the identity will work out.", "related": ["Credit item", "Net income"]}, {"term": "Current account", "level": "SL/HL", "definition": "The part of the BOP recording trade in goods and services, net income, and net current transfers.", "explanation": "Remember it as GIST: Goods, Income, Services, Transfers. It measures whether a country is earning more from the world than it spends, which is why it attracts far more attention than the other accounts.", "example": "Goods −50, services +20, income +3, transfers +32 gives a current account of +$5bn despite a large goods deficit.", "exam_tip": "Set out all four GIST lines in a calculation, even the ones that are zero.", "related": ["Balance of trade", "Net income", "Current transfers"]}, {"term": "Balance of trade", "level": "SL/HL", "definition": "The value of exports of goods and services minus the value of imports of goods and services.", "explanation": "It is only part of the current account, and the two can easily have opposite signs. Split it into the goods balance (tangible items, sometimes called visible trade) and the services balance: many economies run a goods deficit alongside a services surplus, and examiners often ask for the two separately.", "example": "Country K: goods 57 − 88 = −31, services 28 − 15 = +13, so the balance of trade is −18.", "exam_tip": "Do not use 'balance of trade' and 'current account' as if they were the same thing.", "related": ["Current account", "Net income"]}, {"term": "Net income", "level": "SL/HL", "definition": "Factor income received from abroad — wages, interest, rent and profit — minus the same paid to non-residents.", "explanation": "Remember it as WIRP. This is income earned by factors of production, not revenue from selling goods. Countries with large foreign assets earn a positive net income; countries that have sold assets to foreigners pay profits out.", "example": "Dividends paid by a Spanish subsidiary to its British shareholders are an income debit for Spain.", "exam_tip": "Students often file profit flows under transfers. Income is paid for a service rendered by a factor; transfers are one-way.", "related": ["Current transfers", "Current account"]}, {"term": "Current transfers", "level": "SL/HL", "definition": "One-way payments for which nothing is received in return, such as remittances, foreign aid grants and pensions paid abroad.", "explanation": "For several economies these are large enough to turn a trade deficit into a current account surplus, and they are far more stable than portfolio capital. They also carry a cost: remittances usually mean skilled workers have left.", "example": "Overseas Filipino workers send home tens of billions of dollars a year, worth close to a tenth of GDP (approximate).", "exam_tip": "Distinguish current transfers from capital transfers: aid for food is current, debt forgiveness is capital.", "related": ["Net income", "Capital account"]}]}, {"name": "Capital and financial accounts", "terms": [{"term": "Capital account", "level": "SL/HL", "definition": "The part of the BOP recording capital transfers and transactions in non-produced, non-financial assets.", "explanation": "It is the smallest account and easy to confuse with the financial account. Capital transfers change a stock of wealth rather than current income — debt forgiveness, or the assets a permanent migrant brings. Non-produced assets include patents, copyrights and rights to natural resources.", "example": "A creditor country cancelling an African government's debt, or a country selling mineral extraction rights to a foreign firm.", "exam_tip": "If the transaction is a one-off change in ownership of wealth or of a right, think capital account.", "related": ["Financial account", "Current transfers"]}, {"term": "Financial account", "level": "SL/HL", "definition": "The part of the BOP recording changes in the cross-border ownership of assets: FDI, portfolio investment, reserve assets and official borrowing.", "explanation": "This is the account that finances a current account deficit. When foreigners acquire domestic assets, they supply the foreign currency the country needs to pay for its excess imports.", "example": "Hong Kong's current account deficit of $8bn is covered by net FDI inflows of $10bn and portfolio outflows of $1bn.", "exam_tip": "Say explicitly how the financial account surplus pays for the current account deficit.", "related": ["Foreign direct investment (FDI)", "Portfolio investment", "Reserve assets"]}, {"term": "Foreign direct investment (FDI)", "level": "SL/HL", "definition": "Investment that gives a lasting controlling interest in an enterprise in another country.", "explanation": "FDI brings capital, technology and jobs, and it cannot be withdrawn quickly, which makes it a much safer way to finance a deficit than short-term capital. The cost is that future profits leave as income debits.", "example": "A Japanese carmaker building an assembly plant in Mexico is a financial account credit for Mexico.", "exam_tip": "Control is the distinguishing feature. The usual threshold is around 10% of voting shares.", "related": ["Portfolio investment", "Financial account"]}, {"term": "Portfolio investment", "level": "SL/HL", "definition": "The purchase of financial assets such as shares and bonds in another country without gaining a controlling interest.", "explanation": "Portfolio money responds quickly to interest rates and expectations, so it can reverse in days. A deficit financed this way is far more fragile than one financed by FDI — the 'sudden stop' problem.", "example": "A French bank buying 2% of a Brazilian firm's shares.", "exam_tip": "Use the FDI-versus-portfolio contrast whenever a question asks how risky a deficit is.", "related": ["Foreign direct investment (FDI)", "Hot money"]}, {"term": "Reserve assets", "level": "SL/HL", "definition": "Foreign currencies and other liquid assets such as gold held by the central bank, used to intervene in the currency market or to finance a deficit.", "explanation": "Selling reserves provides foreign currency now, so it is recorded as a credit. Reserves are finite, which is the central limitation on defending a fixed exchange rate and on financing a deficit indefinitely.", "example": "A central bank selling US dollars to support its own currency reduces its reserve assets.", "exam_tip": "Link reserves to the fixed exchange rate material in Chapter 31.", "related": ["Financial account", "Official borrowing"]}, {"term": "Official borrowing", "level": "SL/HL", "definition": "Borrowing by a government from foreign governments or international institutions such as the IMF.", "explanation": "It provides foreign currency immediately, recorded as a credit, but creates future interest payments that appear as income debits. It is often a last resort when reserves are exhausted and private lenders have withdrawn.", "example": "A government borrowing $2bn from the IMF during a balance of payments crisis.", "exam_tip": "Note the sting in the tail: borrowing today means debits in later years.", "related": ["Reserve assets", "Financial account"]}, {"term": "Errors and omissions", "level": "SL/HL", "definition": "A balancing item that corrects for statistical discrepancies so that the current, capital and financial accounts sum to zero.", "explanation": "Real data are collected from many sources and some transactions go unrecorded, so a gap always remains. The item is not an economic flow; it exists to make the identity hold.", "example": "With CA = −$40bn, KA = +$5bn and FA = +$32bn, errors and omissions must be +$3bn.", "exam_tip": "Note the correction to Hoang p. 514: the identity is CA + KA + FA + E&O = 0, not 'current account = capital + financial'. Use the sign form and EPQ 32.3 comes out right.", "related": ["Balance of payments (BOP)", "Financial account"]}]}, {"name": "Deficits and how to correct them", "terms": [{"term": "Current account deficit", "level": "SL/HL", "definition": "A situation in which debits on the current account exceed credits, so a country spends more abroad on goods, services, income and transfers than it earns.", "explanation": "A deficit is not automatically a problem. What matters is its size relative to GDP, how long it lasts, what causes it — importing machinery to build industry is very different from importing consumer goods on credit — and how it is financed.", "example": "The USA, the UK and Australia have all run persistent deficits for decades while remaining high-income economies.", "exam_tip": "Open any evaluation with 'it depends on the cause, the size and the financing'.", "related": ["Credit rating", "Expenditure switching policies"]}, {"term": "Credit rating", "level": "HL", "definition": "An assessment by agencies such as Moody's or S&P of a borrower's ability to repay its debts.", "explanation": "A persistent deficit and rising external debt can trigger a downgrade, which raises the interest rate a government must pay. That makes the deficit harder to finance, so the problem feeds on itself.", "example": "A downgrade on a country's bonds raises its borrowing cost just when it most needs cheap finance.", "exam_tip": "Use the downgrade as the link between a deficit and slower growth.", "related": ["Current account deficit", "Hot money"]}, {"term": "Hot money", "level": "HL", "definition": "Short-term speculative capital that moves between countries chasing higher interest rates or expected currency gains, recorded in the financial account.", "explanation": "It can finance a deficit and prop up a currency, hiding an underlying problem. Because it can leave almost instantly, a loss of confidence produces a sudden stop: sharp depreciation, imported inflation and sometimes emergency borrowing.", "example": "A country holding interest rates at 9% to attract the inflows that cover a deficit of 6% of GDP.", "exam_tip": "Contrast with FDI, which cannot be withdrawn overnight.", "related": ["Portfolio investment", "Credit rating"]}, {"term": "Expenditure switching policies", "level": "HL", "definition": "Policies that shift domestic and foreign spending away from imports and towards domestically produced goods, such as devaluation, protectionism and export promotion.", "explanation": "Devaluation makes exports cheaper and imports dearer, but it works only if the Marshall–Lerner condition is met, and it raises the cost of imported goods, cutting real incomes. Tariffs invite retaliation and raise costs for firms using imported inputs.", "example": "A eurozone member cannot devalue at all, which is why France's options in Hoang Fig 32.9 are so limited.", "exam_tip": "Always pair devaluation with Marshall–Lerner and the J-curve as its limitation.", "related": ["Expenditure reducing policies", "Marshall–Lerner condition"]}, {"term": "Expenditure reducing policies", "level": "HL", "definition": "Contractionary fiscal or monetary policies that reduce aggregate demand and disposable income, and so reduce spending on imports.", "explanation": "These work reliably, because cutting total spending cuts import spending too. The cost is blunt: lower growth, higher unemployment and political unpopularity. They also do nothing to make exports more attractive.", "example": "Raising income tax and interest rates to cut an import bill, at the price of slower growth.", "exam_tip": "The standard criticism is that it treats the symptom by shrinking the whole economy.", "related": ["Expenditure switching policies", "Supply-side policies for the deficit"]}, {"term": "Supply-side policies for the deficit", "level": "HL", "definition": "Policies that raise productivity and non-price competitiveness, such as investment in education, training, infrastructure and innovation.", "explanation": "This is the only lasting correction, because it addresses why exports are uncompetitive rather than manipulating prices or demand. The drawbacks are the time lag and the cost: results arrive well beyond one electoral term.", "example": "Investment in technical training and transport infrastructure to raise the quality and reliability of exports.", "exam_tip": "Name non-price competitiveness — quality, design, reliability, branding — not just lower costs.", "related": ["Expenditure reducing policies", "Current account deficit"]}]}, {"name": "Marshall–Lerner, the J-curve and surpluses", "terms": [{"term": "Marshall–Lerner condition", "level": "HL", "definition": "A depreciation or devaluation improves the trade balance only if the sum of the price elasticities of demand for exports and for imports is greater than one.", "explanation": "A depreciation raises export volumes but also raises the domestic price of every import. Whether the balance improves depends on how much the two quantities respond. The condition is about the sum, so 0.9 + 0.6 = 1.5 passes even though neither figure exceeds one alone.", "example": "Short run PEDx 0.3 + PEDm 0.2 = 0.5, so the balance worsens; long run 0.9 + 0.6 = 1.5, so it improves.", "exam_tip": "State it as a sum. Hoang p. 496 states it incorrectly as each elasticity exceeding one.", "related": ["J-curve effect", "Expenditure switching policies"]}, {"term": "J-curve effect", "level": "HL", "definition": "The tendency for the trade balance to worsen in the short run after a depreciation, before improving as elasticities rise over time.", "explanation": "Immediately after a depreciation, contracts are signed, habits are fixed and substitutes take time to find, so demand is inelastic and the Marshall–Lerner condition fails. Over months and years, exporters win orders and consumers switch to domestic goods, so the balance recovers and crosses into surplus, tracing a J.", "example": "The UK trade balance deteriorated for several quarters after sterling fell sharply in 2016 before volumes responded.", "exam_tip": "Draw the zero line, start at A in deficit, dip to B, rise through zero to C, and annotate both segments with the condition.", "related": ["Marshall–Lerner condition", "Inverse J-curve"]}, {"term": "Inverse J-curve", "level": "HL", "definition": "The pattern after an appreciation or revaluation, in which a trade surplus widens at first before narrowing as elasticities rise.", "explanation": "It is the mirror image of the J-curve and applies to surplus countries. It is the mechanism by which a floating exchange rate corrects a surplus automatically — which is exactly what cannot happen inside a monetary union.", "example": "A surplus country whose currency appreciates sees the surplus grow for a few quarters before competitiveness losses pull it back.", "exam_tip": "Say explicitly that it follows an appreciation, and do not draw it with the same shape as the J-curve.", "related": ["J-curve effect", "Current account surplus"]}, {"term": "Current account surplus", "level": "HL", "definition": "A situation in which credits on the current account exceed debits, so a country earns more from the rest of the world than it spends.", "explanation": "Whether this is good news depends entirely on the cause. A surplus built on genuine competitiveness is healthy; one built on suppressed consumption, weak domestic investment, protection or an undervalued currency is a symptom of imbalance. A surplus also means the country is lending abroad rather than investing at home.", "example": "Germany's surpluses of roughly 6–8% of GDP have drawn criticism from the IMF and the US government for reflecting too little domestic investment (approximate figures).", "exam_tip": "Hoang's top tip (p. 524): it depends on the cause. Say that first, then evaluate.", "related": ["Inverse J-curve", "Imported inflation"]}, {"term": "Imported inflation", "level": "HL", "definition": "Inflation caused by a rise in the domestic price of imports, often following a depreciation of the currency.", "explanation": "It is the main cost of using devaluation to correct a deficit. Dearer imported fuel, food and raw materials shift SRAS left, raising the price level and cutting real incomes. The burden falls hardest on low-income households, who spend more of their income on essentials.", "example": "A country whose currency falls 15% sees the price of imported fuel and medicines rise sharply within months.", "exam_tip": "Use it as the equity criticism of expenditure switching.", "related": ["Expenditure switching policies", "Current account surplus"]}]}]};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const box=document.getElementById('cgbox'),q=document.getElementById('cgq'),cnt=document.getElementById('cgcount');
+const id=t=>'cg-'+t.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+box.innerHTML='<p style="max-width:72ch">'+esc(CG.intro)+'</p>'+CG.groups.map(g=>{const hl=g.terms.every(t=>t.level==='HL');return `<div class="cg-group ${hl?'hlonly cg-hl':''}"><h3>${esc(g.name)}</h3>`+g.terms.map(t=>`<details class="cg-item ${t.level==='HL'?'cg-hl':''}" id="${id(t.term)}" data-s="${esc((t.term+' '+t.definition+' '+t.explanation+' '+t.example).toLowerCase())}"><summary><b>${esc(t.term)}</b><span class="badge ${t.level==='HL'?'b-hl':'b-sl'}">${t.level}</span><span class="cg-def">${esc(t.definition)}</span></summary><div class="cg-body"><div><span class="lbl">Definition</span><p class="defn">${esc(t.definition)}</p></div><div><span class="lbl">Explanation</span><p>${esc(t.explanation)}</p></div><div class="cg-ex"><span class="lbl">Example</span><p>${esc(t.example)}</p></div><div class="cg-tip"><span class="lbl">Exam tip</span><p>${esc(t.exam_tip)}</p></div>${(t.related||[]).length?`<div><span class="lbl">Related terms</span><div class="cg-rel">${t.related.map(r=>`<button type="button" data-go="${id(r)}">${esc(r)}</button>`).join('')}</div></div>`:''}</div></details>`).join('')+'</div>'}).join('')+'<p class="cg-empty" id="cgnone" hidden>No terms match your search.</p>';
+function lvl(){let l='HL';try{l=JSON.parse(localStorage.getItem('balanceofpaymentslab.lvl'))||'HL'}catch(e){}return l}
+function apply(){const sl=document.querySelector('.lvl [data-lvl="SL"][aria-pressed="true"]')||lvl()==='SL';const s=(q.value||'').trim().toLowerCase();let n=0;
+ box.querySelectorAll('.cg-item').forEach(d=>{const show=!(sl&&d.classList.contains('cg-hl'))&&(!s||d.dataset.s.includes(s));d.hidden=!show;if(show)n++;if(s&&show)d.open=true});
+ box.querySelectorAll('.cg-group').forEach(g=>{g.hidden=![...g.querySelectorAll('.cg-item')].some(d=>!d.hidden)});
+ cnt.textContent=n+' term'+(n===1?'':'s');document.getElementById('cgnone').hidden=n>0}
+q.addEventListener('input',apply);
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(apply,0)));
+document.getElementById('cgopen').addEventListener('click',()=>box.querySelectorAll('.cg-item:not([hidden])').forEach(d=>d.open=true));
+document.getElementById('cgclose').addEventListener('click',()=>box.querySelectorAll('.cg-item').forEach(d=>d.open=false));
+box.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const t=document.getElementById(b.dataset.go);if(t){q.value='';apply();t.open=true;t.scrollIntoView({block:'center'})}});
+apply();
+})();
+</script>
+<script id="sb-js">
+(function(){
+const secs=[...document.querySelectorAll('section.step[id]')];
+const sb=document.createElement('aside');sb.className='sb';sb.setAttribute('aria-label','Lesson contents');
+const title=document.querySelector('.brand')?document.querySelector('.brand').childNodes[0].textContent.trim():document.title;
+const sub=document.querySelector('.brand span')?document.querySelector('.brand span').textContent:'';
+sb.innerHTML=`<a class="home" href="index.html">IB Economics</a><div class="sub">${title} · ${sub}</div><p class="lbl">In this lab</p>`+
+ secs.map(s=>{const n=s.querySelector('.num'),h=s.querySelector('h2');const t=h?h.childNodes[0].textContent.replace(/[:·].*$/,'').trim():s.id;return `<a class="it" href="#${s.id}" data-id="${s.id}"><span>${n?n.textContent:''}</span><span>${t}</span></a>`}).join('')+
+ `<p class="lbl">More</p><div class="links"><a href="plan/ch32.html">Teacher plan for this chapter</a><a href="index.html">All chapters</a></div>`;
+document.body.appendChild(sb);
+const btn=document.createElement('button');btn.className='sbbtn';btn.type='button';btn.textContent='☰ Contents';btn.setAttribute('aria-expanded','false');
+const bar=document.querySelector('.topin');if(bar)bar.insertBefore(btn,bar.firstChild);
+btn.addEventListener('click',()=>{sb.classList.toggle('open');btn.setAttribute('aria-expanded',sb.classList.contains('open'))});
+sb.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+function sync(){secs.forEach(s=>{const a=sb.querySelector(`[data-id="${s.id}"]`);if(a)a.hidden=s.hidden})}
+document.querySelectorAll('.lvl button').forEach(b=>b.addEventListener('click',()=>setTimeout(sync,0)));sync();
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){sb.querySelectorAll('a.it').forEach(a=>a.classList.toggle('act',a.dataset.id===e.target.id))}}),{rootMargin:'-20% 0px -70% 0px'});secs.forEach(s=>io.observe(s))}
+})();
+</script>
